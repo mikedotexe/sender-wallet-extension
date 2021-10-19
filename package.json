@@ -13,7 +13,12 @@
     "prettier": "prettier --write '**/*.{js,jsx,css,html}'"
   },
   "dependencies": {
+    "@emotion/react": "^11.5.0",
+    "@emotion/styled": "^11.3.0",
+    "@fontsource/roboto": "^4.5.1",
     "@hot-loader/react-dom": "^17.0.1",
+    "@material-ui/core": "^5.0.0-beta.5",
+    "@material-ui/icons": "^5.0.0-beta.5",
     "@types/chrome": "0.0.132",
     "@types/react": "^17.0.2",
     "@types/react-dom": "^17.0.1",
