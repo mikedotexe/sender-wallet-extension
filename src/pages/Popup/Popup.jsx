@@ -4,12 +4,13 @@ import { ThemeProvider } from '@material-ui/core/styles';
 import './Popup.css';
 import theme from '../../theme';
 
-import Home from '../Home';
+import Router from '../../Router';
 
 const Popup = () => {
   return (
     <ThemeProvider theme={theme}>
-      <Home></Home>
+      <Router>
+      </Router>
     </ThemeProvider>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { useHistory } from 'react-router-dom';
+
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import MuiButton from '@material-ui/core/Button';
@@ -131,6 +133,12 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 const Wallet = () => {
   const [expanded, setExpanded] = useState(false);
 
+  const history = useHistory();
+
+  const receiveClicked = () => {
+    history.push('/receive');
+  }
+
   return (
     <WrappedBox>
       <Box sx={{ display: 'flex', flexDirection: 'row', padding: '16px', alignItems: 'center' }}>
@@ -145,7 +153,7 @@ const Wallet = () => {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '33px' }}>
-        <Button>Receive</Button>
+        <Button onClick={receiveClicked}>Receive</Button>
         <Button>Send</Button>
       </Box>
 
