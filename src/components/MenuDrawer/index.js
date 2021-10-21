@@ -9,6 +9,7 @@ import _ from 'lodash';
 
 import closeIcon from '../../assets/img/close_fill.png';
 import selectedIcon from '../../assets/img/selected.png';
+import lockIcon from '../../assets/img/lock.png';
 
 const WrapperDrawer = styled(MuiDrawer)`
   .button {
@@ -59,7 +60,7 @@ const MenuDrawer = ({ open, onClose, accounts = [] }) => {
       <Box sx={{ marginTop: '57px', marginLeft: '18px', marginRight: '14px' }}>
         <Typography sx={{ color: '#878787', fontSize: '14px' }}>My Wallet</Typography>
 
-        <Box sx={{ marginTop: '15px', marginBottom: '15px', height: '320px', flexDirection: 'column', display: 'flex', overflow: 'auto' }}>
+        <Box sx={{ marginTop: '15px', marginBottom: '15px', height: '340px', flexDirection: 'column', display: 'flex', overflow: 'auto' }}>
           {
             _.map(acc, (item, index) => {
               return (
@@ -83,6 +84,10 @@ const MenuDrawer = ({ open, onClose, accounts = [] }) => {
 
         <Button className="button" sx={{ marginTop: '7px' }}>
           <Typography sx={{ color: '#878787', fontSize: '14px' }}>Create New Accont</Typography>
+        </Button>
+
+        <Button sx={{ marginTop: '10px', width: '248px', height: '25px' }} startIcon={<img src={lockIcon} alt="lock"></img>}>
+          <Typography sx={{ color: '#878787', fontSize: '14px' }}>Lock Wallet</Typography>
         </Button>
       </Box>
     </WrapperDrawer>
