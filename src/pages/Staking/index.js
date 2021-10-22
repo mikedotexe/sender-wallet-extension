@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+import { useHistory } from 'react-router-dom';
+
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Box from '@material-ui/core/Box';
@@ -83,7 +85,12 @@ const Validator = ({ data: validator }) => {
 }
 
 const Staking = () => {
+  const history = useHistory();
   const [tabValue, setTabValue] = useState(0);
+
+  const selectValidatorClick = () => {
+    history.push('/staking/validators');
+  }
 
   return (
     <WrapperBasePage>
@@ -100,7 +107,7 @@ const Staking = () => {
 
         <Typography sx={{ fontSize: '16px', color: 'white', marginTop: '15px' }}>Stake with</Typography>
         <BaseBox sx={{ paddingTop: '8px', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '8px' }}>
-          <Button sx={{ width: '100%', justifyContent: 'end' }}>
+          <Button sx={{ width: '100%', justifyContent: 'end', }} onClick={selectValidatorClick}>
             <Typography sx={{ fontSize: '16px', color: '#FAD165' }}>Select</Typography>
           </Button>
         </BaseBox>
