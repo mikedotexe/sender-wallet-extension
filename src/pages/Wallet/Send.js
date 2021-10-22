@@ -81,7 +81,7 @@ const Send = () => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-        <Input type="text" className='amount-input' placeholder='0'></Input>
+        <Input type="number" className='amount-input' placeholder='0'></Input>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>$0</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Available to Send</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>0.1209 NEAR ≈ $1.04 USD</Typography>
@@ -92,7 +92,7 @@ const Send = () => {
       <Box sx={{ marginTop: '23px', marginLeft: '25px', marginRight: '25px' }}>
         <Typography sx={{ fontSize: '16px', color: 'white' }}>Send to</Typography>
 
-        <BaseBox className="info-view">
+        <BaseBox>
           <Input type="text" className='accountId-input' placeholder='Account ID'></Input>
         </BaseBox>
 

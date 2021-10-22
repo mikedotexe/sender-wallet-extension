@@ -21,10 +21,6 @@ const StyledBox = styled(Box)`
   align-items: center;
   height: 60px;
 
-  .MuiPaper-root {
-    border-radius: 0px;
-  }
-
   .MuiButtonBase-root:hover {
     background-color: unset;
   }
@@ -69,7 +65,7 @@ const bottoms = [
 
 const BottomNavigation = ({ value, onChange }) => {
   return (
-    <Paper sx={{ position: 'fixed', left: 0, bottom: 0, right: 0 }} elevation={4}>
+    <Paper sx={{ position: 'fixed', left: 0, bottom: 0, right: 0, borderRadius: '0px' }} elevation={4}>
       <StyledBox>
         {
           _.map(bottoms, (item, index) => {

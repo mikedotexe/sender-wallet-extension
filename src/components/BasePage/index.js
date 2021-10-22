@@ -9,10 +9,11 @@ const WrapperBox = styled(Box)`
   display: flex;
   flex-direction: column;
   background-color: rgb(29, 29, 29);
-  width: 400px;
+  width: 375px;
   height: 600px;
   position: relative;
   overflow: auto;
+  margin-bottom: 60px;
 `
 
 const BasePage = ({ className, children }) => {

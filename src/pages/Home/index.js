@@ -12,7 +12,7 @@ import SettingsPage from '../Settings';
 
 
 const Home = () => {
-  const [value, setValue] = useState(0);
+  const [value, setValue] = useState(2);
 
   return (
     <BasePage>
