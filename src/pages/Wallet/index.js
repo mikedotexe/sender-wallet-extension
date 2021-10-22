@@ -139,6 +139,10 @@ const Wallet = () => {
     history.push('/receive');
   }
 
+  const sendClicked = () => {
+    history.push('/send');
+  }
+
   return (
     <WrappedBox>
       <Box sx={{ display: 'flex', flexDirection: 'row', padding: '16px', alignItems: 'center' }}>
@@ -154,7 +158,7 @@ const Wallet = () => {
 
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '33px' }}>
         <Button onClick={receiveClicked}>Receive</Button>
-        <Button>Send</Button>
+        <Button onClick={sendClicked}>Send</Button>
       </Box>
 
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
