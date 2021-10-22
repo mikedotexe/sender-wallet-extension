@@ -167,7 +167,7 @@ const Send = () => {
       </BottomDrawer>
 
       <BottomDrawer
-        open={!resultDrawerOpen}
+        open={resultDrawerOpen}
         onClose={() => setResultDrawerOpen(false)}
       >
         <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
