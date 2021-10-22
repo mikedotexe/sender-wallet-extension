@@ -6,6 +6,7 @@ const theme = createTheme({
       defaultProps: {
         disableRipple: true,
         disableTouchRipple: true,
+        disableFocusRipple: true,
       },
     },
   },

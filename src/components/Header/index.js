@@ -8,7 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 
 import menu from '../../assets/img/menu.png';
-import Drawer from '../MenuDrawer';
+import MenuDrawer from '../MenuDrawer';
 
 const StyledHeader = styled(Box)`
   .toolbar {
@@ -63,12 +63,10 @@ const Header = ({ children }) => {
         </Toolbar>
       </AppBar>
 
-      <Drawer
+      <MenuDrawer
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-      >
-        <div>Drawer</div>
-      </Drawer>
+      />
     </StyledHeader>
   )
 }
