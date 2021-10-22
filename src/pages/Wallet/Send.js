@@ -10,20 +10,12 @@ import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
 
 import BasePage from '../../components/BasePage';
+import BaseBox from '../../components/BaseBox';
+import Input from '../../components/Input';
 import backIcon from '../../assets/img/back.png';
 import arrowIcon from '../../assets/img/arrow.png'
 
 const WrapperBasePage = styled(BasePage)`
-  input {
-    background-color: rgba(0, 0, 0, 0);
-    border: 0;
-    color: white;
-  }
-
-  input:focus {
-    outline: none;
-  }
-
   .amount-input {
     text-align: center;
     margin-top: 30px;
@@ -37,21 +29,6 @@ const WrapperBasePage = styled(BasePage)`
     border-radius: 8.5px;
     height: 17px;
     margin-top: 11px;
-  }
-
-  .info-view {
-    width: 325px;
-    background: #1E1E1E;
-    border: 1px solid #090909;
-    box-sizing: border-box;
-    box-shadow: 0px 0px 1px rgba(219, 219, 219, 0.5);
-    border-radius: 12px;
-    display: flex;
-    flex-direction: row;
-    margin-top: 8px;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
   }
 
   .accountId-input {
@@ -76,6 +53,10 @@ const Send = () => {
     history.goBack();
   }
 
+  const selectTokensClicked = () => {
+    history.push('/tokens');
+  }
+
   return (
     <WrapperBasePage>
       <Box sx={{ paddingTop: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -87,7 +68,7 @@ const Send = () => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-        <input type="text" className='amount-input' placeholder='0'></input>
+        <Input type="text" className='amount-input' placeholder='0'></Input>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>$0</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Available to Send</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>0.1209 NEAR ≈ $1.04 USD</Typography>
@@ -98,19 +79,21 @@ const Send = () => {
       <Box sx={{ marginTop: '23px', marginLeft: '25px', marginRight: '25px' }}>
         <Typography sx={{ fontSize: '16px', color: 'white' }}>Send to</Typography>
 
-        <Box className="info-view">
-          <input type="text" className='accountId-input' placeholder='Account ID'></input>
-        </Box>
+        <BaseBox className="info-view">
+          <Input type="text" className='accountId-input' placeholder='Account ID'></Input>
+        </BaseBox>
 
         <Typography sx={{ fontSize: '16px', color: 'white', marginTop: '15px' }}>Select Assets</Typography>
 
-        <Button className="info-view">
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Avatar></Avatar>
-            <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>NEAR</Typography>
-          </Box>
-          <img src={arrowIcon} alt='arrow'></img>
-        </Button>
+        <BaseBox sx={{ paddingTop: '8px', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '8px' }}>
+          <Button sx={{ width: '100%', justifyContent: 'space-between' }} onClick={selectTokensClicked}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Avatar></Avatar>
+              <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>NEAR</Typography>
+            </Box>
+            <img src={arrowIcon} alt='arrow'></img>
+          </Button>
+        </BaseBox>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

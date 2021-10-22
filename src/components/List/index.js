@@ -3,9 +3,9 @@ import React from 'react';
 import Box from '@material-ui/core/Box'
 import _ from 'lodash';
 
-const List = ({ list, Component }) => {
+const List = ({ list, Component, sx = {} }) => {
   return (
-    <Box sx={{ width: '100%' }}>
+    <Box sx={sx}>
       {
         _.map(list, (item, index) => {
           return (

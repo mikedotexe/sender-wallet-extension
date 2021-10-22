@@ -4,6 +4,7 @@ import { HashRouter, Switch, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import Receive from './pages/Wallet/Receive';
 import Send from './pages/Wallet/Send';
+import Tokens from './pages/Wallet/Tokens';
 
 function Router() {
   return (
@@ -13,6 +14,7 @@ function Router() {
         <Route exact path='/home' component={Home}></Route>
         <Route exact path='/receive' component={Receive}></Route>
         <Route exact path='/send' component={Send}></Route>
+        <Route exact path='/tokens' component={Tokens}></Route>
       </Switch>
     </HashRouter>
   )

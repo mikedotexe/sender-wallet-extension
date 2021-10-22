@@ -4,7 +4,7 @@ import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
-import MuiButton from '@material-ui/core/Button';
+import Button from '@material-ui/core/Button';
 import MuiAccordion from '@material-ui/core/Accordion';
 import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
@@ -92,16 +92,16 @@ const WrappedBox = styled(Box)`
     align-items: center;
     min-height: 250px;
   }
-`
 
-const Button = styled(MuiButton)`
-  width: 144px;
-  height: 48px;
-  background: #333333;
-  box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);
-  border-radius: 12px;
-  color: white;
-  font-size: 16px;
+  .action-button {
+    width: 144px;
+    height: 48px;
+    background: #333333;
+    box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+  }
 `
 
 const Accordion = styled((props) => (
@@ -147,9 +147,9 @@ const Wallet = () => {
     <WrappedBox>
       <Box sx={{ display: 'flex', flexDirection: 'row', padding: '16px', alignItems: 'center' }}>
         <Typography color="#9CA2AA">Amount</Typography>
-        <MuiButton>
+        <Button>
           <img src={visibleIcon} alt="visible"></img>
-        </MuiButton>
+        </Button>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -157,8 +157,8 @@ const Wallet = () => {
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '33px' }}>
-        <Button onClick={receiveClicked}>Receive</Button>
-        <Button onClick={sendClicked}>Send</Button>
+        <Button className="action-button" onClick={receiveClicked}>Receive</Button>
+        <Button className="action-button" onClick={sendClicked}>Send</Button>
       </Box>
 
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
@@ -217,7 +217,7 @@ const Wallet = () => {
         <Box sx={{ marginTop: '11px', width: '315px', alignSelf: 'center', marginBottom: '9px' }}>
           <ButtonGroup buttons={['Token List', 'Account activity']} value={0}></ButtonGroup>
         </Box>
-        <List list={tokens} Component={Token}></List>
+        <List sx={{ width: '100%' }} list={tokens} Component={Token}></List>
       </Box>
     </WrappedBox>
   )
