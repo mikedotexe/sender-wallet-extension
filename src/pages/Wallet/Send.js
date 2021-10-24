@@ -15,9 +15,9 @@ import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import BottomDrawer from '../../components/BottomDrawer';
 import backIcon from '../../assets/img/back.png';
-import arrowIcon from '../../assets/img/arrow.png'
-import successIcon from '../../assets/img/success.png'
-import failIcon from '../../assets/img/fail.png'
+import arrowIcon from '../../assets/img/arrow.png';
+import successIcon from '../../assets/img/success.png';
+import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 
 const WrapperBasePage = styled(BasePage)`
@@ -182,7 +182,7 @@ const Send = () => {
               </Box>
             ) : (
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={failIcon} alt="fail"></img>
+                <img src={failIcon} alt="fail" style={{ width: '42px', height: '42px' }}></img>
                 <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Transfer failed!</Typography>
               </Box>
             )
