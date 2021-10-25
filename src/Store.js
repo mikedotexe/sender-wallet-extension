@@ -20,7 +20,7 @@ const storage = createChromeStorage(window.chrome, 'sync');
 const config = {
   key: 'root',
   storage,
-  blacklist: ['loading'],
+  blacklist: ['loading', 'market'],
   stateReconciler: autoMergeLevel2,
 }
 
