@@ -8,10 +8,24 @@ import _ from 'lodash';
 import { push } from 'connected-react-router';
 
 import { setImportStatus } from '../reducers/loading';
-import { APP_IMPORT_ACCOUNT } from '../actions/app';
+import { APP_IMPORT_ACCOUNT, APP_SET_PASSWORD } from '../actions/app';
 import { getAppStore } from './';
 import { formatAccount } from '../utils';
-import { addAccount } from '../reducers/app';
+import { addAccount, setPassword, setSalt } from '../reducers/app';
+import passwordHash from '../core/passwordHash';
+
+function* setPasswordSaga(action) {
+  const { password } = action;
+  const appStore = yield select(getAppStore);
+  let { salt } = appStore;
+  if (!salt) {
+    salt = passwordHash.generateSalt();
+    yield put(setSalt(salt));
+  }
+  const hash = passwordHash.generate(salt, password);
+  yield put(setPassword(hash));
+  yield put(push('/Startup'));
+}
 
 function* importAccountSaga(action) {
   yield put(setImportStatus({ loading: true }))
@@ -38,5 +52,6 @@ function* importAccountSaga(action) {
 }
 
 export default function* appSagas() {
+  yield takeLatest(APP_SET_PASSWORD, setPasswordSaga);
   yield takeLatest(APP_IMPORT_ACCOUNT, importAccountSaga);
 }

@@ -8,8 +8,17 @@ export const appSlice = createSlice({
     viewFunctionAccount: {},
     lockupPassword: '',
     isLockup: false,
+    salt: '',
   },
   reducers: {
+    setSalt: (state, action) => {
+      const salt = action.payload;
+      state.salt = salt;
+    },
+    setPassword: (state, action) => {
+      const password = action.payload;
+      state.lockupPassword = password;
+    },
     addAccount: (state, action) => {
       const account = action.payload;
       state.accounts = [...state.accounts, account]
@@ -18,6 +27,6 @@ export const appSlice = createSlice({
   }
 })
 
-export const { addAccount } = appSlice.actions;
+export const { setSalt, setPassword, addAccount } = appSlice.actions;
 
 export default appSlice.reducer;

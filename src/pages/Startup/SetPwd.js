@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -12,6 +13,7 @@ import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import StartupHeader from '../../components/StartupHeader';
 import backIcon from '../../assets/img/back.png';
+import { APP_SET_PASSWORD } from '../../actions/app';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -39,9 +41,35 @@ const WrapperBox = styled(Box)`
 
 const SetPwd = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
+  const appStore = useSelector((state) => state.app);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
 
-  const backClicked = () => {
-    history.goBack();
+  useEffect(() => {
+    if (appStore.lockupPassword) {
+      history.push('/Startup');
+    }
+  }, [])
+
+  // const backClicked = () => {
+  //   history.goBack();
+  // }
+
+  const passwordChanged = (e) => {
+    setPassword(e.target.value);
+  }
+
+  const confirmPasswordChanged = (e) => {
+    setConfirmPassword(e.target.value);
+  }
+
+  const confirmClicked = () => {
+    if (password !== confirmPassword) {
+      // TODO: notify error
+    } else {
+      dispatch({ type: APP_SET_PASSWORD, password });
+    }
   }
 
   return (
@@ -49,28 +77,24 @@ const SetPwd = () => {
       <StartupHeader />
 
       <Box sx={{ paddingTop: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-        <Button sx={{ position: 'absolute', left: '9px', top: '26px' }} onClick={backClicked}>
-          <img src={backIcon} alt='back'></img>
-        </Button>
-
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Set new Password</Typography>
       </Box>
 
       <Box sx={{ marginLeft: '30px', marginRight: '30px', marginTop: '72px' }}>
         <Typography sx={{ fontSize: '16px', color: 'white' }}>New Password</Typography>
         <BaseBox>
-          <Input type="text" placeholder=''></Input>
+          <Input type="text" placeholder='' onChange={passwordChanged}></Input>
         </BaseBox>
 
         <Typography sx={{ fontSize: '16px', color: 'white', marginTop: '25px' }}>Confirm new Password</Typography>
         <BaseBox>
-          <Input type="text" placeholder=''></Input>
+          <Input type="text" placeholder='' onChange={confirmPasswordChanged}></Input>
         </BaseBox>
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
-        <Button sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
-          <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>Import account</Typography>
+        <Button onClick={confirmClicked} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
+          <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>Confirm</Typography>
         </Button>
       </Box>
     </WrapperBox>

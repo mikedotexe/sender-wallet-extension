@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -17,6 +17,7 @@ import pasteIcon from '../../assets/img/paste.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import failIcon from '../../assets/img/fail.png';
 import { APP_IMPORT_ACCOUNT } from '../../actions/app';
+import { initStatus } from '../../reducers/loading';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -45,8 +46,11 @@ const WrapperBox = styled(Box)`
 const Startup = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const loadingStore = useSelector(state => state.loading);
   const [open, setOpen] = useState(false);
   const [mnemonic, setMnemonic] = useState('');
+
+  const { importLoading, importError } = loadingStore;
 
   const backClicked = () => {
     history.goBack();
@@ -61,10 +65,19 @@ const Startup = () => {
   }
 
   const continueClicked = () => {
-    // setOpen(true);
-
     dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic });
   }
+
+  const closeDrawer = () => {
+    setOpen(false);
+    initStatus();
+  }
+
+  useEffect(() => {
+    if (importError) {
+      setOpen(true);
+    }
+  }, [importError])
 
   return (
     <WrapperBox>
@@ -90,16 +103,16 @@ const Startup = () => {
 
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
-        <Button sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }} onClick={continueClicked}>
-          <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>Continue</Typography>
+        <Button disabled={importLoading || !mnemonic} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }} onClick={continueClicked}>
+          <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>{importLoading ? 'Importing...' : 'Continue'}</Typography>
         </Button>
       </Box>
 
       <BottomDrawer
         open={open}
-        onClose={() => setOpen(false)}
+        onClose={closeDrawer}
       >
-        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={() => setOpen(false)}><img src={closeIcon} alt="close"></img></Button>
+        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={closeDrawer}><img src={closeIcon} alt="close"></img></Button>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
           <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
 
@@ -108,16 +121,15 @@ const Startup = () => {
             <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Failed!</Typography>
           </Box>
 
-          <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '27px', lineHeight: '16px', marginLeft: '38px', marginRight: '38px' }}>Error: Cannot find matching public key</Typography>
-          <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '8px', lineHeight: '16px', marginBottom: '37px', marginLeft: '38px', marginRight: '38px' }}>No accounts were found for this passphrase.</Typography>
+          <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '27px', lineHeight: '16px', marginLeft: '38px', marginRight: '38px' }}>Error: {importError}</Typography>
+          {/* <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '8px', lineHeight: '16px', marginBottom: '37px', marginLeft: '38px', marginRight: '38px' }}>No accounts were found for this passphrase.</Typography> */}
 
           <Button
             sx={{
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={() => {
-            }}
+            onClick={closeDrawer}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{'Try Again'}</Typography>
           </Button>

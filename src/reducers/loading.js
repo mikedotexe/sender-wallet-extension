@@ -8,6 +8,10 @@ export const loadingSlice = createSlice({
     importError: null,
   },
   reducers: {
+    initStatus: (state) => {
+      state.importLoading = false;
+      state.importError = null;
+    },
     setImportStatus: (state, { payload: { loading, error } }) => {
       state.importLoading = loading;
       state.importError = error;
@@ -15,6 +19,6 @@ export const loadingSlice = createSlice({
   }
 })
 
-export const { setImportStatus } = loadingSlice.actions;
+export const { initStatus, setImportStatus } = loadingSlice.actions;
 
 export default loadingSlice.reducer;
