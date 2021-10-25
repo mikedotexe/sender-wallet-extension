@@ -103,6 +103,12 @@ var options = {
   },
   resolve: {
     alias: alias,
+    fallback: {
+      "stream": require.resolve("stream-browserify"),
+      "crypto-browserify": require.resolve('crypto-browserify'),
+      "crypto": require.resolve("crypto-browserify"),
+      "buffer": require.resolve("buffer"),
+    },
     extensions: fileExtensions
       .map((extension) => '.' + extension)
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),

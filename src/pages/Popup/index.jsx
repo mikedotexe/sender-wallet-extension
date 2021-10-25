@@ -4,6 +4,8 @@ import { render } from 'react-dom';
 import Popup from './Popup';
 import './index.css';
 
+window.Buffer = window.Buffer || require('buffer').Buffer;
+
 render(<Popup />, window.document.querySelector('#app-container'));
 
 if (module.hot) module.hot.accept();

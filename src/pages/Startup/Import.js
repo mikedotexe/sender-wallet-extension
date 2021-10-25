@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 
+import { useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -15,6 +16,7 @@ import backIcon from '../../assets/img/back.png';
 import pasteIcon from '../../assets/img/paste.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import failIcon from '../../assets/img/fail.png';
+import { APP_IMPORT_ACCOUNT } from '../../actions/app';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -42,17 +44,26 @@ const WrapperBox = styled(Box)`
 
 const Startup = () => {
   const history = useHistory();
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
+  const [mnemonic, setMnemonic] = useState('');
 
   const backClicked = () => {
     history.goBack();
+  }
+
+  const mnemonicChanged = (event) => {
+    const text = event.target.value;
+    setMnemonic(text);
   }
 
   const pasteClicked = (event) => {
   }
 
   const continueClicked = () => {
-    setOpen(true);
+    // setOpen(true);
+
+    dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic });
   }
 
   return (
@@ -72,7 +83,7 @@ const Startup = () => {
       <Box sx={{ marginLeft: '30px', marginRight: '30px', position: 'relative' }}>
         <Typography sx={{ fontSize: '14px', color: 'white', marginTop: '15px' }} align='left'>Passphrase ( 12 words )</Typography>
 
-        <textarea></textarea>
+        <textarea onChange={mnemonicChanged}></textarea>
 
         <Button sx={{ position: 'absolute', bottom: '15px', right: '15px', width: '15px', height: '15px', minWidth: '15px' }} onClick={pasteClicked}><img src={pasteIcon} alt='paste'></img></Button>
       </Box>

@@ -7,11 +7,17 @@ export const appSlice = createSlice({
     currentAccount: {},
     viewFunctionAccount: {},
     lockupPassword: '',
+    isLockup: false,
   },
   reducers: {
+    addAccount: (state, action) => {
+      const account = action.payload;
+      state.accounts = [...state.accounts, account]
+      state.currentAccount = account;
+    },
   }
 })
 
-export const { } = appSlice.actions;
+export const { addAccount } = appSlice.actions;
 
 export default appSlice.reducer;

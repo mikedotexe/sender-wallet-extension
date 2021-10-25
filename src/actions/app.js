@@ -1,0 +1,1 @@
+export const APP_IMPORT_ACCOUNT = 'APP/IMPORT_ACCOUNT';

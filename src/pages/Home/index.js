@@ -16,11 +16,11 @@ const Home = () => {
   const dispatch = useDispatch();
   const [value, setValue] = useState(2);
 
-  useEffect(() => {
-    setTimeout(() => {
-      dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', 'REF'] });
-    }, 10000)
-  }, [])
+  // useEffect(() => {
+  //   setTimeout(() => {
+  //     dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', 'REF'] });
+  //   }, 10000)
+  // }, [])
 
   return (
     <BasePage>

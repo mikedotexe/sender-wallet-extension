@@ -12,8 +12,7 @@ import { updateMarket } from '../reducers/market';
 function* updateMarketSaga(action) {
   const { tokens } = action;
   try {
-    const res = yield call(apiHelper.getCurrencyQuote, tokens);
-    const currencyQuote = res.data.data;
+    const currencyQuote = yield call(apiHelper.getCurrencyQuote, tokens);
     const symbols = _.keys(currencyQuote);
     const prices = {};
     _.forEach(symbols, symbol => {
