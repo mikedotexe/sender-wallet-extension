@@ -15,7 +15,7 @@ function Router() {
   return (
     <HashRouter>
       <Switch>
-        <Route exact path='/' component={Unstake}></Route>
+        <Route exact path='/' component={Startup}></Route>
         <Route exact path='/import' component={Import}></Route>
         <Route exact path='/setpwd' component={SetPwd}></Route>
         <Route exact path='/startup' component={Startup}></Route>
