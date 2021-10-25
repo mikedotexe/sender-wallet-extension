@@ -24,9 +24,13 @@ export const appSlice = createSlice({
       state.accounts = [...state.accounts, account]
       state.currentAccount = account;
     },
+    changeAccount: (state, action) => {
+      const account = action.payload;
+      state.currentAccount = account;
+    }
   }
 })
 
-export const { setSalt, setPassword, addAccount } = appSlice.actions;
+export const { setSalt, setPassword, addAccount, changeAccount } = appSlice.actions;
 
 export default appSlice.reducer;
