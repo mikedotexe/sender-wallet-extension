@@ -49,6 +49,20 @@ export const formatNearAmount = (amount) => {
 	return utils.format.formatNearAmount(amount);
 }
 
+export const parseTokenAmount = (amount, decimals = 18) => {
+	if (_.isEmpty(amount)) {
+		return '0';
+	}
+	return Number(amount) * (10 ** decimals);
+}
+
+export const formatTokenAmount = (amount, decimals = 18) => {
+	if (_.isEmpty(amount)) {
+		return '0';
+	}
+	return Number(amount) / (10 ** decimals);
+}
+
 // Display numbers with specific digits
 export const fixedNumber = (amount, digit = 6) => {
 	return Number(amount).toFixed(digit);
@@ -63,11 +77,12 @@ export const fixedNearAmount = (amount) => {
 	return fixedNumber(nearAmount);
 }
 
+// converts yoctoToken (10^-${decimals}) amount to Token and display 6 digits
 export const fixedTokenAmount = (amount, decimals) => {
 	if (!amount) {
 		return 0;
 	}
-	const tokenAmount = Number(amount) / (10 ** decimals);
+	const tokenAmount = formatTokenAmount(amount, decimals);
 	return fixedNumber(tokenAmount);
 }
 

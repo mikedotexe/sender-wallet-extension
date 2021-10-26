@@ -245,7 +245,7 @@ export default class Near {
    * @param {*} accountId query account id
    * @returns estimated total fees
    */
-  getEstimatedTotalFees = async ({ accountId, contractId = '' }) => {
+  getEstimatedTotalFees = async ({ accountId, contractId }) => {
     if (contractId && accountId && !await this.isStorageBalanceAvailable({ contractId, accountId })) {
       return new BN(FT_TRANSFER_GAS)
         .add(new BN(FT_MINIMUM_STORAGE_BALANCE))
@@ -259,11 +259,12 @@ export default class Near {
   /**
    * Estimate total near amount need pay
    * @param {*} amount transfer near amount
+   * @param {*} accountId transfer account id
    * @returns estimated total near amount
    */
-  getEstimatedTotalNearAmount = async (amount) => {
+  getEstimatedTotalNearAmount = async ({ amount }) => {
     return new BN(amount)
-      .add(new BN(await this.getEstimatedTotalFees()))
+      .add(new BN(await this.getEstimatedTotalFees({})))
       .toString();
   }
 
@@ -295,15 +296,15 @@ export default class Near {
    * @param {*} param0.memo transfer's memo
    * @returns
    */
-  transfer = async ({ accountId, memo, contractId, amount, receiverId }) => {
+  transfer = async ({ memo, contractId, amount, receiverId }) => {
     if (contractId) {
-      const storageAvailable = await this.isStorageBalanceAvailable(contractId, accountId);
+      const storageAvailable = await this.isStorageBalanceAvailable({ contractId, accountId: this.signer.accountId });
       if (!storageAvailable) {
         try {
-          await this.transferStorageDeposit(contractId, receiverId, FT_MINIMUM_STORAGE_BALANCE);
+          await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE });
         } catch (e) {
           if (e.message.includes('attached deposit is less than')) {
-            await this.transferStorageDeposit(contractId, receiverId, FT_MINIMUM_STORAGE_BALANCE_LARGE);
+            await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE_LARGE });
           }
         }
       }
@@ -331,7 +332,7 @@ export default class Near {
       _.map(ownedTokens, async (contractId) => {
         const token = await this.getContractMetadata({ contractId });
         const balance = await this.getContractBalance({ contractId, accountId })
-        return { ...token, balance };
+        return { ...token, balance, accountId: contractId };
       })
     ))
     return tokens;

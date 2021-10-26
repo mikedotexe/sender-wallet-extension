@@ -7,13 +7,13 @@ import {
 import _ from 'lodash';
 import { push } from 'connected-react-router';
 
-import { setImportStatus } from '../reducers/loading';
-import { APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
+import { setImportStatus, setSendStatus } from '../reducers/loading';
+import { APP_ACCOUNT_TRANSFER, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
 import { getAppStore } from './';
-import { formatAccount } from '../utils';
+import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
 import passwordHash from '../core/passwordHash';
-import { getSigner, nearService } from '../core/near';
+import { nearService } from '../core/near';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -48,7 +48,7 @@ function* importAccountSaga(action) {
       yield put(setImportStatus({ loading: false, error: 'Account is exist' }));
     }
   } catch (error) {
-    yield put(setImportStatus({ loading: false, error }));
+    yield put(setImportStatus({ loading: false, error: error.message }));
   }
 }
 
@@ -57,7 +57,6 @@ function* updateAccountSaga() {
     const appStore = yield select(getAppStore);
     const { currentAccount, accounts } = appStore;
     const { mnemonic, accountId } = currentAccount;
-
 
     yield call(nearService.setSigner, { mnemonic, accountId });
     const tokens = yield call(nearService.getTokensAndBalance);
@@ -81,7 +80,7 @@ function* updateAccountSaga() {
       totalUnclaimed,
       totalAvailable,
       totalPending,
-      tokens: [{ symbol: 'NEAR', name: 'NEAR', balance: balance.available }, ...tokens],
+      tokens: [{ symbol: 'NEAR', name: 'NEAR', balance: balance.available, accountId: '' }, ...tokens],
     });
     const newAccounts = _.map(accounts, (item) => {
       if (item.accountId === account.accountId) {
@@ -97,8 +96,36 @@ function* updateAccountSaga() {
   }
 }
 
+function* transferSaga(action) {
+  const { receiverId, amount, token } = action;
+  const { accountId: contractId, decimals } = token;
+  yield put(setSendStatus({ loading: true }))
+  try {
+    const appStore = yield select(getAppStore);
+    const { currentAccount } = appStore;
+    const { mnemonic, accountId } = currentAccount;
+
+    yield call(nearService.setSigner, { mnemonic, accountId });
+
+    let parseAmount;
+    if (contractId) {
+      parseAmount = parseTokenAmount(amount, decimals);
+    } else {
+      parseAmount = parseNearAmount(amount);
+    }
+    const res = yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
+    console.log('res: ', res);
+
+    yield put(setSendStatus({ loading: false, error: null }))
+  } catch (error) {
+    console.log('transfer error: ', error);
+    yield put(setSendStatus({ loading: false, error: error.message }))
+  }
+}
+
 export default function* appSagas() {
   yield takeLatest(APP_SET_PASSWORD, setPasswordSaga);
   yield takeLatest(APP_IMPORT_ACCOUNT, importAccountSaga);
   yield takeLatest(APP_UPDATE_ACCOUNT, updateAccountSaga);
+  yield takeLatest(APP_ACCOUNT_TRANSFER, transferSaga);
 }
