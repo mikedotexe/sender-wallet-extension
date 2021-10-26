@@ -11,6 +11,8 @@ import MuiAccordionSummary from '@material-ui/core/AccordionSummary';
 import MuiAccordionDetails from '@material-ui/core/AccordionDetails';
 import Divider from '@material-ui/core/Divider';
 import styled from 'styled-components';
+import BN from 'bn.js';
+import _ from 'lodash';
 
 import List from '../../components/List';
 import Token from '../../components/Token';
@@ -21,51 +23,7 @@ import walletBalanceIcon from '../../assets/img/wallet-balance.png';
 import arrowupIcon from '../../assets/img/arrow-up.png';
 import arrowdownIcon from '../../assets/img/arrow-down.png';
 import { APP_UPDATE_ACCOUNT } from '../../actions/app';
-
-const tokens = [
-  {
-    symbol: 'NEAR',
-    amount: '0.1209',
-    name: 'NEAR',
-    price: '7.39',
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-  {
-    symbol: 'SKYWARD',
-    amount: '0.0001',
-    name: 'Skyward Finance Token',
-    price: null,
-  },
-]
+import { fixedNearAmount, fixedNumber, fixedTokenAmount } from '../../utils';
 
 const WrappedBox = styled(Box)`
   .wallet-balance {
@@ -136,11 +94,49 @@ const Wallet = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const appStore = useSelector((state) => state.app);
+  const marketStore = useSelector((state) => state.market);
   const [expanded, setExpanded] = useState(false);
+
+  const { prices } = marketStore;
 
   const currentAccount = useMemo(() => {
     return appStore.currentAccount;
   }, [appStore.currentAccount])
+
+  const totalStaking = useMemo(() => {
+    const staking = new BN(currentAccount.totalUnclaimed).add(new BN(currentAccount.totalPending)).add(new BN(currentAccount.totalStaked));
+    return staking.toString();
+  }, [currentAccount.totalUnclaimed, currentAccount.totalPending, currentAccount.totalStaked])
+
+  const walletBalance = useMemo(() => {
+    const value = new BN(totalStaking).add(new BN(currentAccount.balance.total));
+    return value.toString();
+  }, [totalStaking, currentAccount.balance.total])
+
+  const tokens = useMemo(() => {
+    const list = [{
+      symbol: 'NEAR',
+      balance: currentAccount.balance.available,
+      name: 'NEAR',
+    }, ...currentAccount.tokens];
+
+    return _.map(list, (item) => {
+      return {
+        ...item,
+        price: prices[item.symbol],
+        balance: item.symbol === 'NEAR' ? fixedNearAmount(item.balance) : fixedTokenAmount(item.balance, item.decimals),
+      }
+    })
+  }, [currentAccount.tokens, currentAccount.balance.available, prices])
+
+  const total = useMemo(() => {
+    let value = 0;
+    _.forEach(tokens, (token) => {
+      value = value + (token.price ? (Number(token.price) * Number(token.balance)) : 0);
+    })
+
+    return fixedNumber(value, 4);
+  }, [tokens])
 
   useEffect(() => {
     console.log('update account');
@@ -165,7 +161,7 @@ const Wallet = () => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography sx={{ fontSize: '42px' }} color="white">$1.06</Typography>
+        <Typography sx={{ fontSize: '42px' }} color="white">${total}</Typography>
       </Box>
 
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '33px' }}>
@@ -185,7 +181,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">0.13367 NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(walletBalance)} NEAR</Typography>
 
               {expanded ? <img className="arrow-up" src={arrowdownIcon} alt="arrow-up"></img> : <img className="arrow-up" src={arrowupIcon} alt="arrow-up"></img>}
             </Box>
@@ -198,7 +194,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">0.07818 NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(currentAccount.balance.available)} NEAR</Typography>
             </Box>
           </Box>
 
@@ -208,7 +204,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">0.04203 NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(totalStaking)} NEAR</Typography>
             </Box>
           </Box>
 
@@ -218,7 +214,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">0.01346 NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(currentAccount.balance.stateStaked)} NEAR</Typography>
             </Box>
           </Box>
         </AccordionDetails>
@@ -229,7 +225,7 @@ const Wallet = () => {
         <Box sx={{ marginTop: '11px', width: '315px', alignSelf: 'center', marginBottom: '9px' }}>
           <ButtonGroup buttons={['Token List', 'Account activity']} value={0}></ButtonGroup>
         </Box>
-        <List sx={{ width: '100%' }} list={tokens} Component={Token}></List>
+        <List sx={{ width: '100%', marginBottom: '60px' }} list={tokens} Component={Token}></List>
       </Box>
     </WrappedBox>
   )

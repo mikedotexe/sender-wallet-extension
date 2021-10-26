@@ -159,7 +159,7 @@ export default class Near {
    * @param {*} accountId Account's id
    * @returns token contracts
    */
-  getOwnedTokens = async (accountId) => {
+  getOwnedTokens = async ({ accountId }) => {
     return apiHelper.getOwnedTokenContracts(accountId);
   }
 
@@ -205,7 +205,7 @@ export default class Near {
    * @returns contract metadata
    */
   getContractMetadata = async ({ contractId }) => {
-    return this.contractViewFunctionCall({ contractId, method: 'fe_metadata' });
+    return this.contractViewFunctionCall({ contractId, method: 'ft_metadata' });
   }
 
   /**
@@ -323,8 +323,22 @@ export default class Near {
     }
   }
 
+  getTokensAndBalance = async () => {
+    const { accountId } = this.signer;
+    const ownedTokens = await this.getOwnedTokens({ accountId });
+
+    const tokens = (await Promise.all(
+      _.map(ownedTokens, async (contractId) => {
+        const token = await this.getContractMetadata({ contractId });
+        const balance = await this.getContractBalance({ contractId, accountId })
+        return { ...token, balance };
+      })
+    ))
+    return tokens;
+  }
+
   /**
-   * 
+   * Get all validators and balance with account
    * @param {*} balance Near account's balance
    * @param {*} validatorDepositMap Near account's deposit validators information
    * @returns { validators, totalUnstaked, totalStaked, totalUnclaimed, totalAvailable, totalPending}

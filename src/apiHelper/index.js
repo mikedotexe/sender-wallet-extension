@@ -39,7 +39,7 @@ const apiHelper = {
    */
   getOwnedTokenContracts: async (accountId) => {
     const res = await axios.get(`${helperUrl}/account/${accountId}/likelyTokens`)
-    return res.data[0];
+    return res.data;
   },
 
   /**

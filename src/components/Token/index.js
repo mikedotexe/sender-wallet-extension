@@ -4,6 +4,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
+import { fixedNumber } from '../../utils';
 
 const WrapperToken = styled.div`
   height: 68px;
@@ -26,9 +27,9 @@ const WrapperToken = styled.div`
 `
 
 const Token = ({ style, data, index }) => {
-  const price = data.price ? data.price : 'Price Unavailable';
-  let total = data.price ? (Number(data.price) * Number(data.amount)).toFixed(4) : ''
-  total = total ? `≈ $${total}` : '- USD';
+  const price = data.price ? fixedNumber(data.price) : 'Price Unavailable';
+  let total = data.price ? (Number(data.price) * Number(data.balance)) : ''
+  total = total ? `≈ $${fixedNumber(total)}` : '- USD';
 
   return (
     <WrapperToken>
@@ -36,7 +37,7 @@ const Token = ({ style, data, index }) => {
       <Box className="info">
         <Box className="line">
           <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.symbol}</Typography>
-          <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.amount}</Typography>
+          <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.balance}</Typography>
         </Box>
 
         <Box className="line">

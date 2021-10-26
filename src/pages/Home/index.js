@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import _ from 'lodash';
 
 import BasePage from '../../components/BasePage';
 import BottomNavigation from '../../components/BottomNavigation';
@@ -15,12 +17,14 @@ import { MARKET_UPDATE_PRICE } from '../../actions/market';
 const Home = () => {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
+  const appStore = useSelector((state) => state.app);
 
-  // useEffect(() => {
-  //   setTimeout(() => {
-  //     dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', 'REF'] });
-  //   }, 10000)
-  // }, [])
+  useEffect(() => {
+    setTimeout(() => {
+      const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
+      dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+    }, 10000)
+  }, [appStore.currentAccount.tokens])
 
   return (
     <BasePage>

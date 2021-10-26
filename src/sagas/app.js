@@ -60,10 +60,9 @@ function* updateAccountSaga() {
 
 
     yield call(nearService.setSigner, { mnemonic, accountId });
+    const tokens = yield call(nearService.getTokensAndBalance);
     const validatorDepositMap = yield call(nearService.getValidatorDepositMap, { accountId });
-    // console.log('validatorDepositMap: ', validatorDepositMap);
     const balance = yield call(nearService.getAccountBalance);
-    console.log('balance: ', balance);
     const {
       validators,
       totalUnstaked,
@@ -81,6 +80,7 @@ function* updateAccountSaga() {
       totalUnclaimed,
       totalAvailable,
       totalPending,
+      tokens,
     });
     const newAccounts = _.map(accounts, (item) => {
       if (item.accountId === account.accountId) {

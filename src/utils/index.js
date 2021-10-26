@@ -1,5 +1,6 @@
 import * as nearAPI from 'near-api-js';
 import _ from 'lodash';
+import BN from 'bn.js';
 
 import config from '../config';
 import Account from '../data/account';
@@ -53,6 +54,17 @@ export const fixedNumber = (amount, digit = 6) => {
 	return Number(amount).toFixed(digit);
 }
 
+// converts yoctoNEAR (10^-24) amount into NEAR and display 6 digits
+export const fixedNearAmount = (amount) => {
+	const nearAmount = formatNearAmount(amount);
+	return fixedNumber(nearAmount);
+}
+
+export const fixedTokenAmount = (amount, decimals) => {
+	const tokenAmount = Number(amount) / (10 ** decimals);
+	return fixedNumber(tokenAmount);
+}
+
 /**
  * Format account object
  * @param {*} param0 
@@ -64,6 +76,7 @@ export const fixedNumber = (amount, digit = 6) => {
  * @param {*} param0.totalUnclaimed Total unclaimed near amount with all validators
  * @param {*} param0.totalAvailable Total available near amount with all validators (can withdraw)
  * @param {*} param0.totalPending Total pending near amount with all validators
+ * @param {*} param0.tokens Account's owned tokens
  * @returns New Account object
  */
 export const formatAccount = async ({
@@ -75,6 +88,7 @@ export const formatAccount = async ({
 	totalUnclaimed = '0',
 	totalAvailable = '0',
 	totalPending = '0',
+	tokens = [],
 }) => {
 	const phrase = parseSeedPhrase(mnemonic);
 	const { secretKey, publicKey } = phrase;
@@ -93,6 +107,7 @@ export const formatAccount = async ({
 		totalStaked,
 		totalUnclaimed,
 		totalAvailable,
-		totalPending
+		totalPending,
+		tokens,
 	});
 }
