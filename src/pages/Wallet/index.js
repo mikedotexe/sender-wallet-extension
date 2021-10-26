@@ -144,7 +144,7 @@ const Wallet = () => {
   }, [])
 
   const receiveClicked = () => {
-    history.push('/receive');
+    history.push(`/receive/${currentAccount.accountId}`);
   }
 
   const sendClicked = () => {

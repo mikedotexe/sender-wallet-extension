@@ -15,12 +15,12 @@ import loadingReducer from './reducers/loading';
 import appSaga from './sagas/app';
 import marketSaga from './sagas/market';
 
-const storage = createChromeStorage(window.chrome, 'sync');
+const storage = createChromeStorage(window.chrome, 'local');
 
 const config = {
   key: 'root',
   storage,
-  blacklist: ['loading', 'market'],
+  blacklist: ['loading'],
   stateReconciler: autoMergeLevel2,
 }
 

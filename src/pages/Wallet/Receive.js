@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-import { useHistory } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -34,6 +34,7 @@ const WrapperBasePage = styled(BasePage)`
 const Receive = () => {
   const history = useHistory();
   const [copied, setCopied] = useState(false);
+  const { accountId } = useParams();
 
   const backClicked = () => {
     history.goBack();
@@ -59,10 +60,10 @@ const Receive = () => {
         </Box>
 
         <Box className="copy-view">
-          <Typography sx={{ fontSize: '16px', color: '#777777' }}>jzheng.near</Typography>
+          <Typography sx={{ fontSize: '16px', color: '#777777' }}>{accountId}</Typography>
 
           <CopyToClipboard
-            text="123"
+            text={accountId}
             onCopy={copyClicked}
           >
             {copied ? <Typography sx={{ color: '#FAD165' }}>Copied!</Typography> : <Button sx={{ padding: 0, color: '#FAD165' }} startIcon={<img src={copyIcon} alt="copy"></img>}>Copy</Button>}

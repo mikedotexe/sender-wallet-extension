@@ -20,7 +20,7 @@ function Router() {
         <Route exact path='/setpwd' component={SetPwd}></Route>
         <Route exact path='/startup' component={Startup}></Route>
         <Route exact path='/home' component={Home}></Route>
-        <Route exact path='/receive' component={Receive}></Route>
+        <Route exact path='/receive/:accountId' component={Receive}></Route>
         <Route exact path='/send' component={Send}></Route>
         <Route exact path='/tokens' component={Tokens}></Route>
         <Route exact path='/staking/validators' component={Validators}></Route>
