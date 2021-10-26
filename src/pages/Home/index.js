@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -12,11 +12,16 @@ import SwapPage from '../Swap';
 import StakingPage from '../Staking';
 import SettingsPage from '../Settings';
 import { MARKET_UPDATE_PRICE } from '../../actions/market';
+import { setBottomTabValue } from '../../reducers/temp';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const [value, setValue] = useState(0);
+  const tempStore = useSelector((state) => state.temp);
   const appStore = useSelector((state) => state.app);
+
+  const value = useMemo(() => {
+    return tempStore.bottomTabValue;
+  }, [tempStore.bottomTabValue])
 
   // useEffect(() => {
   //   const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
@@ -35,7 +40,9 @@ const Home = () => {
 
       <BottomNavigation
         value={value}
-        onChange={(newValue) => { setValue(newValue); }}
+        onChange={(newValue) => {
+          dispatch(setBottomTabValue(newValue));
+        }}
       />
     </BasePage>
   )

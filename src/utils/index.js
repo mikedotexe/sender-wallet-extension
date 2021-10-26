@@ -56,7 +56,6 @@ export const fixedNumber = (amount, digit = 6) => {
 
 // converts yoctoNEAR (10^-24) amount into NEAR and display 6 digits
 export const fixedNearAmount = (amount) => {
-	console.log('amount: ', amount);
 	if (!amount) {
 		return 0;
 	}
