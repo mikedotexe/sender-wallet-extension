@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -19,6 +20,7 @@ import visibleIcon from '../../assets/img/visible.png';
 import walletBalanceIcon from '../../assets/img/wallet-balance.png';
 import arrowupIcon from '../../assets/img/arrow-up.png';
 import arrowdownIcon from '../../assets/img/arrow-down.png';
+import { APP_UPDATE_ACCOUNT } from '../../actions/app';
 
 const tokens = [
   {
@@ -131,9 +133,19 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 }));
 
 const Wallet = () => {
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const appStore = useSelector((state) => state.app);
   const [expanded, setExpanded] = useState(false);
 
-  const history = useHistory();
+  const currentAccount = useMemo(() => {
+    return appStore.currentAccount;
+  }, [appStore.currentAccount])
+
+  useEffect(() => {
+    console.log('update account');
+    dispatch({ type: APP_UPDATE_ACCOUNT });
+  }, [])
 
   const receiveClicked = () => {
     history.push('/receive');
@@ -164,7 +176,7 @@ const Wallet = () => {
       <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
         <AccordionSummary
           aria-controls="panel1bh-content"
-          id="panel1bh-header"
+          id="panel1bh-`header`"
         >
           <Box sx={{ display: 'flex', paddingLeft: '13px', paddingRight: '14px', alignItems: 'center', justifyContent: 'space-between', flex: 1 }}>
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>

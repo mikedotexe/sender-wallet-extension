@@ -8,11 +8,12 @@ import _ from 'lodash';
 import { push } from 'connected-react-router';
 
 import { setImportStatus } from '../reducers/loading';
-import { APP_IMPORT_ACCOUNT, APP_SET_PASSWORD } from '../actions/app';
+import { APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
 import { getAppStore } from './';
 import { formatAccount } from '../utils';
-import { addAccount, setPassword, setSalt } from '../reducers/app';
+import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
 import passwordHash from '../core/passwordHash';
+import { getSigner, nearService } from '../core/near';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -51,7 +52,52 @@ function* importAccountSaga(action) {
   }
 }
 
+function* updateAccountSaga() {
+  try {
+    const appStore = yield select(getAppStore);
+    const { currentAccount, accounts } = appStore;
+    const { mnemonic, accountId } = currentAccount;
+
+
+    yield call(nearService.setSigner, { mnemonic, accountId });
+    const validatorDepositMap = yield call(nearService.getValidatorDepositMap, { accountId });
+    // console.log('validatorDepositMap: ', validatorDepositMap);
+    const balance = yield call(nearService.getAccountBalance);
+    console.log('balance: ', balance);
+    const {
+      validators,
+      totalUnstaked,
+      totalStaked,
+      totalUnclaimed,
+      totalAvailable,
+      totalPending,
+    } = yield call(nearService.getValidatorsAndBalance, { balance, validatorDepositMap });
+
+    const account = yield call(formatAccount, {
+      mnemonic,
+      validators,
+      totalUnstaked,
+      totalStaked,
+      totalUnclaimed,
+      totalAvailable,
+      totalPending,
+    });
+    const newAccounts = _.map(accounts, (item) => {
+      if (item.accountId === account.accountId) {
+        return account;
+      }
+      return item;
+    })
+
+    yield put(updateAccounts(newAccounts));
+    yield put(changeAccount(account));
+  } catch (error) {
+    console.log('update current account error: ', error);
+  }
+}
+
 export default function* appSagas() {
   yield takeLatest(APP_SET_PASSWORD, setPasswordSaga);
   yield takeLatest(APP_IMPORT_ACCOUNT, importAccountSaga);
+  yield takeLatest(APP_UPDATE_ACCOUNT, updateAccountSaga);
 }

@@ -114,6 +114,12 @@ var options = {
       .concat(['.js', '.jsx', '.ts', '.tsx', '.css']),
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.NODE_ENV': JSON.stringify('development')
+    }),
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new webpack.ProgressPlugin(),
     // clean the build folder
     new CleanWebpackPlugin({

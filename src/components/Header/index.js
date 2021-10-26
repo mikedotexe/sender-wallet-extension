@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+
+import { useSelector } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
@@ -47,8 +49,13 @@ const StyledHeader = styled(Box)`
   }
 `;
 
-const Header = ({ children }) => {
+const Header = () => {
+  const appStore = useSelector((state) => state.app);
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const currentAccount = useMemo(() => {
+    return appStore.currentAccount;
+  }, [appStore.currentAccount])
 
   return (
     <StyledHeader>
@@ -58,7 +65,7 @@ const Header = ({ children }) => {
             <img src={menu} alt="menu"></img>
           </Button>
           <Typography className="account" variant="h6" component="p">
-            amazingbeerbelly-test.near
+            {currentAccount.accountId}
           </Typography>
         </Toolbar>
       </AppBar>

@@ -14,7 +14,7 @@ import { MARKET_UPDATE_PRICE } from '../../actions/market';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const [value, setValue] = useState(2);
+  const [value, setValue] = useState(0);
 
   // useEffect(() => {
   //   setTimeout(() => {

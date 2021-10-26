@@ -41,6 +41,25 @@ const apiHelper = {
     const res = await axios.get(`${helperUrl}/account/${accountId}/likelyTokens`)
     return res.data[0];
   },
+
+  /**
+   * Get staking pools which this account id has deposited
+   * @param {*} accountId Query account id
+   * @returns deposited validators
+   */
+  getStakingDeposits: async (accountId) => {
+    const res = await axios.get(`${helperUrl}/staking-deposits/${accountId}`);
+    return res.data;
+  },
+
+  /**
+   * Get all staking pools
+   * @returns all staking pools
+   */
+  getStakingPools: async () => {
+    const res = await axios.get(`${helperUrl}/stakingPools`);
+    return res.data;
+  }
 }
 
 export default apiHelper;
