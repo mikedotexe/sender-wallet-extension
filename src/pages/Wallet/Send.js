@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
+import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -7,8 +8,8 @@ import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
-
 import styled from 'styled-components';
+import _ from 'lodash';
 
 import BasePage from '../../components/BasePage';
 import BaseBox from '../../components/BaseBox';
@@ -19,6 +20,7 @@ import arrowIcon from '../../assets/img/arrow.png';
 import successIcon from '../../assets/img/success.png';
 import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
+import { fixedNearAmount, fixedTokenAmount, fixedNumber } from '../../utils';
 
 const WrapperBasePage = styled(BasePage)`
   .amount-input {
@@ -53,9 +55,30 @@ const WrapperBasePage = styled(BasePage)`
 
 const Send = () => {
   const history = useHistory();
+  const tempStore = useSelector((state) => state.temp);
+  const appStore = useSelector((state) => state.app);
+  const marketStore = useSelector((state) => state.market);
   const [confirmDrawerOpen, setConfirmDrawerOpen] = useState(false);
   const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
   const [success, setSuccess] = useState(false);
+
+  const selectToken = useMemo(() => {
+    const { tokens } = appStore.currentAccount;
+    const { prices } = marketStore;
+    let t;
+    _.forEach(tokens, (token) => {
+      if (token.symbol === tempStore.selectToken) {
+        t = { ...token }
+      }
+    })
+    if (t.symbol === 'NEAR') {
+      t.balance = fixedNearAmount(t.balance);
+    } else {
+      t.balance = fixedTokenAmount(t.balance, t.decimals);
+    }
+    t.price = fixedNumber(Number(prices[t.symbol]) * Number(t.balance), 4);
+    return t;
+  }, [tempStore.selectToken, appStore.currentAccount.tokens, marketStore.prices])
 
   const backClicked = () => {
     history.goBack();
@@ -84,7 +107,7 @@ const Send = () => {
         <Input type="number" className='amount-input' placeholder='0'></Input>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>$0</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Available to Send</Typography>
-        <Typography sx={{ fontSize: '16px', color: '#777777' }}>0.1209 NEAR ≈ $1.04 USD</Typography>
+        <Typography sx={{ fontSize: '16px', color: '#777777' }}>{selectToken.balance} {selectToken.symbol} ≈ ${selectToken.price} USD</Typography>
 
         <Button className="max-button"><Typography sx={{ fontSize: '12px', color: '#FAD165' }}>Use Max</Typography></Button>
       </Box>
@@ -101,8 +124,8 @@ const Send = () => {
         <BaseBox sx={{ paddingTop: '8px', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '8px' }}>
           <Button sx={{ width: '100%', justifyContent: 'space-between' }} onClick={selectTokensClicked}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar></Avatar>
-              <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>NEAR</Typography>
+              <Avatar src={selectToken.icon} alt={selectToken.name}></Avatar>
+              <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>{selectToken.symbol}</Typography>
             </Box>
             <img src={arrowIcon} alt='arrow'></img>
           </Button>

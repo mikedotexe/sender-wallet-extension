@@ -33,7 +33,7 @@ const Token = ({ style, data, index }) => {
 
   return (
     <WrapperToken>
-      <Avatar alt={data.name}></Avatar>
+      <Avatar src={data.icon} alt={data.name}></Avatar>
       <Box className="info">
         <Box className="line">
           <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.symbol}</Typography>

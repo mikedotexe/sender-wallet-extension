@@ -1,13 +1,14 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
+import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
-
 import styled from 'styled-components';
+import _ from 'lodash';
 
 import BasePage from '../../components/BasePage';
 import BaseBox from '../../components/BaseBox';
@@ -16,6 +17,7 @@ import List from '../../components/List';
 import backIcon from '../../assets/img/back.png';
 import searchIcon from '../../assets/img/search.png';
 import selectedIcon from '../../assets/img/selected.png';
+import { setSelectToken } from '../../reducers/temp';
 
 const WrapperBasePage = styled(BasePage)`
   .search-input {
@@ -24,23 +26,41 @@ const WrapperBasePage = styled(BasePage)`
   }
 `
 
-const tokens = ['NEAR', 'Skyword', 'NEAR', 'Skyword', 'NEAR', 'Skyword', 'NEAR', 'Skyword', 'NEAR', 'Skyword', 'NEAR', 'Skyword'];
-
 const TokenItem = ({ data }) => {
+  const dispatch = useDispatch();
+  const history = useHistory();
+
   return (
-    <Button sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '25px', paddingRight: '25px', height: '60px' }}>
+    <Button
+      sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '25px', paddingRight: '25px', height: '60px' }}
+      onClick={() => {
+        dispatch(setSelectToken(data.symbol));
+        history.goBack();
+      }}
+    >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar></Avatar>
-        <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px' }}>{data}</Typography>
+        <Avatar src={data.icon} alt={data.name}></Avatar>
+        <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px' }}>{data.symbol}</Typography>
       </Box>
 
-      <img src={selectedIcon} alt="selected"></img>
+      {data.isSelected && <img src={selectedIcon} alt="selected"></img>}
     </Button>
   )
 }
 
 const Tokens = () => {
   const history = useHistory();
+  const appStore = useSelector((state) => state.app);
+  const tempStore = useSelector((state) => state.temp);
+
+  const tokens = useMemo(() => {
+    return _.map(appStore.currentAccount.tokens, (token) => {
+      if (token.symbol === tempStore.selectToken) {
+        return { ...token, isSelected: true };
+      }
+      return token;
+    })
+  }, [appStore.currentAccount.tokens, tempStore.selectToken])
 
   const backClicked = () => {
     history.goBack();

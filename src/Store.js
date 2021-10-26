@@ -11,6 +11,7 @@ import { createHashHistory } from 'history';
 import appReducer from './reducers/app';
 import marketReducer from './reducers/market';
 import loadingReducer from './reducers/loading';
+import tempReducer from './reducers/temp';
 
 import appSaga from './sagas/app';
 import marketSaga from './sagas/market';
@@ -20,7 +21,7 @@ const storage = createChromeStorage(window.chrome, 'local');
 const config = {
   key: 'root',
   storage,
-  blacklist: ['loading'],
+  blacklist: ['loading', 'temp'],
   stateReconciler: autoMergeLevel2,
 }
 
@@ -31,6 +32,7 @@ const reducer = combineReducers({
   app: appReducer,
   market: marketReducer,
   loading: loadingReducer,
+  temp: tempReducer,
 });
 
 const persistedReducer = persistReducer(config, reducer);

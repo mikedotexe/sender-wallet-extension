@@ -56,11 +56,18 @@ export const fixedNumber = (amount, digit = 6) => {
 
 // converts yoctoNEAR (10^-24) amount into NEAR and display 6 digits
 export const fixedNearAmount = (amount) => {
+	console.log('amount: ', amount);
+	if (!amount) {
+		return 0;
+	}
 	const nearAmount = formatNearAmount(amount);
 	return fixedNumber(nearAmount);
 }
 
 export const fixedTokenAmount = (amount, decimals) => {
+	if (!amount) {
+		return 0;
+	}
 	const tokenAmount = Number(amount) / (10 ** decimals);
 	return fixedNumber(tokenAmount);
 }
@@ -81,7 +88,7 @@ export const fixedTokenAmount = (amount, decimals) => {
  */
 export const formatAccount = async ({
 	mnemonic,
-	balance = { available: '0', staked: '0', stateStaked: '0', total: '0' },
+	balance = {},
 	validators = [],
 	totalUnstaked = '0',
 	totalStaked = '0',
@@ -93,15 +100,18 @@ export const formatAccount = async ({
 	const phrase = parseSeedPhrase(mnemonic);
 	const { secretKey, publicKey } = phrase;
 	const accountId = await nearService.getAccountId(publicKey);
-	await nearService.setSigner({ mnemonic, accountId });
-	const accountBalance = await nearService.getAccountBalance();
+	let accountBalance = balance;
+	if (_.isEmpty(accountBalance)) {
+		await nearService.setSigner({ mnemonic, accountId });
+		accountBalance = await nearService.getAccountBalance();
+	}
 	return new Account({
 		accountId,
 		mnemonic,
 		network,
 		secretKey,
 		publicKey,
-		balance: !_.isEmpty(accountBalance) ? accountBalance : balance,
+		balance: accountBalance,
 		validators,
 		totalUnstaked,
 		totalStaked,

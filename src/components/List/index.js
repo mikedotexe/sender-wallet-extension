@@ -9,7 +9,7 @@ const List = ({ list, Component, sx = {} }) => {
       {
         _.map(list, (item, index) => {
           return (
-            <Component index={index} data={item}></Component>
+            <Component key={item.name} index={index} data={item}></Component>
           )
         })
       }

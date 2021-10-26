@@ -74,13 +74,14 @@ function* updateAccountSaga() {
 
     const account = yield call(formatAccount, {
       mnemonic,
+      balance,
       validators,
       totalUnstaked,
       totalStaked,
       totalUnclaimed,
       totalAvailable,
       totalPending,
-      tokens,
+      tokens: [{ symbol: 'NEAR', name: 'NEAR', balance: balance.available }, ...tokens],
     });
     const newAccounts = _.map(accounts, (item) => {
       if (item.accountId === account.accountId) {

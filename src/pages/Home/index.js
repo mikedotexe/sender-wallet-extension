@@ -13,18 +13,18 @@ import StakingPage from '../Staking';
 import SettingsPage from '../Settings';
 import { MARKET_UPDATE_PRICE } from '../../actions/market';
 
-
 const Home = () => {
   const dispatch = useDispatch();
   const [value, setValue] = useState(0);
   const appStore = useSelector((state) => state.app);
 
-  useEffect(() => {
-    setTimeout(() => {
-      const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
-      dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
-    }, 10000)
-  }, [appStore.currentAccount.tokens])
+  // useEffect(() => {
+  //   const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
+  //   dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+  //   setTimeout(() => {
+  //     dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+  //   }, 10000)
+  // }, [appStore.currentAccount.tokens])
 
   return (
     <BasePage>

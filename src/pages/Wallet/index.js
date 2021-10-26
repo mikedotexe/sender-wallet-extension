@@ -114,13 +114,7 @@ const Wallet = () => {
   }, [totalStaking, currentAccount.balance.total])
 
   const tokens = useMemo(() => {
-    const list = [{
-      symbol: 'NEAR',
-      balance: currentAccount.balance.available,
-      name: 'NEAR',
-    }, ...currentAccount.tokens];
-
-    return _.map(list, (item) => {
+    return _.map(currentAccount.tokens, (item) => {
       return {
         ...item,
         price: prices[item.symbol],
