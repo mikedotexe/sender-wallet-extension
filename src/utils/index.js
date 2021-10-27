@@ -64,7 +64,7 @@ export const formatTokenAmount = (amount, decimals = 18) => {
 }
 
 // Display numbers with specific digits
-export const fixedNumber = (amount, digit = 4) => {
+export const fixedNumber = (amount, digit = 5) => {
 	if (!amount) {
 		return '0';
 	}

@@ -104,7 +104,7 @@ const Wallet = () => {
   }, [appStore.currentAccount])
 
   const totalStaking = useMemo(() => {
-    const staking = new BN(currentAccount.totalUnclaimed).add(new BN(currentAccount.totalPending)).add(new BN(currentAccount.totalStaked));
+    const staking = new BN(currentAccount.totalUnclaimed).add(new BN(currentAccount.totalPending)).add(new BN(currentAccount.totalStaked)).add(new BN(currentAccount.totalAvailable));
     return staking.toString();
   }, [currentAccount.totalUnclaimed, currentAccount.totalPending, currentAccount.totalStaked])
 

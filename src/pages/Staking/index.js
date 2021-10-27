@@ -131,7 +131,7 @@ const Staking = () => {
   }, [totalAvailable, marketStore.prices])
 
   const selectValidatorClick = () => {
-    history.push('/staking/validators');
+    history.push('/staking/validators/false');
   }
 
   const stakeAmountPrice = useMemo(() => {
@@ -227,8 +227,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Pending release</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalPending} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalPendingPrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalAvailable} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalAvailablePrice} USD</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -239,8 +239,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Available for withdrawal</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalAvailable} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalAvailablePrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalPending} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalPendingPrice} USD</Typography>
                   </Box>
                 </Box>
               </Box>

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
@@ -84,12 +84,33 @@ const UnstakeValidatorItem = ({ data: validator }) => {
 const Validators = () => {
   const history = useHistory();
   const appStore = useSelector((state) => state.app);
+  const [validators, setValidators] = useState([]);
+  const [search, setSearch] = useState('');
+
   let { isUnstake } = useParams();
   isUnstake = isUnstake === 'true';
 
-  const validators = useMemo(() => {
-    return _.filter(appStore.currentAccount.validators, (validator) => Number(validator.staked) !== 0);
+  useEffect(() => {
+    let list;
+    if (isUnstake) {
+      list = _.filter(appStore.currentAccount.validators, (validator) => Number(validator.staked) !== 0);
+    } else {
+      list = appStore.currentAccount.validators;
+    }
+
+    setValidators(list);
   }, [appStore.currentAccount.validators])
+
+  const searchChanged = (e) => {
+    const value = e.target.value;
+    setSearch(value);
+    if (!value) {
+      setValidators(appStore.currentAccount.validators)
+    } else {
+      const list = _.filter(appStore.currentAccount.validators, (validator) => _.includes(validator.accountId, value));
+      setValidators(list);
+    }
+  }
 
   const backClicked = () => {
     history.goBack();
@@ -116,7 +137,7 @@ const Validators = () => {
           !isUnstake && (
             <BaseBox sx={{ justifyContent: 'start' }}>
               <img src={searchIcon} alt="search"></img>
-              <Input className='search-input' placeholder='Validator account ID'></Input>
+              <Input className='search-input' placeholder='Validator account ID' value={search} onChange={searchChanged}></Input>
             </BaseBox>
           )
         }
