@@ -13,7 +13,7 @@ import _ from 'lodash';
 import closeIcon from '../../assets/img/close_fill.png';
 import selectedIcon from '../../assets/img/selected.png';
 import lockIcon from '../../assets/img/lock.png';
-import { changeAccount } from '../../reducers/app';
+import { changeAccount, setLockup } from '../../reducers/app';
 import { APP_UPDATE_ACCOUNT } from '../../actions/app';
 
 const WrapperDrawer = styled(MuiDrawer)`
@@ -31,6 +31,11 @@ const MenuDrawer = ({ open, onClose }) => {
   const dispatch = useDispatch();
   const appStore = useSelector((state) => state.app);
   const { accounts, currentAccount } = appStore;
+
+  const lockupClicked = () => {
+    dispatch(setLockup(true));
+    history.push('/unlock');
+  }
 
   return (
     <WrapperDrawer
@@ -78,7 +83,7 @@ const MenuDrawer = ({ open, onClose }) => {
           <Typography sx={{ color: '#878787', fontSize: '14px' }}>Create New Accont</Typography>
         </Button>
 
-        <Button sx={{ marginTop: '10px', width: '248px', height: '25px' }} startIcon={<img src={lockIcon} alt="lock"></img>}>
+        <Button onClick={lockupClicked} sx={{ marginTop: '10px', width: '248px', height: '25px' }} startIcon={<img src={lockIcon} alt="lock"></img>}>
           <Typography sx={{ color: '#878787', fontSize: '14px' }}>Lock Wallet</Typography>
         </Button>
       </Box>

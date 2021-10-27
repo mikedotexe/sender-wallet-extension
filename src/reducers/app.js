@@ -19,6 +19,10 @@ export const appSlice = createSlice({
       const password = action.payload;
       state.lockupPassword = password;
     },
+    setLockup: (state, action) => {
+      const status = action.payload;
+      state.isLockup = status;
+    },
     addAccount: (state, action) => {
       const account = action.payload;
       state.accounts = [...state.accounts, account]
@@ -35,6 +39,6 @@ export const appSlice = createSlice({
   }
 })
 
-export const { setSalt, setPassword, addAccount, changeAccount, updateAccounts } = appSlice.actions;
+export const { setSalt, setPassword, setLockup, addAccount, changeAccount, updateAccounts } = appSlice.actions;
 
 export default appSlice.reducer;

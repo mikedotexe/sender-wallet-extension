@@ -2,6 +2,7 @@ import React from 'react';
 import { HashRouter, Switch, Route } from 'react-router-dom';
 
 import Startup from './pages/Startup';
+import Unlock from './pages/Startup/Unlock';
 import Import from './pages/Startup/Import';
 import SetPwd from './pages/Startup/SetPwd';
 import Home from './pages/Home';
@@ -16,6 +17,7 @@ function Router() {
     <HashRouter>
       <Switch>
         <Route exact path='/' component={SetPwd}></Route>
+        <Route exact path='/unlock' component={Unlock}></Route>
         <Route exact path='/import' component={Import}></Route>
         <Route exact path='/setpwd' component={SetPwd}></Route>
         <Route exact path='/startup' component={Startup}></Route>

@@ -12,7 +12,6 @@ import styled from 'styled-components';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import StartupHeader from '../../components/StartupHeader';
-import backIcon from '../../assets/img/back.png';
 import { APP_SET_PASSWORD } from '../../actions/app';
 
 const WrapperBox = styled(Box)`
@@ -48,13 +47,13 @@ const SetPwd = () => {
 
   useEffect(() => {
     if (appStore.lockupPassword) {
-      history.push('/Startup');
+      if (appStore.isLockup) {
+        history.push('/unlock');
+      } else {
+        history.push('/startup');
+      }
     }
   }, [])
-
-  // const backClicked = () => {
-  //   history.goBack();
-  // }
 
   const valid = useMemo(() => {
     return password && password === confirmPassword;
@@ -69,11 +68,7 @@ const SetPwd = () => {
   }
 
   const confirmClicked = () => {
-    if (password !== confirmPassword) {
-      // TODO: notify error
-    } else {
-      dispatch({ type: APP_SET_PASSWORD, password });
-    }
+    dispatch({ type: APP_SET_PASSWORD, password });
   }
 
   return (

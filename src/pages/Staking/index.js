@@ -181,7 +181,7 @@ const Staking = () => {
         </BaseBox>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Button className="submit-button" onClick={submitStakeClicked} disabled={stakingLoading}>
+          <Button className="submit-button" onClick={submitStakeClicked} disabled={stakingLoading || !stakeAmount || !selectValidator.accountId}>
             <Typography sx={{ fontSize: '16px', color: 'white' }}>{stakingLoading ? 'Staking...' : 'Submit Stake'}</Typography>
           </Button>
         </Box>
