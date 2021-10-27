@@ -7,9 +7,9 @@ import {
 import _ from 'lodash';
 import { push } from 'connected-react-router';
 
-import { setImportStatus, setSendStatus } from '../reducers/loading';
-import { APP_ACCOUNT_TRANSFER, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
-import { getAppStore } from './';
+import { setImportStatus, setSendStatus, setStakingStatus } from '../reducers/loading';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
+import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
 import passwordHash from '../core/passwordHash';
@@ -104,7 +104,6 @@ function* transferSaga(action) {
     const appStore = yield select(getAppStore);
     const { currentAccount } = appStore;
     const { mnemonic, accountId } = currentAccount;
-
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     let parseAmount;
@@ -113,13 +112,32 @@ function* transferSaga(action) {
     } else {
       parseAmount = parseNearAmount(amount);
     }
-    const res = yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
-    console.log('res: ', res);
-
-    yield put(setSendStatus({ loading: false, error: null }))
+    yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
+    yield put(setSendStatus({ loading: false, error: null }));
   } catch (error) {
     console.log('transfer error: ', error);
     yield put(setSendStatus({ loading: false, error: error.message }))
+  }
+}
+
+function* stakingSaga(action) {
+  const { amount } = action;
+  yield put(setStakingStatus({ loading: true }));
+  try {
+    const appStore = yield select(getAppStore);
+    const tempStore = yield select(getTempStore);
+    const { currentAccount } = appStore;
+    const { mnemonic, accountId } = currentAccount;
+    const { selectValidator } = tempStore;
+    yield call(nearService.setSigner, { mnemonic, accountId });
+
+    const parseAmount = parseNearAmount(amount);
+    console.log('parseAmount: ', parseAmount);
+    yield call(nearService.stake, { amount: `${parseAmount}`, validatorId: selectValidator.accountId });
+    yield put(setStakingStatus({ loading: false, error: null }));
+  } catch (error) {
+    console.log('staking error: ', error);
+    yield put(setStakingStatus({ loading: false, error: error.message }))
   }
 }
 
@@ -128,4 +146,5 @@ export default function* appSagas() {
   yield takeLatest(APP_IMPORT_ACCOUNT, importAccountSaga);
   yield takeLatest(APP_UPDATE_ACCOUNT, updateAccountSaga);
   yield takeLatest(APP_ACCOUNT_TRANSFER, transferSaga);
+  yield takeLatest(APP_ACCOUNT_STAKING, stakingSaga);
 }

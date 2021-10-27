@@ -10,6 +10,10 @@ export const loadingSlice = createSlice({
     // Send page's loading status and result
     sendLoading: false,
     sendError: null,
+
+    // Staking page's loading status and result
+    stakingLoading: false,
+    stakingError: null,
   },
   reducers: {
     initStatus: (state) => {
@@ -26,9 +30,13 @@ export const loadingSlice = createSlice({
       state.sendLoading = loading;
       state.sendError = error;
     },
+    setStakingStatus: (state, { payload: { loading, error } }) => {
+      state.stakingLoading = loading;
+      state.stakingError = error;
+    },
   }
 })
 
-export const { initStatus, setImportStatus, setSendStatus } = loadingSlice.actions;
+export const { initStatus, setImportStatus, setSendStatus, setStakingStatus } = loadingSlice.actions;
 
 export default loadingSlice.reducer;

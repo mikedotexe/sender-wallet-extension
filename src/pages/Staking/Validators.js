@@ -41,7 +41,7 @@ const ValidatorItem = ({ data: validator }) => {
       <Button
         sx={{ backgroundColor: '#343434', border: '1px solid #4D4D4D', boxSizing: 'border-box', borderRadius: '13px' }}
         onClick={() => {
-          dispatch(setSelectValidator(validator.accountId));
+          dispatch(setSelectValidator(validator));
           history.goBack();
         }}
       >

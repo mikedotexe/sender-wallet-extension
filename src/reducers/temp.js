@@ -5,7 +5,7 @@ export const tempSlice = createSlice({
   initialState: {
     bottomTabValue: 0,
     selectToken: 'NEAR',
-    selectValidator: '',
+    selectValidator: { fee: {} },
   },
   reducers: {
     setBottomTabValue: (state, action) => {

@@ -324,6 +324,81 @@ export default class Near {
     }
   }
 
+  /**
+   * Stake near amount to the validator
+   * @param {*} param0 
+   * @param {*} param0.validatorId validator's account id 
+   * @param {*} param0.amount stake near amount
+   * @returns stake result
+   */
+  stake = async ({ validatorId, amount }) => {
+    const res = await this.signer.signAndSendTransaction({
+      receiverId: validatorId,
+      actions: [
+        functionCall('deposit_and_stake', {}, STAKING_GAS_BASE * 5, amount),
+      ]
+    })
+
+    // wait for explorer to index results
+    await new Promise((r) => setTimeout(r, EXPLORER_DELAY));
+
+    return res;
+  }
+
+  /**
+   * Unstake near amount
+   * @param {*} param0 
+   * @param {*} param0.validatorId validator's account id 
+   * @param {*} param0.amount unstake near amount
+   * @returns unstake result
+   */
+  unstake = async ({ validatorId, amount }) => {
+    let action;
+    if (amount) {
+      action = functionCall('unstake', { amount }, STAKING_GAS_BASE * 5, '0');
+    } else {
+      action = functionCall('unstake_all', {}, STAKING_GAS_BASE * 7, '0');
+    }
+
+    const res = await this.signer.signAndSendTransaction({
+      receiverId: validatorId, actions: [action],
+    })
+
+    // wait for explorer to index results
+    await new Promise((r) => setTimeout(r, EXPLORER_DELAY));
+
+    return res;
+  }
+
+  /**
+   * Withdraw near amount from the validator
+   * @param {*} param0 
+   * @param {*} param0.validatorId validator's account id 
+   * @param {*} param0.amount withdraw near amount
+   * @returns withdraw result
+   */
+  withdraw = async ({ validatorId, amount }) => {
+    let action;
+    if (amount) {
+      action = functionCall('withdraw', { amount }, STAKING_GAS_BASE * 5, '0');
+    } else {
+      action = functionCall('withdraw_all', {}, STAKING_GAS_BASE * 7, '0');
+    }
+
+    const res = await this.signer.signAndSendTransaction({
+      receiverId: validatorId, actions: [action],
+    })
+
+    // wait for explorer to index results
+    await new Promise((r) => setTimeout(r, EXPLORER_DELAY));
+
+    return res;
+  }
+
+  /**
+   * Get owner tokens' information and account's balance
+   * @returns tokens' information
+   */
   getTokensAndBalance = async () => {
     const { accountId } = this.signer;
     const ownedTokens = await this.getOwnedTokens({ accountId });

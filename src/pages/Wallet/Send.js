@@ -22,7 +22,7 @@ import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { fixedNearAmount, fixedTokenAmount, fixedNumber, parseNearAmount } from '../../utils';
 import { nearService } from '../../core/near';
-import { APP_ACCOUNT_TRANSFER } from '../../actions/app';
+import { APP_ACCOUNT_TRANSFER, APP_UPDATE_ACCOUNT } from '../../actions/app';
 import { usePrevious } from '../../hooks';
 
 const WrapperBasePage = styled(BasePage)`
@@ -65,7 +65,6 @@ const Send = () => {
   const marketStore = useSelector((state) => state.market);
   const [confirmDrawerOpen, setConfirmDrawerOpen] = useState(false);
   const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
-  const [success, setSuccess] = useState(false);
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountPrice, setSendAmountPrice] = useState(0);
   const [receiver, setReceiver] = useState('');
@@ -320,7 +319,12 @@ const Send = () => {
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={handleCloseDrawer}
+            onClick={() => {
+              if (!sendError) {
+                dispatch({ type: APP_UPDATE_ACCOUNT });
+              }
+              handleCloseDrawer();
+            }}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!sendError ? 'Rerturn' : 'Try Again'}</Typography>
           </Button>
