@@ -24,6 +24,7 @@ import { fixedNearAmount, fixedTokenAmount, fixedNumber, parseNearAmount } from 
 import { nearService } from '../../core/near';
 import { APP_ACCOUNT_TRANSFER, APP_UPDATE_ACCOUNT } from '../../actions/app';
 import { usePrevious } from '../../hooks';
+import nearIcon from '../../assets/img/NEAR.png';
 
 const WrapperBasePage = styled(BasePage)`
   .amount-input {
@@ -199,7 +200,7 @@ const Send = () => {
         <BaseBox sx={{ paddingTop: '8px', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '8px' }}>
           <Button sx={{ width: '100%', justifyContent: 'space-between' }} onClick={selectTokensClicked}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar src={selectToken.icon} alt={selectToken.name}></Avatar>
+              <Avatar src={selectToken.icon || nearIcon} alt={selectToken.name}></Avatar>
               <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>{selectToken.symbol}</Typography>
             </Box>
             <img src={arrowIcon} alt='arrow'></img>

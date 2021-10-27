@@ -5,6 +5,7 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 import { fixedNumber } from '../../utils';
+import nearIcon from '../../assets/img/NEAR.png';
 
 const WrapperToken = styled.div`
   height: 68px;
@@ -33,7 +34,7 @@ const Token = ({ style, data, index }) => {
 
   return (
     <WrapperToken>
-      <Avatar src={data.icon} alt={data.name}></Avatar>
+      <Avatar src={data.icon || nearIcon} alt={data.name}></Avatar>
       <Box className="info">
         <Box className="line">
           <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.symbol}</Typography>

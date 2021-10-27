@@ -18,6 +18,7 @@ import backIcon from '../../assets/img/back.png';
 import searchIcon from '../../assets/img/search.png';
 import selectedIcon from '../../assets/img/selected.png';
 import { setSelectToken } from '../../reducers/temp';
+import nearIcon from '../../assets/img/NEAR.png';
 
 const WrapperBasePage = styled(BasePage)`
   .search-input {
@@ -39,7 +40,7 @@ const TokenItem = ({ data }) => {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar src={data.icon} alt={data.name}></Avatar>
+        <Avatar src={data.icon || nearIcon} alt={data.name}></Avatar>
         <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px' }}>{data.symbol}</Typography>
       </Box>
 
