@@ -95,7 +95,7 @@ const Staking = () => {
   }, [stakingLoading])
 
   const validators = useMemo(() => {
-    return _.filter(appStore.currentAccount.validators, (validator) => Number(validator.staked) !== 0);
+    return _.filter(appStore.currentAccount.validators, (validator) => validator.staked !== '0');
   }, [appStore.currentAccount.validators])
 
   const totalStaked = useMemo(() => {
@@ -149,9 +149,6 @@ const Staking = () => {
 
   const handleCloseDrawer = () => {
     setResultDrawerOpen(false);
-    if (preStakingLoading && !stakingLoading && !stakingError) {
-      dispatch({ type: APP_UPDATE_ACCOUNT });
-    }
     dispatch(initStatus());
   }
 
@@ -303,7 +300,12 @@ const Staking = () => {
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={handleCloseDrawer}
+            onClick={() => {
+              if (!stakingError) {
+                dispatch({ type: APP_UPDATE_ACCOUNT });
+              }
+              handleCloseDrawer();
+            }}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!stakingError ? 'Rerturn' : 'Try Again'}</Typography>
           </Button>

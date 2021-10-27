@@ -135,7 +135,6 @@ const Wallet = () => {
   }, [tokens])
 
   useEffect(() => {
-    console.log('update account');
     dispatch({ type: APP_UPDATE_ACCOUNT });
   }, [])
 

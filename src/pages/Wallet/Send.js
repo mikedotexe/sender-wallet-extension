@@ -169,6 +169,10 @@ const Send = () => {
     dispatch({ type: APP_ACCOUNT_TRANSFER, receiverId: receiver, amount: sendAmount, token: selectToken });
   }
 
+  const useMaxClicked = () => {
+    setSendAmount(selectToken.balance);
+  }
+
   return (
     <WrapperBasePage>
       <Box sx={{ paddingTop: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -185,7 +189,7 @@ const Send = () => {
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Available to Send</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>{selectToken.balance} {selectToken.symbol} ≈ ${selectToken.price} USD</Typography>
 
-        <Button className="max-button"><Typography sx={{ fontSize: '12px', color: '#FAD165' }}>Use Max</Typography></Button>
+        <Button onClick={useMaxClicked} className="max-button"><Typography sx={{ fontSize: '12px', color: '#FAD165' }}>Use Max</Typography></Button>
       </Box>
 
       <Box sx={{ marginTop: '23px', marginLeft: '25px', marginRight: '25px' }}>
@@ -323,6 +327,7 @@ const Send = () => {
             onClick={() => {
               if (!sendError) {
                 dispatch({ type: APP_UPDATE_ACCOUNT });
+                history.push('/home');
               }
               handleCloseDrawer();
             }}

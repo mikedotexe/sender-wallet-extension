@@ -86,10 +86,11 @@ const Unstake = () => {
   const handleDrawerClosed = () => {
     setConfirmDrawerOpen(false);
     setResultDrawerOpen(false);
-    if (preUnstakingLoading && !unstakingLoading && !unstakingError) {
-      dispatch({ type: APP_UPDATE_ACCOUNT });
-    }
     dispatch(initStatus());
+  }
+
+  const useMaxClicked = () => {
+    setUnstakeAmount(available);
   }
 
   return (
@@ -109,7 +110,7 @@ const Unstake = () => {
         <BaseBox>
           <Input type="text" placeholder='0' value={unstakeAmount} onChange={unstakeAmountChanged}></Input>
 
-          <Button sx={{ minHeight: 0, padding: 0 }}><Typography sx={{ fontSize: '12px', color: '#777777' }}>Use Max</Typography></Button>
+          <Button onClick={useMaxClicked} sx={{ minHeight: 0, padding: 0 }}><Typography sx={{ fontSize: '12px', color: '#777777' }}>Use Max</Typography></Button>
         </BaseBox>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
@@ -262,7 +263,13 @@ const Unstake = () => {
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={handleDrawerClosed}
+            onClick={() => {
+              if (!unstakingError) {
+                dispatch({ type: APP_UPDATE_ACCOUNT });
+                history.push('/home');
+              }
+              handleDrawerClosed();
+            }}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!unstakingError ? 'Rerturn' : 'Try Again'}</Typography>
           </Button>

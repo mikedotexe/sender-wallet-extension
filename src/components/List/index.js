@@ -9,7 +9,7 @@ const List = ({ list, Component, sx = {} }) => {
       {
         _.map(list, (item, index) => {
           return (
-            <Component key={item.name || item.accountId} index={index} data={item}></Component>
+            <Component key={item.name || item.accountId || item.hash} index={index} data={item}></Component>
           )
         })
       }
