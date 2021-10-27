@@ -138,3 +138,17 @@ export const formatAccount = async ({
 		tokens,
 	});
 }
+
+/**
+ * Check phrass is valid or not
+ * @param {*} phrass 
+ * @returns return true if phrass is valid, otherwise false
+ */
+export const checkPhrass = (phrass) => {
+	try {
+		const phrassArray = _.split(phrass, ' ');
+		return phrassArray.length === 12;
+	} catch (error) {
+		return false;
+	}
+}

@@ -18,6 +18,7 @@ import closeIcon from '../../assets/img/drawer_close.png';
 import failIcon from '../../assets/img/fail.png';
 import { APP_IMPORT_ACCOUNT } from '../../actions/app';
 import { initStatus } from '../../reducers/loading';
+import { checkPhrass } from '../../utils';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -65,12 +66,18 @@ const Startup = () => {
   }
 
   const continueClicked = () => {
-    dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic });
+    if (checkPhrass(mnemonic)) {
+      dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic });
+    } else {
+      setOpen(true);
+    }
   }
 
   const closeDrawer = () => {
     setOpen(false);
-    dispatch(initStatus());
+    setTimeout(() => {
+      dispatch(initStatus());
+    }, 500)
   }
 
   useEffect(() => {
@@ -121,8 +128,16 @@ const Startup = () => {
             <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Failed!</Typography>
           </Box>
 
-          <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '27px', lineHeight: '16px', marginLeft: '38px', marginRight: '38px' }}>Error: {importError}</Typography>
-          {/* <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '8px', lineHeight: '16px', marginBottom: '37px', marginLeft: '38px', marginRight: '38px' }}>No accounts were found for this passphrase.</Typography> */}
+          {
+            importError ? (
+              <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '27px', lineHeight: '16px', marginLeft: '38px', marginRight: '38px' }}>Error: {importError}</Typography>
+            ) : (
+              <>
+                <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '27px', lineHeight: '16px', marginLeft: '38px', marginRight: '38px' }}>Error: Cannot find matching public key</Typography>
+                <Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '8px', lineHeight: '16px', marginBottom: '37px', marginLeft: '38px', marginRight: '38px' }}>No accounts were found for this passphrase.</Typography>
+              </>
+            )
+          }
 
           <Button
             sx={{

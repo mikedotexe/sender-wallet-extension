@@ -405,11 +405,15 @@ export default class Near {
 
     const tokens = (await Promise.all(
       _.map(ownedTokens, async (contractId) => {
-        const token = await this.getContractMetadata({ contractId });
-        const balance = await this.getContractBalance({ contractId, accountId })
-        return { ...token, balance, accountId: contractId };
+        try {
+          const token = await this.getContractMetadata({ contractId });
+          const balance = await this.getContractBalance({ contractId, accountId })
+          return { ...token, balance, accountId: contractId };
+        } catch (error) {
+          return null
+        }
       })
-    ))
+    )).filter((v) => !!v)
     return tokens;
   }
 

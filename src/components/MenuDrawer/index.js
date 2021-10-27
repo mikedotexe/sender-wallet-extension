@@ -14,6 +14,7 @@ import closeIcon from '../../assets/img/close_fill.png';
 import selectedIcon from '../../assets/img/selected.png';
 import lockIcon from '../../assets/img/lock.png';
 import { changeAccount } from '../../reducers/app';
+import { APP_UPDATE_ACCOUNT } from '../../actions/app';
 
 const WrapperDrawer = styled(MuiDrawer)`
   .button {
@@ -57,6 +58,9 @@ const MenuDrawer = ({ open, onClose }) => {
                   onClick={() => {
                     onClose();
                     dispatch(changeAccount(item));
+                    setTimeout(() => {
+                      dispatch({ type: APP_UPDATE_ACCOUNT })
+                    }, 500);
                   }}
                 >
                   <Typography sx={{ color: '#878787', fontSize: '14px' }}>{item.accountId}</Typography>
