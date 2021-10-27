@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -56,6 +56,10 @@ const SetPwd = () => {
   //   history.goBack();
   // }
 
+  const valid = useMemo(() => {
+    return password && password === confirmPassword;
+  }, [password, confirmPassword])
+
   const passwordChanged = (e) => {
     setPassword(e.target.value);
   }
@@ -83,17 +87,22 @@ const SetPwd = () => {
       <Box sx={{ marginLeft: '30px', marginRight: '30px', marginTop: '72px' }}>
         <Typography sx={{ fontSize: '16px', color: 'white' }}>New Password</Typography>
         <BaseBox>
-          <Input type="text" placeholder='' onChange={passwordChanged}></Input>
+          <Input type="password" placeholder='' onChange={passwordChanged}></Input>
         </BaseBox>
 
         <Typography sx={{ fontSize: '16px', color: 'white', marginTop: '25px' }}>Confirm new Password</Typography>
         <BaseBox>
-          <Input type="text" placeholder='' onChange={confirmPasswordChanged}></Input>
+          <Input type="password" placeholder='' onChange={confirmPasswordChanged}></Input>
         </BaseBox>
+
+        {
+          !valid && password && confirmPassword && (<Typography sx={{ fontSize: '12px', color: 'red', marginTop: '8px' }}>Two passowd is not same</Typography>)
+        }
+
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
-        <Button onClick={confirmClicked} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
+        <Button disabled={!valid} onClick={confirmClicked} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
           <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>Confirm</Typography>
         </Button>
       </Box>
