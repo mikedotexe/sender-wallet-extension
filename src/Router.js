@@ -23,7 +23,7 @@ function Router() {
         <Route exact path='/receive/:accountId' component={Receive}></Route>
         <Route exact path='/send' component={Send}></Route>
         <Route exact path='/tokens' component={Tokens}></Route>
-        <Route exact path='/staking/validators' component={Validators}></Route>
+        <Route exact path='/staking/validators/:isUnstake' component={Validators}></Route>
         <Route exact path='/staking/unstake' component={Unstake}></Route>
       </Switch>
     </HashRouter>

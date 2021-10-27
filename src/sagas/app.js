@@ -7,8 +7,8 @@ import {
 import _ from 'lodash';
 import { push } from 'connected-react-router';
 
-import { setImportStatus, setSendStatus, setStakingStatus } from '../reducers/loading';
-import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
+import { setImportStatus, setSendStatus, setStakingStatus, setUnstakingStatus } from '../reducers/loading';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
@@ -132,12 +132,31 @@ function* stakingSaga(action) {
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     const parseAmount = parseNearAmount(amount);
-    console.log('parseAmount: ', parseAmount);
     yield call(nearService.stake, { amount: `${parseAmount}`, validatorId: selectValidator.accountId });
     yield put(setStakingStatus({ loading: false, error: null }));
   } catch (error) {
     console.log('staking error: ', error);
     yield put(setStakingStatus({ loading: false, error: error.message }))
+  }
+}
+
+function* unstakeSaga(action) {
+  const { amount } = action;
+  yield put(setUnstakingStatus({ loading: true }));
+  try {
+    const appStore = yield select(getAppStore);
+    const tempStore = yield select(getTempStore);
+    const { currentAccount } = appStore;
+    const { mnemonic, accountId } = currentAccount;
+    const { selectUnstakeValidator } = tempStore;
+    yield call(nearService.setSigner, { mnemonic, accountId });
+
+    const parseAmount = parseNearAmount(amount);
+    yield call(nearService.unstake, { amount: `${parseAmount}`, validatorId: selectUnstakeValidator.accountId });
+    yield put(setUnstakingStatus({ loading: false, error: null }));
+  } catch (error) {
+    console.log('unstaking error: ', error);
+    yield put(setUnstakingStatus({ loading: false, error: error.message }))
   }
 }
 
@@ -147,4 +166,5 @@ export default function* appSagas() {
   yield takeLatest(APP_UPDATE_ACCOUNT, updateAccountSaga);
   yield takeLatest(APP_ACCOUNT_TRANSFER, transferSaga);
   yield takeLatest(APP_ACCOUNT_STAKING, stakingSaga);
+  yield takeLatest(APP_ACCOUNT_UNSTAKING, unstakeSaga);
 }

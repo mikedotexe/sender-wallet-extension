@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
+import _ from 'lodash';
 
 import BasePage from '../../components/BasePage';
 import BaseBox from '../../components/BaseBox';
@@ -14,7 +15,8 @@ import Input from '../../components/Input';
 import List from '../../components/List';
 import backIcon from '../../assets/img/back.png';
 import searchIcon from '../../assets/img/search.png';
-import { setSelectValidator } from '../../reducers/temp';
+import { setSelectUnstakeValidator, setSelectValidator } from '../../reducers/temp';
+import { fixedNearAmount } from '../../utils';
 
 const WrapperBasePage = styled(BasePage)`
   .search-input {
@@ -52,19 +54,27 @@ const ValidatorItem = ({ data: validator }) => {
 }
 
 const UnstakeValidatorItem = ({ data: validator }) => {
+  const history = useHistory();
+  const dispatch = useDispatch();
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '25px', paddingRight: '25px', height: '75px', boxSizing: 'border-box' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-        <Typography sx={{ fontSize: '14px', color: 'white', lineHeight: '24px' }}>{validator.accountId}</Typography>
-        <Typography sx={{ fontSize: '14px', color: '#FAD165', fontWeight: 'bold' }}>{validator.amount} NEAR</Typography>
+        <Typography sx={{ width: '230px', fontSize: '14px', color: 'white', lineHeight: '24px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{validator.accountId}</Typography>
+        <Typography sx={{ fontSize: '14px', color: '#FAD165', fontWeight: 'bold' }}>{fixedNearAmount(validator.staked)} NEAR</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography sx={{ fontSize: '14px', color: '#777777', fontWeight: 'bold' }}>{validator.fee}%Fee</Typography>
+          <Typography sx={{ fontSize: '14px', color: '#777777', fontWeight: 'bold' }}>{validator.fee.percentage}%Fee</Typography>
           <Typography sx={{ fontSize: '14px', color: '#777777', marginLeft: '4px', marginRight: '5px' }}>-</Typography>
           <Typography sx={{ fontSize: '14px', color: '#777777', fontWeight: 'bold' }}>{validator.active ? 'active' : 'inactive'}</Typography>
         </Box>
       </Box>
 
-      <Button sx={{ backgroundColor: '#343434', border: '1px solid #4D4D4D', boxSizing: 'border-box', borderRadius: '13px' }}>
+      <Button
+        onClick={() => {
+          dispatch(setSelectUnstakeValidator(validator));
+          history.push('/staking/unstake');
+        }}
+        sx={{ backgroundColor: '#343434', border: '1px solid #4D4D4D', boxSizing: 'border-box', borderRadius: '13px' }}
+      >
         <Typography sx={{ fontSize: '14px', color: '#777777', lineHeight: '10px' }}>Select</Typography>
       </Button>
     </Box>
@@ -74,7 +84,12 @@ const UnstakeValidatorItem = ({ data: validator }) => {
 const Validators = () => {
   const history = useHistory();
   const appStore = useSelector((state) => state.app);
-  const { isUnstake } = useParams();
+  let { isUnstake } = useParams();
+  isUnstake = isUnstake === 'true';
+
+  const validators = useMemo(() => {
+    return _.filter(appStore.currentAccount.validators, (validator) => Number(validator.staked) !== 0);
+  }, [appStore.currentAccount.validators])
 
   const backClicked = () => {
     history.goBack();
@@ -106,7 +121,7 @@ const Validators = () => {
           )
         }
 
-        <List list={appStore.currentAccount.validators} Component={isUnstake ? UnstakeValidatorItem : ValidatorItem} sx={{ width: '100%', marginTop: '15px', marginBottom: '15px' }}>
+        <List list={validators} Component={isUnstake ? UnstakeValidatorItem : ValidatorItem} sx={{ width: '100%', marginTop: '15px', marginBottom: '15px' }}>
         </List>
       </Box>
     </WrapperBasePage>

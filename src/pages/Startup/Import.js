@@ -70,7 +70,7 @@ const Startup = () => {
 
   const closeDrawer = () => {
     setOpen(false);
-    initStatus();
+    dispatch(initStatus());
   }
 
   useEffect(() => {

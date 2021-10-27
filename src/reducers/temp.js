@@ -6,6 +6,7 @@ export const tempSlice = createSlice({
     bottomTabValue: 0,
     selectToken: 'NEAR',
     selectValidator: { fee: {} },
+    selectUnstakeValidator: { fee: {} },
   },
   reducers: {
     setBottomTabValue: (state, action) => {
@@ -19,10 +20,14 @@ export const tempSlice = createSlice({
     setSelectValidator: (state, action) => {
       const selectValidator = action.payload;
       state.selectValidator = selectValidator;
-    }
+    },
+    setSelectUnstakeValidator: (state, action) => {
+      const selectUnstakeValidator = action.payload;
+      state.selectUnstakeValidator = selectUnstakeValidator;
+    },
   }
 })
 
-export const { setBottomTabValue, setSelectToken, setSelectValidator } = tempSlice.actions;
+export const { setBottomTabValue, setSelectToken, setSelectValidator, setSelectUnstakeValidator } = tempSlice.actions;
 
 export default tempSlice.reducer;

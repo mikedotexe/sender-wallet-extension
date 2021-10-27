@@ -84,13 +84,13 @@ const Staking = () => {
 
   const { selectValidator } = tempStore;
   const { stakingLoading, stakingError } = loadingStore;
-  const prestakingLoading = usePrevious(stakingLoading);
+  const preStakingLoading = usePrevious(stakingLoading);
 
   useEffect(() => {
-    if (prestakingLoading && !stakingLoading) {
+    if (preStakingLoading && !stakingLoading) {
       setTimeout(() => {
         setResultDrawerOpen(true);
-      }, 1000)
+      }, 500)
     }
   }, [stakingLoading])
 
@@ -149,10 +149,14 @@ const Staking = () => {
 
   const handleCloseDrawer = () => {
     setResultDrawerOpen(false);
-    if (!stakingError) {
+    if (preStakingLoading && !stakingLoading && !stakingError) {
       dispatch({ type: APP_UPDATE_ACCOUNT });
     }
-    initStatus();
+    dispatch(initStatus());
+  }
+
+  const unstakeClicked = () => {
+    history.push('/staking/validators/true');
   }
 
   return (
@@ -202,7 +206,7 @@ const Staking = () => {
                   </Box>
                 </Box>
 
-                <Button sx={{ borderRadius: '13px', border: "1px solid #588912", width: '75px', height: '30px' }}><Typography sx={{ fontSize: '14px', color: '#588912' }}>Unstake</Typography></Button>
+                <Button onClick={unstakeClicked} sx={{ borderRadius: '13px', border: "1px solid #588912", width: '75px', height: '30px' }}><Typography sx={{ fontSize: '14px', color: '#588912' }}>Unstake</Typography></Button>
               </Box>
 
               <Divider sx={{ marginTop: '12px', backgroundColor: '#F3F3F3' }}></Divider>
@@ -279,7 +283,7 @@ const Staking = () => {
 
           <Box sx={{ marginTop: '35px', width: '100%', paddingLeft: '25px', paddingRight: '25px', boxSizing: 'border-box' }} key={selectValidator.accountId}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '14px', color: '#25272A' }}>{selectValidator.accountId}</Typography>
+              <Typography sx={{ width: '200px', fontSize: '14px', color: '#25272A', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{selectValidator.accountId}</Typography>
               <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{stakeAmount} NEAR</Typography>
             </Box>
             <Box sx={{ display: 'flex', alginItems: 'center', justifyContent: 'space-between' }}>
