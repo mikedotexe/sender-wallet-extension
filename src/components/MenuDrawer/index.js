@@ -15,6 +15,7 @@ import selectedIcon from '../../assets/img/selected.png';
 import lockIcon from '../../assets/img/lock.png';
 import { changeAccount, setLockup } from '../../reducers/app';
 import { APP_UPDATE_ACCOUNT } from '../../actions/app';
+import { setBottomTabValue } from '../../reducers/temp';
 
 const WrapperDrawer = styled(MuiDrawer)`
   .button {
@@ -63,6 +64,8 @@ const MenuDrawer = ({ open, onClose }) => {
                   onClick={() => {
                     onClose();
                     dispatch(changeAccount(item));
+                    dispatch(setBottomTabValue(0));
+                    history.push('/home');
                     setTimeout(() => {
                       dispatch({ type: APP_UPDATE_ACCOUNT })
                     }, 500);

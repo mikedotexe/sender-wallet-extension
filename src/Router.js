@@ -11,6 +11,7 @@ import Send from './pages/Wallet/Send';
 import Tokens from './pages/Wallet/Tokens';
 import Validators from './pages/Staking/Validators';
 import Unstake from './pages/Staking/Unstake';
+import ChangePwd from './pages/Settings/ChangePwd';
 
 function Router() {
   return (
@@ -27,6 +28,7 @@ function Router() {
         <Route exact path='/tokens' component={Tokens}></Route>
         <Route exact path='/staking/validators/:isUnstake' component={Validators}></Route>
         <Route exact path='/staking/unstake' component={Unstake}></Route>
+        <Route exact path='/settings/changepwd' component={ChangePwd}></Route>
       </Switch>
     </HashRouter>
   )

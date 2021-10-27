@@ -5,7 +5,7 @@ import Box from '@material-ui/core/Box';
 import styled from 'styled-components';
 
 const WrapperBox = styled(Box)`
-  width: 315px;
+  width: 325px;
   background: #1E1E1E;
   border: 1px solid #090909;
   box-sizing: border-box;
