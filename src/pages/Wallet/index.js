@@ -16,6 +16,7 @@ import _ from 'lodash';
 
 import List from '../../components/List';
 import Token from '../../components/Token';
+import Transaction from '../../components/Transaction';
 import ButtonGroup from '../../components/ButtonGroup';
 
 import visibleIcon from '../../assets/img/visible.png';
@@ -96,6 +97,7 @@ const Wallet = () => {
   const appStore = useSelector((state) => state.app);
   const marketStore = useSelector((state) => state.market);
   const [expanded, setExpanded] = useState(false);
+  const [tabValue, setTabValue] = useState(0)
 
   const { prices } = marketStore;
 
@@ -217,9 +219,21 @@ const Wallet = () => {
       <Box className='list'>
         <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
         <Box sx={{ marginTop: '11px', width: '315px', alignSelf: 'center', marginBottom: '9px' }}>
-          <ButtonGroup buttons={['Token List', 'Account activity']} value={0}></ButtonGroup>
+          <ButtonGroup buttons={['Token List', 'Account activity']} value={tabValue} onChange={setTabValue}></ButtonGroup>
         </Box>
-        <List sx={{ width: '100%', marginBottom: '60px' }} list={tokens} Component={Token}></List>
+
+        {
+          tabValue ? (
+            <>
+              <List sx={{ width: '100%' }} list={currentAccount.transactions} Component={Transaction}></List>
+              <Button sx={{ marginTop: '20px', marginBottom: '80px', backgroundColor: '#FFCE3E', width: '100px', borderRadius: '20px' }} onClick={() => window.open(`https://explorer.mainnet.near.org/accounts/${currentAccount.accountId}`)}>
+                <Typography sx={{ fontSize: '14px' }} color="black">Get All</Typography>
+              </Button>
+            </>
+          ) : (
+            <List sx={{ width: '100%', marginBottom: '60px' }} list={tokens} Component={Token}></List>
+          )
+        }
       </Box>
     </WrappedBox>
   )

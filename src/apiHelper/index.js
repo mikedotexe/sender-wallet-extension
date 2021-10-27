@@ -59,6 +59,16 @@ const apiHelper = {
   getStakingPools: async () => {
     const res = await axios.get(`${helperUrl}/stakingPools`);
     return res.data;
+  },
+
+  /**
+   * Get latest 10 transaction records
+   * @param {*} accountId query account id
+   * @returns 10 transaction records
+   */
+  getTransactions: async (accountId) => {
+    const res = await axios.get(`${helperUrl}/account/${accountId}/activity`);
+    return res.data;
   }
 }
 

@@ -13,6 +13,7 @@ export default class Account {
     totalStaked,
     totalUnclaimed,
     tokens,
+    transactions,
   }) {
     this.accountId = accountId; // Account id
     this.mnemonic = mnemonic; // Account's mnemonic
@@ -27,5 +28,6 @@ export default class Account {
     this.totalUnclaimed = totalUnclaimed; // Total rewards paid out - staking deposits made
     this.validators = validators; // Account's validators information
     this.tokens = tokens; // Account's owned tokens
+    this.transactions = transactions; // Account's transactions
   }
 }

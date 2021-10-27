@@ -8,12 +8,13 @@ import _ from 'lodash';
 import { push } from 'connected-react-router';
 
 import { setImportStatus, setSendStatus, setStakingStatus, setUnstakingStatus } from '../reducers/loading';
-import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT } from '../actions/app';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
 import passwordHash from '../core/passwordHash';
 import { nearService } from '../core/near';
+import apiHelper from '../apiHelper';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -70,6 +71,7 @@ function* updateAccountSaga() {
       totalAvailable,
       totalPending,
     } = yield call(nearService.getValidatorsAndBalance, { balance, validatorDepositMap });
+    const txs = yield call(apiHelper.getTransactions, currentAccount.accountId);
 
     const account = yield call(formatAccount, {
       mnemonic,
@@ -81,6 +83,7 @@ function* updateAccountSaga() {
       totalAvailable,
       totalPending,
       tokens: [{ symbol: 'NEAR', name: 'NEAR', balance: balance.available, accountId: '' }, ...tokens],
+      transactions: txs,
     });
     const newAccounts = _.map(accounts, (item) => {
       if (item.accountId === account.accountId) {

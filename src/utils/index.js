@@ -113,6 +113,7 @@ export const formatAccount = async ({
 	totalAvailable = '0',
 	totalPending = '0',
 	tokens = [],
+	transactions = [],
 }) => {
 	const phrase = parseSeedPhrase(mnemonic);
 	const { secretKey, publicKey } = phrase;
@@ -136,6 +137,7 @@ export const formatAccount = async ({
 		totalAvailable,
 		totalPending,
 		tokens,
+		transactions,
 	});
 }
 
