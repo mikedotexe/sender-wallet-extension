@@ -23,13 +23,13 @@ const Home = () => {
     return tempStore.bottomTabValue;
   }, [tempStore.bottomTabValue])
 
-  // useEffect(() => {
-  //   const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
-  //   dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
-  //   setTimeout(() => {
-  //     dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
-  //   }, 10000)
-  // }, [appStore.currentAccount.tokens])
+  useEffect(() => {
+    const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
+    dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+    setTimeout(() => {
+      dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+    }, 10000)
+  }, [appStore.currentAccount.tokens])
 
   return (
     <BasePage>

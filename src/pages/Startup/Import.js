@@ -105,7 +105,7 @@ const Startup = () => {
 
         <textarea onChange={mnemonicChanged}></textarea>
 
-        <Button sx={{ position: 'absolute', bottom: '15px', right: '15px', width: '15px', height: '15px', minWidth: '15px' }} onClick={pasteClicked}><img src={pasteIcon} alt='paste'></img></Button>
+        {/* <Button sx={{ position: 'absolute', bottom: '15px', right: '15px', width: '15px', height: '15px', minWidth: '15px' }} onClick={pasteClicked}><img src={pasteIcon} alt='paste'></img></Button> */}
       </Box>
 
 
