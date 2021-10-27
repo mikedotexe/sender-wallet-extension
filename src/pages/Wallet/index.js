@@ -152,7 +152,7 @@ const Wallet = () => {
       <Box sx={{ display: 'flex', flexDirection: 'row', padding: '16px', alignItems: 'center' }}>
         <Typography color="#9CA2AA">Amount</Typography>
         <Button>
-          <img src={visibleIcon} alt="visible"></img>
+          {/* <img src={visibleIcon} alt="visible"></img> */}
         </Button>
       </Box>
 

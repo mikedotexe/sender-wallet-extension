@@ -35,11 +35,21 @@ const ButtonGroup = ({ buttons = [], onChange, value }) => {
       {
         _.map(buttons, (button, index) => {
           return (
-            <Button className={`button ${value === index ? 'selected' : 'unselected'}`} key={`${button}-${index}`} onClick={() => onChange(index)}>{button}</Button>
+            <Button
+              sx={{
+                ml: 1,
+                "&.MuiButtonBase-root:hover": {
+                  backgroundColor: value === index ? '#FFCE3E' : '#F7F7FC',
+                }
+              }}
+              className={`button ${value === index ? 'selected' : 'unselected'}`} key={`${button}-${index}`} onClick={() => onChange(index)}
+            >
+              {button}
+            </Button>
           )
         })
       }
-    </WrapperButtonGroup>
+    </WrapperButtonGroup >
   )
 }
 
