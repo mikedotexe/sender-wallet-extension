@@ -87,7 +87,15 @@ const Unlock = () => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
-        <Button onClick={unlockClicked} sx={{ backgroundColor: '#FFCE3E', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
+        <Button
+          onClick={unlockClicked}
+          sx={{
+            backgroundColor: '#FFCE3E', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px',
+            "&.MuiButtonBase-root:hover": {
+              backgroundColor: '#FFB21E',
+            }
+          }}
+        >
           <Typography sx={{ color: '#202046', fontSize: '16px', lineHeight: '18px' }}>Unlcok</Typography>
         </Button>
       </Box>
