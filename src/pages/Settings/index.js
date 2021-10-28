@@ -81,14 +81,14 @@ const Settings = () => {
 
         {
           _.map(generalSettings, (setting) => {
-            return <SettingItem item={setting}></SettingItem>
+            return <SettingItem item={setting} key={setting.title}></SettingItem>
           })
         }
 
         <Typography sx={{ marginTop: '20px', fontSize: '16px', color: '#777777' }}>Security</Typography>
         {
           _.map(securitySettings, (setting) => {
-            return <SettingItem item={setting}></SettingItem>
+            return <SettingItem item={setting} key={setting.title}></SettingItem>
           })
         }
       </Box>

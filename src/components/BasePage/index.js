@@ -8,7 +8,7 @@ import Header from '../../components/Header';
 const WrapperBox = styled(Box)`
   display: flex;
   flex-direction: column;
-  background-color: rgb(29, 29, 29);
+  background-color: rgb(28, 28, 28);
   width: 375px;
   height: 600px;
   position: relative;
