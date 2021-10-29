@@ -123,8 +123,8 @@ export const getSigner = async ({ accountId, secretKey, mnemonic }) => {
  * @returns rpc validators
  */
 export const getRpcValidators = async () => {
-  const { jsonRpc } = config;
-  const provider = new providers.JsonRpcProvider(jsonRpc);
+  const { nodeUrl } = config;
+  const provider = new providers.JsonRpcProvider(nodeUrl);
   const validators = await provider.validators();
   return validators;
 }

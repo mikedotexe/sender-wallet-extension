@@ -1,9 +1,11 @@
 import axios from 'axios';
 import _ from 'lodash';
 
+import config from '../config';
+
 const currencyQuotesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
 const apiKey = '3e99843c-4ed8-4000-8b7b-7b8c3fdc94af';
-const helperUrl = 'https://helper.mainnet.near.org';
+const { helperUrl } = config;
 
 const apiHelper = {
   /**
