@@ -17,7 +17,7 @@ import List from '../../components/List';
 import ButtonGroup from '../../components/ButtonGroup';
 import BottomDrawer from '../../components/BottomDrawer';
 import { fixedNearAmount, fixedNumber } from '../../utils';
-import { APP_ACCOUNT_STAKING, APP_UPDATE_ACCOUNT } from '../../actions/app';
+import { APP_ACCOUNT_STAKING } from '../../actions/app';
 import { usePrevious } from '../../hooks';
 import successIcon from '../../assets/img/success.png';
 import failIcon from '../../assets/img/fail.png';
@@ -300,12 +300,7 @@ const Staking = () => {
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={() => {
-              if (!stakingError) {
-                dispatch({ type: APP_UPDATE_ACCOUNT });
-              }
-              handleCloseDrawer();
-            }}
+            onClick={handleCloseDrawer}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!stakingError ? 'Rerturn' : 'Try Again'}</Typography>
           </Button>

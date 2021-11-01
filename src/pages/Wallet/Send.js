@@ -22,7 +22,7 @@ import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { fixedNearAmount, fixedTokenAmount, fixedNumber, parseNearAmount } from '../../utils';
 import { nearService } from '../../core/near';
-import { APP_ACCOUNT_TRANSFER, APP_UPDATE_ACCOUNT } from '../../actions/app';
+import { APP_ACCOUNT_TRANSFER } from '../../actions/app';
 import { usePrevious } from '../../hooks';
 import nearIcon from '../../assets/img/NEAR.png';
 
@@ -326,7 +326,6 @@ const Send = () => {
             }}
             onClick={() => {
               if (!sendError) {
-                dispatch({ type: APP_UPDATE_ACCOUNT });
                 history.push('/home');
               }
               handleCloseDrawer();

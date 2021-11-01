@@ -22,7 +22,7 @@ import successIcon from '../../assets/img/success.png';
 import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { fixedNearAmount } from '../../utils';
-import { APP_SWAP_NEAR, APP_UPDATE_ACCOUNT } from '../../actions/app';
+import { APP_SWAP_NEAR } from '../../actions/app';
 import { initStatus } from '../../reducers/loading';
 import { usePrevious } from '../../hooks';
 
@@ -81,7 +81,6 @@ const WrapperBasePage = styled(BasePage)`
 const swapTokens = ['NEAR', 'wNEAR'];
 
 const getTokenBalance = (tokens, symbol) => {
-  console.log('tokens: ', tokens);
   const token = _.find(tokens, item => item.symbol === symbol);
   if (token) {
     return fixedNearAmount(token.balance);
@@ -316,12 +315,7 @@ const Swap = () => {
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={() => {
-              if (!swapError) {
-                dispatch({ type: APP_UPDATE_ACCOUNT });
-              }
-              handleCloseDrawer();
-            }}
+            onClick={handleCloseDrawer}
           >
             <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!swapError ? 'Rerturn' : 'Try Again'}</Typography>
           </Button>

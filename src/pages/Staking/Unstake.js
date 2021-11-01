@@ -7,7 +7,6 @@ import Box from '@material-ui/core/Box';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import Avatar from '@material-ui/core/Avatar';
 import styled from 'styled-components';
 
 import BasePage from '../../components/BasePage';
@@ -19,7 +18,7 @@ import closeIcon from '../../assets/img/drawer_close.png';
 import successIcon from '../../assets/img/success.png';
 import failIcon from '../../assets/img/fail.png';
 import { fixedNearAmount, fixedNumber } from '../../utils';
-import { APP_ACCOUNT_UNSTAKING, APP_UPDATE_ACCOUNT } from '../../actions/app';
+import { APP_ACCOUNT_UNSTAKING } from '../../actions/app';
 import { usePrevious } from '../../hooks';
 import { initStatus } from '../../reducers/loading';
 
@@ -265,7 +264,6 @@ const Unstake = () => {
             }}
             onClick={() => {
               if (!unstakingError) {
-                dispatch({ type: APP_UPDATE_ACCOUNT });
                 history.push('/home');
               }
               handleDrawerClosed();
