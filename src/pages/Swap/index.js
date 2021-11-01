@@ -56,8 +56,7 @@ const WrapperBasePage = styled(BasePage)`
     border-top-right-radius: 12px;
     border-bottom-right-radius: 12px;
     width: 105px;
-    border: none;
-    border-left: 1px solid #090909;
+    border: 1px solid #090909;
     height: 48px;
     display: flex;
     align-items: center;
@@ -77,6 +76,29 @@ const WrapperBasePage = styled(BasePage)`
     height: 48px;
   }
 `
+
+const StyledMenu = styled((props) => (
+  <Menu
+    elevation={0}
+    anchorOrigin={{
+      vertical: 'bottom',
+      horizontal: 'right',
+    }}
+    transformOrigin={{
+      vertical: 'top',
+      horizontal: 'right',
+    }}
+    {...props}
+  />
+))(({ }) => ({
+  '& .MuiPaper-root': {
+    backgroundColor: 'black',
+    '& .MuiMenuItem-root': {
+      width: '100px',
+      height: '50px',
+    }
+  },
+}));
 
 const swapTokens = ['NEAR', 'wNEAR'];
 
@@ -183,23 +205,25 @@ const Swap = () => {
           <Typography sx={{ color: 'white' }}>{swapFrom}</Typography>
           <img style={{ width: '10px', height: '6px' }} src={arrowIcon} alt="arrow"></img>
         </Button>
-        <Menu
+        <StyledMenu
           id="basic-menu"
           anchorEl={swapFromAnchorEl}
           open={!!swapFromAnchorEl}
           onClose={handleSwapFromClose}
           MenuListProps={{
-            'aria-labelledby': 'basic-button',
+            'aria-labelledby': 'demo-customized-button',
           }}
         >
           {
             _.map(_.filter(swapTokens, token => token !== swapFrom), token => {
               return (
-                <MenuItem onClick={() => swapFromClicked(token)}>{token}</MenuItem>
+                <MenuItem sx={{}} key={token} onClick={() => swapFromClicked(token)}>
+                  <Typography sx={{ color: 'white' }}>{token}</Typography>
+                </MenuItem>
               )
             })
           }
-        </Menu>
+        </StyledMenu>
 
         <Button sx={{ minHeight: 0, padding: 0, position: 'absolute', right: 0, bottom: '-25px' }}><Typography sx={{ fontSize: '12px', color: '#FFCE3E' }}>Use Max</Typography></Button>
       </BaseBox>
@@ -225,7 +249,7 @@ const Swap = () => {
           <Typography sx={{ color: 'white' }}>{swapTo}</Typography>
           <img style={{ width: '10px', height: '6px' }} src={arrowIcon} alt="arrow"></img>
         </Button>
-        <Menu
+        <StyledMenu
           id="basic-menu"
           anchorEl={swapToAnchorEl}
           open={!!swapToAnchorEl}
@@ -237,11 +261,13 @@ const Swap = () => {
           {
             _.map(_.filter(swapTokens, token => token !== swapTo), token => {
               return (
-                <MenuItem onClick={() => swapToClicked(token)}>{token}</MenuItem>
+                <MenuItem key={token} onClick={() => swapToClicked(token)}>
+                  <Typography sx={{ color: 'white' }}>{token}</Typography>
+                </MenuItem>
               )
             })
           }
-        </Menu>
+        </StyledMenu>
       </BaseBox>
 
       {/* <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '18px' }}>
