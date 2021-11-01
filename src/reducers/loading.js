@@ -18,6 +18,10 @@ export const loadingSlice = createSlice({
     // Unstaking page's loading status and result
     unstakingLoading: false,
     unstakingError: null,
+
+    // Swap page's loading status and result
+    swapLoading: false,
+    swapError: null,
   },
   reducers: {
     initStatus: (state) => {
@@ -42,9 +46,13 @@ export const loadingSlice = createSlice({
       state.unstakingLoading = loading;
       state.unstakingError = error;
     },
+    setSwapStatus: (state, { payload: { loading, error } }) => {
+      state.swapLoading = loading;
+      state.swapError = error;
+    },
   }
 })
 
-export const { initStatus, setImportStatus, setSendStatus, setStakingStatus, setUnstakingStatus } = loadingSlice.actions;
+export const { initStatus, setImportStatus, setSendStatus, setStakingStatus, setUnstakingStatus, setSwapStatus } = loadingSlice.actions;
 
 export default loadingSlice.reducer;

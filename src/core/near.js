@@ -7,6 +7,9 @@ import { parseSeedPhrase } from '../utils';
 import apiHelper from "../apiHelper";
 import Validator from '../data/Validator';
 
+const WRAP_NEAR_CONTRSCT = 'wrap.near';
+// const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
+
 const {
   transactions: {
     functionCall
@@ -288,6 +291,60 @@ export default class Near {
   }
 
   /**
+   * Check storage balance is enough or not
+   * @param {*} contractId contract account id
+   * @param {*} receiverId receiver account id
+   */
+  checkStorageBalance = async ({ contractId, receiverId }) => {
+    const storageAvailable = await this.isStorageBalanceAvailable({ contractId, accountId: this.signer.accountId });
+    if (!storageAvailable) {
+      try {
+        await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE });
+      } catch (e) {
+        if (e.message.includes('attached deposit is less than')) {
+          await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE_LARGE });
+        }
+      }
+    }
+  }
+
+  /**
+   * Deposit near to wrapNear
+   * @param {*} amount deposit near amount
+   * @returns 
+   */
+  wrapNearDeposit = async ({ amount }) => {
+    const contractId = WRAP_NEAR_CONTRSCT;
+    const receiverId = this.signer.accountId;
+    await this.checkStorageBalance({ contractId, receiverId });
+
+    return await this.signer.signAndSendTransaction({
+      receiverId: contractId,
+      actions: [
+        functionCall('near_deposit', {}, FT_TRANSFER_GAS, amount),
+      ]
+    })
+  }
+
+  /**
+   * Withdraw wrap near to near
+   * @param {*} amount withdraw wrap near amount
+   * @returns 
+   */
+  wrapNearWithdraw = async ({ amount }) => {
+    const contractId = WRAP_NEAR_CONTRSCT;
+    const receiverId = this.signer.accountId;
+    await this.checkStorageBalance({ contractId, receiverId });
+
+    return await this.signer.signAndSendTransaction({
+      receiverId: contractId,
+      actions: [
+        functionCall('near_withdraw', { amount }, FT_TRANSFER_GAS, FT_TRANSFER_DEPOSIT),
+      ]
+    })
+  }
+
+  /**
    * transfer tokens to the receiver
    * @param {*} param0.accountId send account id
    * @param {*} param0.contractId token's contract account id
@@ -298,16 +355,7 @@ export default class Near {
    */
   transfer = async ({ memo, contractId, amount, receiverId }) => {
     if (contractId) {
-      const storageAvailable = await this.isStorageBalanceAvailable({ contractId, accountId: this.signer.accountId });
-      if (!storageAvailable) {
-        try {
-          await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE });
-        } catch (e) {
-          if (e.message.includes('attached deposit is less than')) {
-            await this.transferStorageDeposit({ contractId, receiverId, storageDepositAmount: FT_MINIMUM_STORAGE_BALANCE_LARGE });
-          }
-        }
-      }
+      await this.checkStorageBalance({ contractId, receiverId });
 
       return await this.signer.signAndSendTransaction({
         receiverId: contractId,

@@ -7,8 +7,8 @@ import {
 import _ from 'lodash';
 import { push } from 'connected-react-router';
 
-import { setImportStatus, setSendStatus, setStakingStatus, setUnstakingStatus } from '../reducers/loading';
-import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
+import { setImportStatus, setSendStatus, setStakingStatus, setSwapStatus, setUnstakingStatus } from '../reducers/loading';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';
@@ -117,6 +117,7 @@ function* transferSaga(action) {
     }
     yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
     yield put(setSendStatus({ loading: false, error: null }));
+    yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('transfer error: ', error);
     yield put(setSendStatus({ loading: false, error: error.message }))
@@ -137,6 +138,7 @@ function* stakingSaga(action) {
     const parseAmount = parseNearAmount(amount);
     yield call(nearService.stake, { amount: `${parseAmount}`, validatorId: selectValidator.accountId });
     yield put(setStakingStatus({ loading: false, error: null }));
+    yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('staking error: ', error);
     yield put(setStakingStatus({ loading: false, error: error.message }))
@@ -157,9 +159,33 @@ function* unstakeSaga(action) {
     const parseAmount = parseNearAmount(amount);
     yield call(nearService.unstake, { amount: `${parseAmount}`, validatorId: selectUnstakeValidator.accountId });
     yield put(setUnstakingStatus({ loading: false, error: null }));
+    yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('unstaking error: ', error);
     yield put(setUnstakingStatus({ loading: false, error: error.message }))
+  }
+}
+
+function* swapSaga(action) {
+  const { swapFrom, swapTo, amount } = action;
+  yield put(setSwapStatus({ loading: true }));
+  try {
+    const appStore = yield select(getAppStore);
+    const { currentAccount } = appStore;
+    const { mnemonic, accountId } = currentAccount;
+    yield call(nearService.setSigner, { mnemonic, accountId });
+
+    const parseAmount = parseNearAmount(amount);
+    if (swapFrom === 'NEAR' && swapTo === 'wNEAR') {
+      yield call(nearService.wrapNearDeposit, { amount: `${parseAmount}` });
+    } else {
+      yield call(nearService.wrapNearWithdraw, { amount: `${parseAmount}` });
+    }
+    yield put(setSwapStatus({ loading: false, error: null }));
+    yield put({ type: APP_UPDATE_ACCOUNT })
+  } catch (error) {
+    console.log('swap error: ', error);
+    yield put(setSwapStatus({ loading: false, error: error.message }));
   }
 }
 
@@ -170,4 +196,5 @@ export default function* appSagas() {
   yield takeLatest(APP_ACCOUNT_TRANSFER, transferSaga);
   yield takeLatest(APP_ACCOUNT_STAKING, stakingSaga);
   yield takeLatest(APP_ACCOUNT_UNSTAKING, unstakeSaga);
+  yield takeLatest(APP_SWAP_NEAR, swapSaga);
 }
