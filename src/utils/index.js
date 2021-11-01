@@ -3,7 +3,7 @@ import _ from 'lodash';
 import BN from 'bn.js';
 
 import config from '../config';
-import Account from '../data/account';
+import Account from '../data/Account';
 import { nearService } from '../core/near';
 
 const bip39 = require('bip39-light');

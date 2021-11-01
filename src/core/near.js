@@ -5,7 +5,7 @@ import _ from 'lodash';
 import config from '../config';
 import { parseSeedPhrase } from '../utils';
 import apiHelper from "../apiHelper";
-import Validator from '../data/validator';
+import Validator from '../data/Validator';
 
 const {
   transactions: {
