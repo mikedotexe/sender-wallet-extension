@@ -119,7 +119,7 @@ export const formatAccount = async ({
 	const { secretKey, publicKey } = phrase;
 	const accountId = await nearService.getAccountId(publicKey);
 	let accountBalance = balance;
-	if (_.isEmpty(accountBalance)) {
+	if (_.isEmpty(accountBalance) && accountId) {
 		await nearService.setSigner({ mnemonic, accountId });
 		accountBalance = await nearService.getAccountBalance();
 	}

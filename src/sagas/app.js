@@ -38,13 +38,17 @@ function* importAccountSaga(action) {
     const isExist = _.findIndex(accounts, item => item.mnemonic === mnemonic);
     if (isExist < 0) {
       const account = yield call(formatAccount, { mnemonic });
-      yield put(addAccount(account));
-      if (lockupPassword) {
-        yield put(push('/home'));
+      if (!account.accountId) {
+        yield put(setImportStatus({ loading: false, error: 'Account is not exist in mainnet' }));
       } else {
-        yield put(push('/setPwd'));
+        yield put(addAccount(account));
+        if (lockupPassword) {
+          yield put(push('/home'));
+        } else {
+          yield put(push('/setPwd'));
+        }
+        yield put(setImportStatus({ loading: false }));
       }
-      yield put(setImportStatus({ loading: false }));
     } else {
       yield put(setImportStatus({ loading: false, error: 'Account is exist' }));
     }
