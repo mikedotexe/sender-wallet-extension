@@ -1,21 +1,23 @@
-// alert(1);
-// window.aaa = '123';
+window.addEventListener("message", function (event) {
+  // console.log('script: ', event.data);
+  try {
+    console.log('script store: ', JSON.parse(event.data));
+    const store = JSON.parse(event.data);
 
-window.walletAccount.requestSignIn = (data, text) => {
-  window.postMessage('notification');
-  // console.log('data: ', data);
-  // console.log('text: ', text);
-  // alert(1);
-  // var opt = {
-  //   type: 'list',
-  //   title: 'keep burning',
-  //   message: 'Primary message to display',
-  //   priority: 1,
-  //   items: [{ title: '', message: '' }],
-  //   iconUrl: 'icon-128.png'
-  // };
+    const { near, walletAccount, accountId } = store;
+    window.near = near;
+    window.walletAccount = walletAccount;
+    // window.accountId = accountId;
 
-
-  // chrome.notifications.create();
-  // chrome.notifications.create('notify1', opt, function (id) { console.log("Last error:", chrome.runtime.lastError); });
-}
+    window.walletAccount.requestSignIn = (...data) => {
+      console.log('data: ', data);
+    }
+  } catch (error) {
+    console.log('script: ', event.data);
+  }
+  // console.log('content script get message: ', event);
+  // We only accept messages from ourselves
+  // chrome.runtime.sendMessage(event.data);
+  // chrome.tabs.sendMessage(event.data);
+  // console.log('sendMessage success');
+});
