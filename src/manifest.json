@@ -27,6 +27,11 @@
   "permissions": [
     "storage",
     "notifications",
-    "activeTab"
-  ]
+    "activeTab",
+    "tabs"
+  ],
+  "externally_connectable": {
+    "matches": ["http://localhost:1234/"],
+    "ids": ["*"]
+  }
 }

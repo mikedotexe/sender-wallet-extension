@@ -1,5 +1,4 @@
 let notificationId = 0;
-let callbacks = {};
 
 // window.addEventListener("message", function (event) {
 //   // console.log('script: ', event.data);
@@ -35,24 +34,15 @@ let callbacks = {};
 //   // console.log('sendMessage success');
 // });
 
-window.walletAccount.requestSignIn = ({ contractId, methodNames = [] }, callback) => {
-  callbacks[notificationId] = callback;
-  window.postMessage(JSON.stringify({ type: 'fromPage', contractId, methodNames, notificationId, method: 'signin' }));
-  notificationId += 1;
-}
+const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
-// window.addEventListener("message", function (event) {
-//   try {
-//     console.log('event data: ', event.data);
-//     const data = JSON.parse(event.data);
-//     console.log('data: ', data);
-//     if (data.type === 'fromPage' && !data.error && data.res) {
-//       const { notificationId } = data;
-//       callbacks[notificationId]();
-//     } else {
-//       alert(data.error);
-//     }
-//   } catch (error) {
-//     console.log('error: ', error);
-//   }
-// })
+window.walletAccount.requestSignIn = ({ contractId, methodNames = [] }, callback) => {
+  chrome.runtime.sendMessage(extensionId, { type: 'fromPage', contractId, methodNames, notificationId, method: 'signin' }, function (response) {
+    console.log('response: ', response);
+    if (response === 'signin success') {
+      callback();
+    } else {
+      console.log('User reject');
+    }
+  })
+}

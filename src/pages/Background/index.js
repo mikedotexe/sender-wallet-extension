@@ -144,9 +144,54 @@ const queryString = require('query-string');
 //   })
 // }
 
-const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
+// chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
+//   chrome.webNavigation.getAllFrames({ tabId: tabId }, function (details) {
+//     details.forEach(function (frame) {
+//       chrome.tabs.sendMessage(
+//         tabId,
+//         { text: 'hey_cs' },
+//         { frameId: frame.frameId },
+//         function (response) { console.log(response) }
+//       );
+//     });
+//   });
+// })
 
-const contentScriptPort = chrome.runtime.connect(extensionId);
+let callbacks = {};
+
+let sendResponses = {};
+
+chrome.runtime.onMessageExternal.addListener(
+  async function (request, sender, sendResponse) {
+    console.log('onMessageExternal request: ', request);
+    console.log('onMessageExternal sender: ', sender);
+    console.log('onMessageExternal sendResponse: ', sendResponse);
+
+    const { notificationId } = request;
+    if (request.type === 'fromPage' && request.method === 'signin') {
+      callbacks[notificationId] = sendResponse;
+      const stringified = queryString.stringify(request);
+      console.log('stringified: ', stringified);
+      const url = `popup.html#/notification?${stringified}`;
+      console.log('url: ', url);
+      const options = {
+        url,
+        type: 'popup',
+        width: 360,
+        height: 620,
+        left: 100,
+        top: 100,
+      }
+      await extension.windows.create(options, (newWindow) => {
+        console.log('newWindow: ', newWindow);
+      })
+
+      // sendResponse({ openWindow: 'success' });
+      sendResponses[notificationId] = sendResponse;
+    }
+    return true;
+  }
+)
 
 
 chrome.runtime.onMessage.addListener(async function (request, sender, sendRsponse) {
@@ -154,53 +199,67 @@ chrome.runtime.onMessage.addListener(async function (request, sender, sendRspons
   console.log('bg sender: ', sender);
   console.log('bg sendRsponse: ', sendRsponse);
 
-  try {
-    const data = JSON.parse(request);
-    const { contractId, methodNames, notificationId, method } = data;
-    console.log('data: ', data);
-    if (data.type === 'fromContent') {
-      if (method === 'signin') {
-        const stringified = queryString.stringify(data);
-        console.log('stringified: ', stringified);
-        const url = `popup.html#/notification?${stringified}`;
-        console.log('url: ', url);
-        const options = {
-          url,
-          type: 'popup',
-          width: 360,
-          height: 620,
-          left: 100,
-          top: 100,
-        }
-        await extension.windows.create(options, (newWindow) => {
-          console.log('newWindow: ', newWindow);
-        })
-      }
-    } else if (data.type === 'fromPage') {
-      if (data.error) {
-        console.log('from page error: ', data.error);
-        // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        //   console.log('tabs: ', tabs);
-        //   chrome.tabs.sendMessage(tabs[0].id, { type: 'result', error: data.error, notificationId }, function (response) {
-        //     console.log(response);
-        //   });
-        // });
-
-
-        contentScriptPort.postMessage({ type: 'result', error: data.error, notificationId });
-      } else {
-        console.log('from page success');
-        chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-          console.log('tabs: ', tabs);
-          chrome.tabs.sendMessage(tabs[0].id, { type: 'result', res: data.res, notificationId }, function (response) {
-            console.log(response);
-          });
-        });
-      }
+  if (request.type === 'result') {
+    console.log('callbacks: ', callbacks);
+    if (request.error) {
+      sendResponses[request.notificationId](request.error);
+    } else {
+      sendResponses[request.notificationId]('signin success');
     }
-  } catch (error) {
-    console.log('bg error: ', error);
+    return;
   }
+
+  // try {
+  //   const data = JSON.parse(request);
+  //   const { contractId, methodNames, notificationId, method } = data;
+  //   console.log('data: ', data);
+  //   if (data.type === 'fromContent') {
+  //     if (method === 'signin') {
+  //       const stringified = queryString.stringify(data);
+  //       console.log('stringified: ', stringified);
+  //       const url = `popup.html#/notification?${stringified}`;
+  //       console.log('url: ', url);
+  //       const options = {
+  //         url,
+  //         type: 'popup',
+  //         width: 360,
+  //         height: 620,
+  //         left: 100,
+  //         top: 100,
+  //       }
+  //       await extension.windows.create(options, (newWindow) => {
+  //         console.log('newWindow: ', newWindow);
+  //       })
+  //     }
+  //   } else if (data.type === 'fromPage') {
+  //     if (data.error) {
+  //       console.log('from page error: ', data.error);
+  //       callbacks[notificationId]();
+  //       // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  //       //   console.log('tabs: ', tabs);
+  //       //   chrome.tabs.sendMessage(tabs[0].id, { type: 'result', error: data.error, notificationId }, function (response) {
+  //       //     console.log(response);
+  //       //   });
+  //       // });
+  //       // chrome.windows.getCurrent((window) => {
+  //       //   console.log('123 window: ', window);
+  //       //   window.postMessage(JSON.stringify({ type: 'result', error: data.error, notificationId }));
+  //       // });
+  //     } else {
+  //       console.log('from page success');
+  //       // chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+  //       //   console.log('tabs: ', tabs);
+  //       //   chrome.tabs.sendMessage(tabs[0].id, { type: 'result', res: data.res, notificationId }, function (response) {
+  //       //     console.log(response);
+  //       //   });
+  //       // });
+  //     }
+  //   }
+  // } catch (error) {
+  //   console.log('bg error: ', error);
+  // }
+
+  return true;
 })
 
 

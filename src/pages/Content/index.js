@@ -1,109 +1,18 @@
 // import { printLine } from './modules/print';
-import * as nearAPI from "near-api-js";
-import { key_pair } from 'near-api-js/lib/utils';
-import { transactions, KeyPair, keyStores, connect } from 'near-api-js';
-import queryString from 'query-string';
-
-const extension = require('extensionizer');
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
 // printLine("Using the 'printLine' function from the Print Module");
 
-let store = {};
-let currentAccount = {};
-const config = {
-  network: 'testnet',
-  networkId: 'testnet',
-  nodeUrl: "https://rpc.testnet.near.org",
-  walletUrl: "https://wallet.testnet.near.org",
-  helperUrl: "https://helper.testnet.near.org",
-  explorerUrl: "https://explorer.testnet.near.org",
-}
-chrome.storage.local.get('persist:root', async function (c) {
-  let value = c['persist:root'];
-  value = value.replaceAll('\\', '');
-  value = value.replaceAll('\"{', '{');
-  value = value.replaceAll('}\"', '}');
-  store = JSON.parse(value);
-  console.log('content store: ', store);
-  currentAccount = store.app.currentAccount;
-});
-
-window.addEventListener("message", async function (event) {
-  try {
-    const data = JSON.parse(event.data);
-    const { contractId, methodNames, notificationId, method } = data;
-    console.log('data: ', data);
-    try {
-      if (data.type === 'fromPage') {
-        if (method === 'signin') {
-          // const stringified = queryString.stringify(data);
-          // const options = {
-          //   url: `popup.html#/notification?${stringified}`,
-          //   type: 'popup',
-          //   width: 360,
-          //   height: 620,
-          //   left: 100,
-          //   top: 100,
-          // }
-          // await extension.windows.create(options, (newWindow) => {
-          // })
-
-          chrome.runtime.sendMessage(JSON.stringify({ ...data, type: 'fromContent' }));
-        }
-        // const { secretKey, accountId } = currentAccount;
-        // const amount = nearAPI.utils.format.parseNearAmount('0.25');
-        // const keyPair = KeyPair.fromString(secretKey);
-        // const keyStore = new keyStores.InMemoryKeyStore();
-        // await keyStore.setKey('testnet', accountId, keyPair);
-        // const near = await connect({
-        //   ...config,
-        //   keyStore,
-        // })
-        // const account = await near.account(accountId);
-        // const accessKey = transactions.functionCallAccessKey(contractId, methodNames, amount);
-        // const pk = nearAPI.utils.KeyPair.fromRandom('ed25519').getPublicKey().toString();
-        // const actions = [transactions.addKey(key_pair.PublicKey.from(pk), accessKey)];
-
-        // const res = await account.signAndSendTransaction({
-        //   receiverId: accountId,
-        //   actions,
-        // });
-
-        // console.log('res: ', res);
-
-        // window.postMessage(JSON.stringify({ type: 'fromContent', res, notificationId }));
-      }
-    } catch (error) {
-      window.postMessage(JSON.stringify({ type: 'fromContent', error: error.message, notificationId }));
-    }
-  } catch (error) {
-    console.log('index error: ', error);
-  }
-
-  // console.log('content script get message: ', event);
-  // // We only accept messages from ourselves
-  // // chrome.runtime.sendMessage(event.data);
-  // // chrome.tabs.sendMessage(event.data);
-  // console.log('sendMessage success');
-  // chrome.runtime.sendMessage('111', function (text) {
-  //   console.log(text);
-  // });
-});
-
-const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
-
-const contentScriptPort = chrome.runtime.connect(extensionId);
-contentScriptPort.onMessage.addListener(function (message) {
-  console.log(message);
-})
-
-// chrome.runtime.onMessage.addListener(function (request, sender) {
-//   console.log(request.message);
-
-//   return true;
+// chrome.storage.local.get('persist:root', async function (c) {
+//   let value = c['persist:root'];
+//   value = value.replaceAll('\\', '');
+//   value = value.replaceAll('\"{', '{');
+//   value = value.replaceAll('}\"', '}');
+//   store = JSON.parse(value);
+//   console.log('content store: ', store);
+//   currentAccount = store.app.currentAccount;
 // });
 
 function injectScript(file, node) {

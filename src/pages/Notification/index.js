@@ -21,6 +21,8 @@ const config = {
   explorerUrl: "https://explorer.testnet.near.org",
 }
 
+const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
+
 const Notification = () => {
   const location = useLocation();
   const appStore = useSelector((state) => state.app);
@@ -38,8 +40,13 @@ const Notification = () => {
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
-    const str = JSON.stringify({ type: 'fromPage', error: 'User reject', notificationId });
-    chrome.runtime.sendMessage(str);
+    // const str = JSON.stringify({ type: 'fromPage', error: 'User reject', notificationId });
+    // chrome.runtime.sendMessage(str);
+    chrome.runtime.sendMessage(extensionId, { type: 'result', error: 'User reject', notificationId }, function (response) {
+      console.log('notification ....: ', response);
+      window.close();
+    })
+    // window.postMessage(str);
     // window.close();
   }
 
@@ -73,17 +80,17 @@ const Notification = () => {
       console.log('res: ', res);
       setText(JSON.stringify(res));
 
-      // window.postMessage(JSON.stringify({ type: 'fromContent', res, notificationId }));
-
-      const str = JSON.stringify({ type: 'fromPage', res, notificationId });
-      chrome.runtime.sendMessage(str);
+      chrome.runtime.sendMessage(extensionId, { type: 'result', res, notificationId }, function (response) {
+        console.log('signin success ....: ', response);
+        window.close();
+      })
     } catch (error) {
       console.log('error: ', error);
       setText(error.message);
-      const str = JSON.stringify({ type: 'fromPage', error: error.message, notificationId });
-      chrome.runtime.sendMessage(str);
-    } finally {
-      // window.close();
+      chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, notificationId }, function (response) {
+        console.log('signin failed ....: ', response);
+        window.close();
+      })
     }
   }
 
