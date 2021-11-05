@@ -40,14 +40,10 @@ const Notification = () => {
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
-    // const str = JSON.stringify({ type: 'fromPage', error: 'User reject', notificationId });
-    // chrome.runtime.sendMessage(str);
     chrome.runtime.sendMessage(extensionId, { type: 'result', error: 'User reject', notificationId }, function (response) {
       console.log('notification ....: ', response);
       window.close();
     })
-    // window.postMessage(str);
-    // window.close();
   }
 
   const confirmClicked = async () => {
@@ -57,8 +53,8 @@ const Notification = () => {
 
     const { notificationId, contractId, methodNames } = params;
     try {
-
       const { secretKey, accountId } = currentAccount;
+      console.log('currentAccount: ', currentAccount);
       const amount = nearAPI.utils.format.parseNearAmount('0.25');
       const keyPair = KeyPair.fromString(secretKey);
       const keyStore = new keyStores.InMemoryKeyStore();
@@ -77,7 +73,6 @@ const Notification = () => {
         actions,
       });
 
-      console.log('res: ', res);
       setText(JSON.stringify(res));
 
       chrome.runtime.sendMessage(extensionId, { type: 'result', res, notificationId }, function (response) {
