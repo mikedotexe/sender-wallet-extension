@@ -3,10 +3,9 @@ const queryString = require('query-string');
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
-    const notificationId = Date.now();
-
+    const { notificationId } = request;
     if (request.type === 'fromPage' && request.method === 'signin') {
-      const stringified = queryString.stringify({ ...request, notificationId });
+      const stringified = queryString.stringify(request);
       const url = `popup.html#/notification?${stringified}`;
       const options = {
         url,
@@ -16,16 +15,17 @@ chrome.runtime.onMessage.addListener(
         left: 100,
         top: 100,
       }
+
+      // Open the chrome extension's popup to ask user to reject or approve
       extension.windows.create(options, (newWindow) => {
         console.log('newWindow: ', newWindow);
       })
-
-      console.log('notificationId: ', notificationId);
     }
 
     if (request.type === 'result') {
-      chrome.storage.local.set({ [`result-${request.notificationId}`]: JSON.stringify(request) }, function () {
-        console.log('key: ', [`result-${request.notificationId}`]);
+      // Set the result to chrome's extension local storage
+      chrome.storage.local.set({ [`notification-result-${request.notificationId}`]: JSON.stringify(request) }, function () {
+        console.log('key: ', [`notification-result-${request.notificationId}`]);
         console.log('Value is set to: ', JSON.stringify(request));
       });
     }

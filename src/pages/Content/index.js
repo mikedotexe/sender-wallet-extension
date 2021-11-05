@@ -1,20 +1,16 @@
 // import { printLine } from './modules/print';
+import _ from 'lodash';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
-let notificationId = null;
-
 window.addEventListener('message', function (event) {
-  console.log('content message: ', event.data);
-
   try {
     const data = JSON.parse(event.data);
     if (data.type === 'fromPage' && data.method === 'signin') {
       chrome.runtime.sendMessage(extensionId, data, function (response) {
-        notificationId = response;
       })
     }
   } catch (error) {
@@ -22,9 +18,10 @@ window.addEventListener('message', function (event) {
   }
 })
 
+// Get the user's operation result
 chrome.storage.onChanged.addListener(function (changes, namespace) {
   for (let [key, { oldValue, newValue }] of Object.entries(changes)) {
-    if (key === `result-${notificationId}`) {
+    if (_.startsWith(key, 'notification-result-')) {
       window.postMessage(newValue);
     }
   }

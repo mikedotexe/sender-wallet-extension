@@ -1,8 +1,10 @@
-let globalCallback;
+const callbacks = {};
 
 window.walletAccount.requestSignIn = ({ contractId, methodNames = [] }, callback) => {
-  globalCallback = callback;
-  const data = { type: 'fromPage', contractId, methodNames, method: 'signin' };
+  // ensure the unique notification id
+  const notificationId = Date.now();
+  callbacks[notificationId] = callback;
+  const data = { type: 'fromPage', contractId, methodNames, method: 'signin', notificationId };
   window.postMessage(JSON.stringify(data));
 }
 
@@ -11,9 +13,8 @@ window.addEventListener('message', function (event) {
   try {
     const data = JSON.parse(event.data);
     if (data.type === 'result') {
-      globalCallback(data);
+      callbacks[data.notificationId](data);
     }
   } catch (error) {
-
   }
 })
