@@ -117,6 +117,9 @@ var options = {
       'process.env.NODE_ENV': JSON.stringify('development')
     }),
     new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
+    new webpack.ProvidePlugin({
       process: 'process/browser',
     }),
     new webpack.ProgressPlugin(),
