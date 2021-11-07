@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
+import queryString from 'query-string';
 
 import StartupHeader from '../../components/StartupHeader';
 import BaseBox from '../../components/BaseBox';
@@ -45,6 +46,7 @@ const WrapperBox = styled(Box)`
 
 const Unlock = () => {
   const history = useHistory();
+  const location = useLocation();
   const dispatch = useDispatch();
   const appStore = useSelector((state) => state.app);
   const [password, setPassword] = useState('');
@@ -56,10 +58,17 @@ const Unlock = () => {
     setPassword(e.target.value);
   }
   const unlockClicked = () => {
+    const data = queryString.parse(location.search);
     const isCorrect = passwordHash.verify(password, salt, lockupPassword)
     if (isCorrect) {
       dispatch(setLockup(false));
-      history.push('/home');
+      if (data.notificationId) {
+        setTimeout(() => {
+          window.close();
+        }, 500)
+      } else {
+        history.push('/home');
+      }
     } else {
       setError('Passowrd is not correct');
     }

@@ -9,6 +9,8 @@ import Button from '@material-ui/core/Button';
 import queryString from 'query-string';
 import * as nearAPI from 'near-api-js';
 import { key_pair } from 'near-api-js/lib/utils';
+import { functionCall } from 'near-api-js/lib/transaction';
+import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
 
 const { connect, keyStores, transactions, KeyPair } = nearAPI;
 
@@ -23,7 +25,7 @@ const config = {
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
-const Notification = () => {
+const SignAndSendTransaction = () => {
   const location = useLocation();
   const appStore = useSelector((state) => state.app);
   const [params, setParams] = useState({});
@@ -49,41 +51,52 @@ const Notification = () => {
   const confirmClicked = async () => {
     console.log('confirmClicked');
 
-    setText('Signin');
+    setText('Sign and sending, please do not clost this window.');
 
-    const { notificationId, contractId, methodNames } = params;
+    const { notificationId, contractId, methodName, params: args, gas, deposit, receiverId, amount } = params;
     try {
       const { secretKey, accountId } = currentAccount;
-      console.log('currentAccount: ', currentAccount);
-      const amount = nearAPI.utils.format.parseNearAmount('0.25');
-      const keyPair = KeyPair.fromString(secretKey);
       const keyStore = new keyStores.InMemoryKeyStore();
+      const keyPair = KeyPair.fromString(secretKey);
       await keyStore.setKey('testnet', accountId, keyPair);
       const near = await connect({
         ...config,
         keyStore,
       })
       const account = await near.account(accountId);
-      const accessKey = transactions.functionCallAccessKey(contractId, methodNames || [], amount);
-      const pk = nearAPI.utils.KeyPair.fromRandom('ed25519').getPublicKey().toString();
-      const actions = [transactions.addKey(key_pair.PublicKey.from(pk), accessKey)];
 
-      const res = await account.signAndSendTransaction({
-        receiverId: accountId,
-        actions,
-      });
+      let res;
+      if (contractId) {
+        res = await account.signAndSendTransaction({
+          receiverId: contractId,
+          actions: [
+            functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT),
+          ]
+        });
+      } else {
+        res = await account.sendMoney({ receiverId, amount });
+      }
+
+      // const accessKey = transactions.functionCallAccessKey(contractId, methodNames || [], amount);
+      // const pk = nearAPI.utils.KeyPair.fromRandom('ed25519').getPublicKey().toString();
+      // const actions = [transactions.addKey(key_pair.PublicKey.from(pk), accessKey)];
+
+      // const res = await account.signAndSendTransaction({
+      //   receiverId: accountId,
+      //   actions,
+      // });
 
       setText(JSON.stringify(res));
 
-      chrome.runtime.sendMessage(extensionId, { type: 'result', res, notificationId }, function (response) {
-        console.log('signin success ....: ', response);
+      chrome.runtime.sendMessage(extensionId, { type: 'result', res, method: 'signAndSendTransaction', notificationId }, function (response) {
+        console.log('signAndSendTransaction success ....: ', response);
         window.close();
       })
     } catch (error) {
-      console.log('error: ', error);
+      console.log('signAndSendTransaction error: ', error);
       setText(error.message);
-      chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, notificationId }, function (response) {
-        console.log('signin failed ....: ', response);
+      chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, method: 'signAndSendTransaction', notificationId }, function (response) {
+        console.log('signAndSendTransaction failed ....: ', response);
         window.close();
       })
     }
@@ -91,7 +104,7 @@ const Notification = () => {
 
   return (
     <Box>
-      <Box>Notification page</Box>
+      <Box>Sign And Send Transaction Page</Box>
 
       <Button onClick={rejectClicked}>Reject</Button>
       <Button onClick={confirmClicked}>Confirm</Button>
@@ -101,4 +114,4 @@ const Notification = () => {
   )
 }
 
-export default Notification;
+export default SignAndSendTransaction;

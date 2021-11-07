@@ -13,7 +13,8 @@ import Validators from './pages/Staking/Validators';
 import Unstake from './pages/Staking/Unstake';
 import ChangePwd from './pages/Settings/ChangePwd';
 
-import Notification from './pages/Notification';
+import Signin from './pages/Notification/Signin';
+import SignAndSendTransaction from './pages/Notification/SignAndSendTransaction';
 
 function Router() {
   return (
@@ -31,7 +32,8 @@ function Router() {
         <Route exact path='/staking/validators/:isUnstake' component={Validators}></Route>
         <Route exact path='/staking/unstake' component={Unstake}></Route>
         <Route exact path='/settings/changepwd' component={ChangePwd}></Route>
-        <Route exact path='/notification' component={Notification}></Route>
+        <Route exact path='/notification/signin' component={Signin}></Route>
+        <Route exact path='/notification/signAndSendTransaction' component={SignAndSendTransaction}></Route>
       </Switch>
     </HashRouter>
   )

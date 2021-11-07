@@ -42,6 +42,7 @@ var options = {
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.js'),
     script: path.join(__dirname, 'src', 'pages', 'Content', 'script.js'),
     devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.js'),
+    nearApiJs: path.join(__dirname, 'src', 'core', 'near-api-js.js'),
   },
   chromeExtensionBoilerplate: {
     notHotReload: ['contentScript', 'devtools', 'script'],
