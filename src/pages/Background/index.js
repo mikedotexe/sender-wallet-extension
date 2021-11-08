@@ -19,19 +19,24 @@ chrome.runtime.onMessage.addListener(
           url = `popup.html#/notification/signAndSendTransaction?${stringified}`;
         }
         console.log('url: ', url);
-        const options = {
-          url,
-          type: 'popup',
-          width: 375,
-          height: 600,
-          left: 100,
-          top: 100,
-        }
+        chrome.windows.getLastFocused().then(lastFocused => {
+          console.log('getLastFocused: ', lastFocused);
+          const top = lastFocused.top
+          const left = lastFocused.left + (lastFocused.width - 375);
+          const options = {
+            url,
+            type: 'popup',
+            width: 375,
+            height: 600,
+            left,
+            top,
+          }
 
-        // Open the chrome extension's popup to ask user to reject or approve
-        extension.windows.create(options, (newWindow) => {
-          console.log('newWindow: ', newWindow);
-        })
+          // Open the chrome extension's popup to ask user to reject or approve
+          extension.windows.create(options, (newWindow) => {
+            console.log('newWindow: ', newWindow);
+          })
+        });
       }
 
       console.log('background receive request: ', request);
