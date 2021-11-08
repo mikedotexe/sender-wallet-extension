@@ -2,6 +2,7 @@ const resolves = {};
 
 const emptyAuthData = { accountId: '', allKeys: [] };
 
+// ensure the unique notification id
 const getNotificationId = () => {
   return Date.now();
 }
@@ -23,6 +24,18 @@ class Wallet {
     })
   }
 
+  onAccountChanged = (callback) => {
+    window.addEventListener('message', function (event) {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'fromContent' && data.method === 'accountChanged') {
+          callback(data.accountId);
+        }
+      } catch (error) {
+      }
+    })
+  }
+
   signOut = () => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
@@ -38,7 +51,6 @@ class Wallet {
 
   requestSignIn = ({ contractId, methodNames = [] }) => {
     return new Promise((resolve, reject) => {
-      // ensure the unique notification id
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'fromPage', contractId: (contractId || this.contractId), methodNames, method: 'signin', notificationId };
@@ -76,6 +88,7 @@ window.addEventListener('message', function (event) {
   console.log('inject script message: ', event.data);
   try {
     const data = JSON.parse(event.data);
+
     if (data.type === 'result') {
       if (data.method === 'init') {
         if (data.res === 'empty') {

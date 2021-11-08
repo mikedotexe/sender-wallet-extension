@@ -12,16 +12,17 @@ const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
 let extensionPersisStore = {};
 
-const updatePersistStore = () => {
-  chrome.storage.local.get('persist:root', function (result) {
-    let value = result['persist:root'] || '{}';
-    console.log('value: ', value);
-    value = value.replaceAll('\\', '');
-    value = value.replaceAll('\"{', '{');
-    value = value.replaceAll('}\"', '}');
+const updatePersistStore = async () => {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('persist:root', function (result) {
+      let value = result['persist:root'] || '{}';
+      value = value.replaceAll('\\', '');
+      value = value.replaceAll('\"{', '{');
+      value = value.replaceAll('}\"', '}');
 
-    extensionPersisStore = JSON.parse(value);
-    console.log('extensionPersisStore: ', extensionPersisStore);
+      extensionPersisStore = JSON.parse(value);
+      resolve(extensionPersisStore);
+    })
   })
 }
 
@@ -105,8 +106,12 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     }
 
     if (key === 'persist:root') {
-      // const oldPersistStore = { ...extensionPersisStore };
-      updatePersistStore();
+      const oldPersistStore = { ...extensionPersisStore };
+      updatePersistStore().then((res) => {
+        if (oldPersistStore.app.currentAccount.accountId !== res.app.currentAccount.accountId) {
+          window.postMessage(JSON.stringify({ type: 'fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId }));
+        }
+      });
     }
   }
 });
