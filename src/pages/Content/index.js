@@ -3,17 +3,10 @@ import _ from 'lodash';
 import * as nearAPI from 'near-api-js';
 import { keyStores, KeyPair } from 'near-api-js';
 
+import config from '../../config';
+
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
-
-const config = {
-  network: 'testnet',
-  networkId: 'testnet',
-  nodeUrl: "https://rpc.testnet.near.org",
-  walletUrl: "https://wallet.testnet.near.org",
-  helperUrl: "https://helper.testnet.near.org",
-  explorerUrl: "https://explorer.testnet.near.org",
-}
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 

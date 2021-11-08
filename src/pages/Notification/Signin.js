@@ -10,19 +10,11 @@ import Typography from '@material-ui/core/Typography';
 import queryString from 'query-string';
 import * as nearAPI from 'near-api-js';
 import { key_pair } from 'near-api-js/lib/utils';
-
 import styled from 'styled-components';
 
-const { connect, keyStores, KeyPair } = nearAPI;
+import config from '../../config';
 
-const config = {
-  network: 'testnet',
-  networkId: 'testnet',
-  nodeUrl: "https://rpc.testnet.near.org",
-  walletUrl: "https://wallet.testnet.near.org",
-  helperUrl: "https://helper.testnet.near.org",
-  explorerUrl: "https://explorer.testnet.near.org",
-}
+const { connect, keyStores, KeyPair } = nearAPI;
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 

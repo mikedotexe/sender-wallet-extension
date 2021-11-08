@@ -7,8 +7,8 @@ import { parseSeedPhrase } from '../utils';
 import apiHelper from "../apiHelper";
 import Validator from '../data/Validator';
 
-const WRAP_NEAR_CONTRSCT = 'wrap.near';
-// const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
+// const WRAP_NEAR_CONTRSCT = 'wrap.near';
+const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
 
 const {
   transactions: {
@@ -140,11 +140,12 @@ export default class Near {
 
   /**
    * Set signer account
+   * @param {*} secretKey account's secretKey
    * @param {*} mnemonic account's mnemonic
    * @param {*} accountId account id
    */
-  setSigner = async ({ mnemonic, accountId }) => {
-    const signer = await getSigner({ mnemonic, accountId });
+  setSigner = async ({ secretKey, mnemonic, accountId }) => {
+    const signer = await getSigner({ secretKey, mnemonic, accountId });
     this.signer = signer;
   }
 

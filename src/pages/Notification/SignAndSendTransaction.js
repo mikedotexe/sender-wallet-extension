@@ -12,18 +12,11 @@ import * as nearAPI from 'near-api-js';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import { formatNearAmount, parseNearAmount } from '../../utils';
+import { formatNearAmount } from '../../utils';
+import { nearService } from '../../core/near';
+import config from '../../config';
 
 const { connect, keyStores, KeyPair } = nearAPI;
-
-const config = {
-  network: 'testnet',
-  networkId: 'testnet',
-  nodeUrl: "https://rpc.testnet.near.org",
-  walletUrl: "https://wallet.testnet.near.org",
-  helperUrl: "https://helper.testnet.near.org",
-  explorerUrl: "https://explorer.testnet.near.org",
-}
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
@@ -61,7 +54,7 @@ const SignAndSendTransaction = () => {
   useEffect(() => {
     console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
-    setParams(data);
+    setParams({ ...data, params: data.params ? JSON.parse(data.params) : '' });
 
     document.title = "Sign And Send Transaction";
   }, [])
@@ -82,6 +75,7 @@ const SignAndSendTransaction = () => {
     setIsSignin(true);
 
     const { notificationId, contractId, methodName, params: args, gas, deposit, receiverId, amount } = params;
+    console.log('params: ', params);
     try {
       const { secretKey, accountId } = currentAccount;
       const keyStore = new keyStores.InMemoryKeyStore();
@@ -92,14 +86,16 @@ const SignAndSendTransaction = () => {
         keyStore,
       })
       const account = await near.account(accountId);
-      console.log('account: ', account);
-      console.log('secretKey: ', secretKey);
-      console.log('contractId: ', contractId);
-      console.log('receiverId: ', receiverId);
 
       let res;
       if (contractId) {
-        res = await account.functionCall({ contractId, methodName, args, gas, attachedDeposit: deposit });
+        if (methodName === 'ft_transfer') {
+          await nearService.setSigner({ secretKey, accountId });
+          res = await nearService.transfer({ contractId, amount: `${args.amount}`, receiverId: args.receiver_id });
+        } else {
+          console.log('{ contractId, methodName, args, gas, attachedDeposit: deposit }: ', { contractId, methodName, args, gas, attachedDeposit: deposit });
+          res = await account.functionCall({ contractId, methodName, args: args || {}, gas, attachedDeposit: deposit });
+        }
       } else {
         res = await account.sendMoney(receiverId, amount);
       }
@@ -130,23 +126,23 @@ const SignAndSendTransaction = () => {
         {
           params.contractId && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Contract ID</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{params.contractId}</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Contract ID</Typography>
+              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{params.contractId}</Typography>
             </Box>
           )
         }
         {
           params.methodName && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Method</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{params.methodName}</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Method</Typography>
+              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{params.methodName}</Typography>
             </Box>
           )
         }
         {
           params.receiverId && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Receiver</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Receiver</Typography>
               <Typography sx={{ fontSize: '15px', color: 'white' }}>{params.receiverId}</Typography>
             </Box>
           )
@@ -154,8 +150,8 @@ const SignAndSendTransaction = () => {
         {
           params.amount && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Amount</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.amount)}</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Amount</Typography>
+              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.amount)}</Typography>
             </Box>
           )
         }
@@ -164,8 +160,8 @@ const SignAndSendTransaction = () => {
             _.map(Object.keys(params.params), (key) => {
               return (
                 <Box key={key} sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>{key}</Typography>
-                  <Typography sx={{ fontSize: '15px', color: 'white' }}>{params.params[key]}</Typography>
+                  <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>{key}</Typography>
+                  <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{'' + params.params[key]}</Typography>
                 </Box>
               )
             })
@@ -174,16 +170,16 @@ const SignAndSendTransaction = () => {
         {
           params.gas && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Gas</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.gas)} NEAR</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Gas</Typography>
+              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.gas)} NEAR</Typography>
             </Box>
           )
         }
         {
           params.deposit && (
             <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Deposit</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.deposit)} NEAR</Typography>
+              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Deposit</Typography>
+              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.deposit)} NEAR</Typography>
             </Box>
           )
         }

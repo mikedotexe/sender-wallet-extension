@@ -20,7 +20,7 @@ function Router() {
   return (
     <HashRouter>
       <Switch>
-        <Route exact path='/' component={SignAndSendTransaction}></Route>
+        <Route exact path='/' component={SetPwd}></Route>
         <Route exact path='/unlock' component={Unlock}></Route>
         <Route exact path='/import' component={Import}></Route>
         <Route exact path='/setpwd' component={SetPwd}></Route>
