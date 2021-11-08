@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 const extension = require('extensionizer');
 const queryString = require('query-string');
 
@@ -23,8 +21,8 @@ chrome.runtime.onMessage.addListener(
       const options = {
         url,
         type: 'popup',
-        width: 360,
-        height: 620,
+        width: 375,
+        height: 600,
         left: 100,
         top: 100,
       }

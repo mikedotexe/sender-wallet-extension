@@ -38,6 +38,7 @@ window.addEventListener('message', async function (event) {
   try {
     const data = JSON.parse(event.data);
     let request = data;
+    console.log('content request: ', request);
     const { notificationId } = data;
 
     if (_.isEmpty(extensionPersisStore) || (extensionPersisStore.app.isLockup || !extensionPersisStore.app.lockupPassword || _.isEmpty(extensionPersisStore.app.currentAccount))) {
@@ -46,13 +47,34 @@ window.addEventListener('message', async function (event) {
       return;
     }
 
-    const { currentAccount, } = extensionPersisStore.app;
+    const { currentAccount } = extensionPersisStore.app;
     const { accountId, publicKey } = currentAccount;
-    if (data.type === 'fromPage' && data.method === 'signin') {
 
+    if (data.type === 'fromPage' && data.method === 'init') {
       const key = `${data.contractId}-${accountId}`;
       chrome.storage.local.get([key], function (result) {
-        if (_.isEmpty(result)) {
+        console.log('result: ', result);
+        if (!_.isEmpty(result) && result[key]) {
+          window.postMessage(JSON.stringify({ ...request, type: 'result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' }));
+        } else {
+          window.postMessage(JSON.stringify({ ...request, type: 'result', res: 'empty' }));
+        }
+      })
+    }
+
+    if (data.type === 'fromPage' && data.method === 'signout') {
+      const key = `${data.contractId}-${accountId}`;
+      console.log('key: ', key);
+      chrome.storage.local.set({ [key]: '' }, function (result) {
+        window.postMessage(JSON.stringify({ ...request, type: 'result', res: 'success' }));
+        console.log('result: ', result);
+      })
+    }
+
+    if (data.type === 'fromPage' && data.method === 'signin') {
+      const key = `${data.contractId}-${accountId}`;
+      chrome.storage.local.get([key], function (result) {
+        if (_.isEmpty(result) || !result[key]) {
           // Default to signin notification
           chrome.runtime.sendMessage(extensionId, request);
         } else {
@@ -72,6 +94,7 @@ window.addEventListener('message', async function (event) {
         const res = await account.functionCall({ contractId, methodName, args: params, gas, attachedDeposit: deposit });
         window.postMessage(JSON.stringify({ ...request, type: 'result', res }));
       } else {
+        console.log('send message to bg');
         // Default to signAndSendTransaction notification
         chrome.runtime.sendMessage(extensionId, request);
       }

@@ -60,6 +60,8 @@ const Signin = () => {
     console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
     setParams(data);
+
+    document.title = "Request Signin";
   }, [])
 
   const rejectClicked = () => {
@@ -80,8 +82,6 @@ const Signin = () => {
     const { notificationId, contractId, methodNames } = params;
     try {
       const { secretKey, accountId, publicKey } = currentAccount;
-      console.log('currentAccount: ', currentAccount);
-      // const amount = nearAPI.utils.format.parseNearAmount('0.25');
       const keyPair = KeyPair.fromString(secretKey);
       const keyStore = new keyStores.InMemoryKeyStore();
       await keyStore.setKey('testnet', accountId, keyPair);
@@ -90,18 +90,9 @@ const Signin = () => {
         keyStore,
       })
       const account = await near.account(accountId);
-      // const accessKey = transactions.functionCallAccessKey(contractId, methodNames || [], amount);
       const accessKeyPair = nearAPI.utils.KeyPair.fromRandom('ed25519');
       const pk = accessKeyPair.getPublicKey().toString();
-      // const actions = [transactions.addKey(key_pair.PublicKey.from(pk), accessKey)];
-
       const res = await account.addKey(key_pair.PublicKey.from(pk), contractId, methodNames);
-
-      // const res = await account.signAndSendTransaction({
-      //   receiverId: accountId,
-      //   actions,
-      // });
-
       const params = {
         accountId,
         publicKey,
