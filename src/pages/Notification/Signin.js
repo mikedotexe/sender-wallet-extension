@@ -5,12 +5,15 @@ import { useLocation } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography';
 
 import queryString from 'query-string';
 import * as nearAPI from 'near-api-js';
 import { key_pair } from 'near-api-js/lib/utils';
 
-const { connect, keyStores, transactions, KeyPair } = nearAPI;
+import styled from 'styled-components';
+
+const { connect, keyStores, KeyPair } = nearAPI;
 
 const config = {
   network: 'testnet',
@@ -23,11 +26,33 @@ const config = {
 
 const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
+const WrapperBasePage = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  background-color: rgb(29, 29, 29);
+  width: 375px;
+  height: 600px;
+  position: relative;
+  overflow: auto;
+  margin-bottom: 60px;
+
+  .action-button {
+    width: 144px;
+    height: 48px;
+    background: #333333;
+    box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);
+    border-radius: 12px;
+    color: white;
+    font-size: 16px;
+  }
+`
+
 const Signin = () => {
   const location = useLocation();
   const appStore = useSelector((state) => state.app);
   const [params, setParams] = useState({});
   const [text, setText] = useState('');
+  const [isSignin, setIsSignin] = useState(false);
 
   const { currentAccount } = appStore;
 
@@ -49,7 +74,8 @@ const Signin = () => {
   const confirmClicked = async () => {
     console.log('confirmClicked');
 
-    setText('Signin, please do not close this window.');
+    setText('Is connecting, please do not close this window.');
+    setIsSignin(true);
 
     const { notificationId, contractId, methodNames } = params;
     try {
@@ -69,14 +95,12 @@ const Signin = () => {
       const pk = accessKeyPair.getPublicKey().toString();
       // const actions = [transactions.addKey(key_pair.PublicKey.from(pk), accessKey)];
 
-      const res = await account.addKey(key_pair.PublicKey.from(pk), contractId);
+      const res = await account.addKey(key_pair.PublicKey.from(pk), contractId, methodNames);
 
       // const res = await account.signAndSendTransaction({
       //   receiverId: accountId,
       //   actions,
       // });
-
-      setText(JSON.stringify(res));
 
       const params = {
         accountId,
@@ -87,6 +111,7 @@ const Signin = () => {
 
       chrome.runtime.sendMessage(extensionId, { type: 'result', res, method: 'signin', notificationId, ...params }, function (response) {
         console.log('signin success ....: ', response);
+        setIsSignin(false);
         window.close();
       })
     } catch (error) {
@@ -94,20 +119,35 @@ const Signin = () => {
       setText(error.message);
       chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, method: 'signin', notificationId }, function (response) {
         console.log('signin failed ....: ', response);
-        window.close();
+        setIsSignin(false);
       })
     }
   }
 
   return (
-    <Box>
-      <Box>Signin Notification Page</Box>
+    <WrapperBasePage>
+      <Typography align='center' sx={{ marginTop: '26px', fontSize: '26px', color: 'white' }}>Connecting with:</Typography>
+      <Typography align='center' sx={{ marginTop: '10px', fontSize: '20px', color: 'rgb(37, 118, 205)' }}>{currentAccount.accountId}</Typography>
 
-      <Button onClick={rejectClicked}>Reject</Button>
-      <Button onClick={confirmClicked}>Confirm</Button>
+      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: '10px' }}>
+        <text style={{ textAlign: 'center', lineHeight: '30px', fontSize: '15px', color: 'white' }}>Only connect to sites that you trust. Once connected, <text style={{ color: 'rgb(37, 118, 205)' }}>{params.url || 'localhost'}</text> will have limited permissions:</text>
+      </Box>
+      <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>1. View the address of your permited account</Typography>
+      <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '10px' }}>2. View the balance of your permited account</Typography>
 
-      <Box>{text}</Box>
-    </Box>
+      {
+        (isSignin || (!isSignin && text)) ? (
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
+          </Box>
+        ) : (
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
+            <Button className="action-button" onClick={rejectClicked}>Reject</Button>
+            <Button className="action-button" onClick={confirmClicked}>Confirm</Button>
+          </Box>
+        )
+      }
+    </WrapperBasePage >
   )
 }
 

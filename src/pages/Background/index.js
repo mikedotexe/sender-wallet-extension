@@ -6,6 +6,7 @@ const queryString = require('query-string');
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
     const { notificationId } = request;
+    request.url = sender.url;
     if (request.type === 'fromPage') {
       let url;
       const stringified = queryString.stringify(request);
