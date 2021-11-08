@@ -33,11 +33,14 @@ class Wallet {
     this.authData = { accountId, allKeys: [publickKey], accessKey };
   }
 
-  signAndSendTransaction = ({ contractId, methodName, params }, callback) => {
+  signAndSendTransaction = ({ contractId, methodName, params, usingAccessKey }, callback) => {
     const notificationId = getNotificationId();
     callbacks[notificationId] = callback;
-    const { accessKey } = this.authData;
-    const data = { type: 'fromPage', contractId, methodName, params, method: 'signAndSendTransaction', notificationId, accessKey };
+    const data = { type: 'fromPage', contractId, methodName, params, method: 'signAndSendTransaction', notificationId };
+    if (usingAccessKey) {
+      const { accessKey } = this.authData;
+      data.accessKey = accessKey;
+    }
     window.postMessage(JSON.stringify(data));
   }
 }
