@@ -4,7 +4,7 @@
 
 ##### Method: Init
 
-```
+```javascript
 /**
 * Initial the wallet. If current account has already sign in this contract, init() will auto signin
 * @param {*} contractId contract account id
@@ -15,7 +15,7 @@ init({ contractId })
 
 ##### Example
 
-```
+```javascript
 const contractId = 'wrap.testnear';
 const res = await window.wallet.init({ contractId });
 ```
@@ -24,7 +24,7 @@ const res = await window.wallet.init({ contractId });
 
 ##### Method: getAccountId
 
-```
+```javascript
 /**
 * 
 * @returns current account id
@@ -34,7 +34,7 @@ getAccountId()
 
 ##### Example
 
-```
+```javascript
 const accuntId = window.wallet.getAccountId();
 ```
 
@@ -42,7 +42,7 @@ const accuntId = window.wallet.getAccountId();
 
 ##### Method: requestSignIn
 
-```
+```javascript
 /**
 * 
 * @param {*} contractId contract account id
@@ -54,7 +54,7 @@ requestSignIn({ contractId, methodNames })
 
 ##### Example
 
-```
+```javascript
 const contractId = 'xxx';
 const methodNames = [''];
 const res = await window.wallet.requestSignIn({ contractId, methodNames });
@@ -64,14 +64,14 @@ const res = await window.wallet.requestSignIn({ contractId, methodNames });
 
 ##### Method: signOut
 
-```
+```javascript
 // Clean the signed in accessKey from storage
 signOut()
 ```
 
 ##### Example
 
-```
+```javascript
 window.wallet.signOut();
 ```
 
@@ -79,7 +79,7 @@ window.wallet.signOut();
 
 ##### Method: isSignedIn
 
-```
+```javascript
 /**
 * Check the current account is signed in with initial contract
 * @returns true or false
@@ -89,7 +89,7 @@ isSignedIn()
 
 ##### Example
 
-```
+```javascript
 if (window.wallet.isSignedIn()) {
   // TODO
 }
@@ -99,7 +99,7 @@ if (window.wallet.isSignedIn()) {
 
 ##### Method: onAccountChanged
 
-```
+```javascript
 /**
 * Listen the current account changed
 * @param {*} callback (accountId) => { "TODO if account has changed" }
@@ -109,7 +109,7 @@ onAccountChanged(callback)
 
 ##### Example
 
-```
+```javascript
 window.wallet.onAccountChanged((changedAccountId) => {
   // TODO if account has changed
 });
@@ -119,7 +119,7 @@ window.wallet.onAccountChanged((changedAccountId) => {
 
 ##### Method: signAndSendTransaction
 
-```
+```javascript
 /**
 * 
 * @param {*} contractId contract account id
@@ -137,7 +137,7 @@ signAndSendTransaction({ contractId, methodName, receiverId, amount, params, gas
 ```
 
 ##### Examples
-```
+```javascript
 // Normal transfer
 // Transfer NEAR to others
 const options = {
@@ -148,7 +148,7 @@ const options = {
 const res = await window.wallet.signAndSendTransaction(options);
 ```
 
-```
+```javascript
 // Contract method function call
 // Say hi to the contract by using access key
 const options = {
@@ -159,7 +159,7 @@ const options = {
 const res = await window.wallet.signAndSendTransaction(options);
 ```
 
-```
+```javascript
 // Contract method function call
 // Deposit storage to wrap.testnet
 const options = {
@@ -176,7 +176,7 @@ const res = await window.wallet.signAndSendTransaction(options);
 ```
 
 
-```
+```javascript
 // Contract method function call
 // Swap NEAR to wNEAR
 const options = {
@@ -190,7 +190,7 @@ const options = {
 const res = await window.wallet.signAndSendTransaction(options);
 ```
 
-```
+```javascript
 // Contract method function call
 // Send wNEAR to others
 const options = {
