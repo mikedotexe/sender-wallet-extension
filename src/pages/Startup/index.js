@@ -5,12 +5,9 @@ import { useHistory } from 'react-router-dom';
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
-import _ from 'lodash';
-
 import styled from 'styled-components';
 
-import StartupHeader from '../../components/StartupHeader';
-import startupIcon from '../../assets/img/startup.png';
+import senderWalletLogo from '../../assets/img/sender-wallet-logo.png';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -36,9 +33,7 @@ const Startup = () => {
 
   return (
     <WrapperBox>
-      <StartupHeader />
-
-      <img src={startupIcon} alt="startup"></img>
+      <img className="sender-wallet-logo" src={senderWalletLogo} alt="sender-wallet"></img>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '40px', flexDirection: 'column' }}>
         <Button sx={{ backgroundColor: '#FFCE3E', width: '315px', height: '48px', borderRadius: '12px' }} onClick={createClicked}>

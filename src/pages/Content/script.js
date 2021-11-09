@@ -14,6 +14,11 @@ class Wallet {
     this.authData = emptyAuthData;
   }
 
+  /**
+   * Initial the wallet. If the dapp has requestSignIn this contract already, init() will auto signin
+   * @param {*} contractId contract account id
+   * @returns 
+   */
   init = ({ contractId }) => {
     return new Promise((resolve, reject) => {
       this.contractId = contractId;
@@ -24,6 +29,18 @@ class Wallet {
     })
   }
 
+  /**
+   * 
+   * @returns current account id
+   */
+  getAccountId = () => {
+    return this.accountId;
+  }
+
+  /**
+   * Listen the current account changed
+   * @param {*} callback (accountId) => { "TODO if account has changed" }
+   */
   onAccountChanged = (callback) => {
     window.addEventListener('message', function (event) {
       try {
@@ -45,11 +62,21 @@ class Wallet {
     })
   }
 
+  /**
+   * Check the current account is signed in with initial contract
+   * @returns 
+   */
   isSignedIn = () => {
     return !!this.authData.accountId;
   }
 
-  requestSignIn = ({ contractId, methodNames = [] }) => {
+  /**
+   * 
+   * @param {*} contractId contract account id
+   * @param {*} methodNames the method names on the contract that should be allowed to be called. Pass null for no method names and '' or [] for any method names.
+   * @returns 
+   */
+  requestSignIn = ({ contractId, methodNames }) => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
@@ -68,6 +95,19 @@ class Wallet {
     this.authData = { accountId, allKeys: [publickKey], accessKey };
   }
 
+  /**
+   * 
+   * @param {*} contractId contract account id
+   * @param {*} methodName contract method name
+   * @param {*} receiverId receiver account id
+   * @param {*} amount transfer near amount
+   * @param {*} params function call arguments
+   * @param {*} gas transaction gas
+   * @param {*} deposit transaction attached deposit
+   * @param {*} usingAccessKey If 'true', will using access key to make function call and no need to request user to sign this transaction. Set 'false' will popup a notification window to request user to sign this transaction.
+   * 
+   * @returns the result of send transaction
+   */
   signAndSendTransaction = ({ contractId, methodName, receiverId, amount, params, gas, deposit, usingAccessKey }) => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
