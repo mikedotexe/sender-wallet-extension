@@ -5,6 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Typography from '@material-ui/core/Typography';
 
 import queryString from 'query-string';
@@ -186,14 +187,22 @@ const SignAndSendTransaction = () => {
       </Box>
 
       {
-        (isSignin || (!isSignin && text)) ? (
+        isSignin ? (
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
-            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
+            <CircularProgress></CircularProgress>
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
             <Button className="action-button" onClick={rejectClicked}>Reject</Button>
             <Button className="action-button" onClick={confirmClicked}>Confirm</Button>
+          </Box>
+        )
+      }
+
+      {
+        (text) && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
           </Box>
         )
       }

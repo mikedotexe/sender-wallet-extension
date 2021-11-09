@@ -1,6 +1,5 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
@@ -26,13 +25,6 @@ const WrapperBox = styled(Box)`
 
 const Startup = () => {
   const history = useHistory();
-  const appStore = useSelector((state) => state.app);
-
-  useEffect(() => {
-    if (!_.isEmpty(appStore.accounts)) {
-      history.push('/home');
-    }
-  }, [])
 
   const createClicked = () => {
     window.open('https://wallet.near.org/create');

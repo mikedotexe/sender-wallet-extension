@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -39,23 +38,9 @@ const WrapperBox = styled(Box)`
 `
 
 const SetPwd = () => {
-  const history = useHistory();
-  const location = useLocation();
   const dispatch = useDispatch();
-  const appStore = useSelector((state) => state.app);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  useEffect(() => {
-    const params = location.search;
-    if (appStore.lockupPassword) {
-      if (appStore.isLockup) {
-        history.push('/unlock' + params);
-      } else {
-        history.push('/startup' + params);
-      }
-    }
-  }, [])
 
   const valid = useMemo(() => {
     return password && password === confirmPassword;

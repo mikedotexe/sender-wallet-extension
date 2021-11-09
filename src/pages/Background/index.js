@@ -10,7 +10,7 @@ chrome.runtime.onMessage.addListener(
         let url;
         const stringified = queryString.stringify({ ...request, params: JSON.stringify(request.params) });
         if (request.method === 'toHomePage') {
-          url = `popup.html#/setpwd?${stringified}`;
+          url = `popup.html#/?${stringified}`;
         }
         if (request.method === 'signin') {
           url = `popup.html#/notification/signin?${stringified}`;
