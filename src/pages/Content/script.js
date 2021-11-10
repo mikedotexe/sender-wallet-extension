@@ -24,7 +24,7 @@ class Wallet {
       this.contractId = contractId;
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      const data = { type: 'fromPage', contractId, notificationId, method: 'init' };
+      const data = { type: 'sender-wallet-fromPage', contractId, notificationId, method: 'init' };
       window.postMessage(JSON.stringify(data));
     })
   }
@@ -45,7 +45,7 @@ class Wallet {
     window.addEventListener('message', function (event) {
       try {
         const data = JSON.parse(event.data);
-        if (data.type === 'fromContent' && data.method === 'accountChanged') {
+        if (data.type === 'sender-wallet-fromContent' && data.method === 'accountChanged') {
           callback(data.accountId);
         }
       } catch (error) {
@@ -57,7 +57,7 @@ class Wallet {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      const data = { type: 'fromPage', contractId: this.contractId, notificationId, method: 'signout' };
+      const data = { type: 'sender-wallet-fromPage', contractId: this.contractId, notificationId, method: 'signout' };
       window.postMessage(JSON.stringify(data));
     })
   }
@@ -80,7 +80,7 @@ class Wallet {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      const data = { type: 'fromPage', contractId: (contractId || this.contractId), methodNames, method: 'signin', notificationId };
+      const data = { type: 'sender-wallet-fromPage', contractId: (contractId || this.contractId), methodNames, method: 'signin', notificationId };
       window.postMessage(JSON.stringify(data));
     })
   }
@@ -112,7 +112,7 @@ class Wallet {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      const data = { type: 'fromPage', contractId, receiverId, amount, methodName, params, gas, deposit, method: 'signAndSendTransaction', notificationId };
+      const data = { type: 'sender-wallet-fromPage', contractId, receiverId, amount, methodName, params, gas, deposit, method: 'signAndSendTransaction', notificationId };
       if (usingAccessKey) {
         const { accessKey } = this.authData;
         data.accessKey = accessKey;
@@ -125,13 +125,12 @@ class Wallet {
 window.wallet = new Wallet();
 
 window.addEventListener('message', function (event) {
-  console.log('inject script message: ', event.data);
   try {
     const data = JSON.parse(event.data);
-
-    if (data.type === 'result') {
+    if (data.type === 'sender-wallet-result') {
+      console.log('inject script message: ', event.data);
       if (data.method === 'init') {
-        if (data.res === 'empty') {
+        if (data.res === 'empty' || data.res === 'unlock success') {
           resolves[data.notificationId]({ accessKey: '' });
         } else {
           const { accountId, publickKey, accessKey } = data;
@@ -150,6 +149,5 @@ window.addEventListener('message', function (event) {
       }
     }
   } catch (error) {
-    console.log('2');
   }
 })

@@ -60,7 +60,7 @@ const Signin = () => {
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
-    chrome.runtime.sendMessage(extensionId, { type: 'result', error: 'User reject', notificationId }, function (response) {
+    chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
       console.log('notification ....: ', response);
       window.close();
     })
@@ -93,7 +93,7 @@ const Signin = () => {
         contractId,
       };
 
-      chrome.runtime.sendMessage(extensionId, { type: 'result', res, method: 'signin', notificationId, ...params }, function (response) {
+      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', res, method: 'signin', notificationId, ...params }, function (response) {
         console.log('signin success ....: ', response);
         setIsSignin(false);
         window.close();
@@ -101,7 +101,7 @@ const Signin = () => {
     } catch (error) {
       console.log('error: ', error);
       setText(error.message);
-      chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, method: 'signin', notificationId }, function (response) {
+      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: error.message, method: 'signin', notificationId }, function (response) {
         console.log('signin failed ....: ', response);
         setIsSignin(false);
       })

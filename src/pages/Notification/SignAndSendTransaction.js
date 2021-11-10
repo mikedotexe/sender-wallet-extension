@@ -63,7 +63,7 @@ const SignAndSendTransaction = () => {
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
-    chrome.runtime.sendMessage(extensionId, { type: 'result', error: 'User reject', notificationId }, function (response) {
+    chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
       console.log('notification ....: ', response);
       window.close();
     })
@@ -102,7 +102,7 @@ const SignAndSendTransaction = () => {
       }
       console.log('res: ', res);
 
-      chrome.runtime.sendMessage(extensionId, { type: 'result', res, method: 'signAndSendTransaction', notificationId }, function (response) {
+      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', res, method: 'signAndSendTransaction', notificationId }, function (response) {
         console.log('signAndSendTransaction success ....: ', response);
         setIsSignin(false);
         window.close();
@@ -110,7 +110,7 @@ const SignAndSendTransaction = () => {
     } catch (error) {
       console.log('signAndSendTransaction error: ', error);
       setText(error.message);
-      chrome.runtime.sendMessage(extensionId, { type: 'result', error: error.message, method: 'signAndSendTransaction', notificationId }, function (response) {
+      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: error.message, method: 'signAndSendTransaction', notificationId }, function (response) {
         console.log('signAndSendTransaction failed ....: ', response);
         setIsSignin(false);
       })

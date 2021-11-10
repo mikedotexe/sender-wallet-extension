@@ -32,11 +32,15 @@ window.addEventListener('message', async function (event) {
   try {
     const data = JSON.parse(event.data);
     let request = data;
-    console.log('content request: ', request);
+
+    if (!_.startsWith(data.type, 'sender-wallet')) {
+      return;
+    }
+
     const { notificationId } = data;
 
     if (_.isEmpty(extensionPersisStore) || (extensionPersisStore.app.isLockup || !extensionPersisStore.app.lockupPassword || _.isEmpty(extensionPersisStore.app.currentAccount))) {
-      request = { method: 'toHomePage', notificationId, type: 'fromPage' };
+      request = { method: 'toHomePage', notificationId, type: 'sender-wallet-fromPage' };
       chrome.runtime.sendMessage(extensionId, request);
       return;
     }
@@ -44,40 +48,39 @@ window.addEventListener('message', async function (event) {
     const { currentAccount } = extensionPersisStore.app;
     const { accountId, publicKey } = currentAccount;
 
-    if (data.type === 'fromPage' && data.method === 'init') {
+    if (data.type === 'sender-wallet-fromPage' && data.method === 'init') {
       const key = `${data.contractId}-${accountId}`;
       chrome.storage.local.get([key], function (result) {
         console.log('result: ', result);
         if (!_.isEmpty(result) && result[key]) {
-          window.postMessage(JSON.stringify({ ...request, type: 'result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' }));
+          window.postMessage(JSON.stringify({ ...request, type: 'sender-wallet-result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' }));
         } else {
-          window.postMessage(JSON.stringify({ ...request, type: 'result', res: 'empty' }));
+          window.postMessage(JSON.stringify({ ...request, type: 'sender-wallet-result', res: 'empty' }));
         }
       })
     }
 
-    if (data.type === 'fromPage' && data.method === 'signout') {
+    if (data.type === 'sender-wallet-fromPage' && data.method === 'signout') {
       const key = `${data.contractId}-${accountId}`;
       console.log('key: ', key);
       chrome.storage.local.set({ [key]: '' }, function (result) {
-        window.postMessage(JSON.stringify({ ...request, type: 'result', res: 'success' }));
-        console.log('result: ', result);
+        window.postMessage(JSON.stringify({ ...request, type: 'sender-wallet-result', res: 'success' }));
       })
     }
 
-    if (data.type === 'fromPage' && data.method === 'signin') {
+    if (data.type === 'sender-wallet-fromPage' && data.method === 'signin') {
       const key = `${data.contractId}-${accountId}`;
       chrome.storage.local.get([key], function (result) {
         if (_.isEmpty(result) || !result[key]) {
           // Default to signin notification
           chrome.runtime.sendMessage(extensionId, request);
         } else {
-          window.postMessage(JSON.stringify({ ...request, type: 'result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' }));
+          window.postMessage(JSON.stringify({ ...request, type: 'sender-wallet-result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' }));
         }
       })
     }
 
-    if (data.type === 'fromPage' && data.method === 'signAndSendTransaction') {
+    if (data.type === 'sender-wallet-fromPage' && data.method === 'signAndSendTransaction') {
       const { accessKey, contractId, params, methodName, gas, deposit } = data;
       if (accessKey) {
         const keyStore = new keyStores.InMemoryKeyStore();
@@ -86,7 +89,7 @@ window.addEventListener('message', async function (event) {
         const near = await nearAPI.connect(Object.assign({ deps: { keyStore } }, config));
         const account = await near.account(accountId);
         const res = await account.functionCall({ contractId, methodName, args: params, gas, attachedDeposit: deposit });
-        window.postMessage(JSON.stringify({ ...request, type: 'result', res }));
+        window.postMessage(JSON.stringify({ ...request, type: 'sender-wallet-result', res }));
       } else {
         console.log('send message to bg');
         // Default to signAndSendTransaction notification
@@ -94,7 +97,6 @@ window.addEventListener('message', async function (event) {
       }
     }
   } catch (error) {
-    console.log('error: ', error);
   }
 })
 
@@ -109,7 +111,7 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       const oldPersistStore = { ...extensionPersisStore };
       updatePersistStore().then((res) => {
         if (oldPersistStore.app.currentAccount.accountId !== res.app.currentAccount.accountId) {
-          window.postMessage(JSON.stringify({ type: 'fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId }));
+          window.postMessage(JSON.stringify({ type: 'sender-wallet-fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId }));
         }
       });
     }

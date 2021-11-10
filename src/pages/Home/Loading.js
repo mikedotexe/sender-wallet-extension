@@ -35,7 +35,7 @@ const Loading = () => {
         if (appStore.isLockup) {
           history.push('/unlock' + params);
         } else if (!_.isEmpty(appStore.accounts)) {
-          history.push('/home');
+          history.push('/home' + params);
         } else {
           history.push('/startup' + params);
         }

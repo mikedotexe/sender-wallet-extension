@@ -6,7 +6,7 @@ chrome.runtime.onMessage.addListener(
     try {
       const { notificationId } = request;
       request.url = sender.url;
-      if (request.type === 'fromPage') {
+      if (request.type === 'sender-wallet-fromPage') {
         let url;
         const stringified = queryString.stringify({ ...request, params: JSON.stringify(request.params) });
         if (request.method === 'toHomePage') {
@@ -41,7 +41,7 @@ chrome.runtime.onMessage.addListener(
 
       console.log('background receive request: ', request);
 
-      if (request.type === 'result') {
+      if (request.type === 'sender-wallet-result') {
         // Set the result to chrome's extension local storage
         chrome.storage.local.set({ [`notification-result-${request.notificationId}`]: JSON.stringify(request) }, function () {
           console.log('Notification: ');
