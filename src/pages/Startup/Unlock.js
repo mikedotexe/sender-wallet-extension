@@ -68,8 +68,7 @@ const Unlock = () => {
       const { notificationId } = data;
       if (notificationId) {
         setTimeout(() => {
-          chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', res: 'unlock success', method: 'init', notificationId }, function (response) {
-            console.log('ssss');
+          chrome.runtime.sendMessage(extensionId, { ...data, type: 'sender-wallet-result', res: 'success', method: 'unlock' }, function (response) {
             window.close();
           })
         }, 500)

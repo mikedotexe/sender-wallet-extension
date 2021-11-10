@@ -40,7 +40,7 @@ window.addEventListener('message', async function (event) {
     const { notificationId } = data;
 
     if (_.isEmpty(extensionPersisStore) || (extensionPersisStore.app.isLockup || !extensionPersisStore.app.lockupPassword || _.isEmpty(extensionPersisStore.app.currentAccount))) {
-      request = { method: 'toHomePage', notificationId, type: 'sender-wallet-fromPage' };
+      request = { ...request, method: 'toHomePage', notificationId, type: 'sender-wallet-fromPage' };
       chrome.runtime.sendMessage(extensionId, request);
       return;
     }

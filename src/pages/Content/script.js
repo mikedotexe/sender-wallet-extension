@@ -130,7 +130,7 @@ window.addEventListener('message', function (event) {
     if (data.type === 'sender-wallet-result') {
       console.log('inject script message: ', event.data);
       if (data.method === 'init') {
-        if (data.res === 'empty' || data.res === 'unlock success') {
+        if (data.res === 'empty') {
           resolves[data.notificationId]({ accessKey: '' });
         } else {
           const { accountId, publickKey, accessKey } = data;
@@ -144,6 +144,8 @@ window.addEventListener('message', function (event) {
         const { accountId, publickKey, accessKey } = data;
         window.wallet.signInSuccess({ accountId, publickKey, accessKey });
         resolves[data.notificationId]({ accessKey });
+      } else if (data.method === 'unlock' && data.res === 'success') {
+        window.postMessage(JSON.stringify({ ...data, method: 'init', type: 'sender-wallet-fromPage' }));
       } else {
         resolves[data.notificationId](data);
       }
