@@ -22,11 +22,10 @@ chrome.runtime.onMessage.addListener(
         console.log('url: ', url);
 
         chrome.storage.local.set({ [`notification-request-${request.notificationId}`]: request }, function () {
-          console.log(`notification-request-${request.notificationId} success`);
-          console.log(`request: ${request}`);
+          // console.log(`notification-request-${request.notificationId} success`);
+          // console.log(`request: ${request}`);
 
           chrome.windows.getLastFocused().then(lastFocused => {
-            console.log('getLastFocused: ', lastFocused);
             const top = lastFocused.top
             const left = lastFocused.left + (lastFocused.width - 375);
             const options = {
@@ -46,18 +45,18 @@ chrome.runtime.onMessage.addListener(
         });
       }
 
-      console.log('background receive request: ', request);
+      // console.log('background receive request: ', request);
 
       if (request.type === 'sender-wallet-result') {
         // Set the result to chrome's extension local storage
         chrome.storage.local.set({ [`notification-result-${request.notificationId}`]: request }, function () {
-          console.log('Notification: ');
-          console.log('key: ', [`notification-result-${request.notificationId}`]);
-          console.log('Value is set to: ', request);
+          // console.log('Notification: ');
+          // console.log('key: ', [`notification-result-${request.notificationId}`]);
+          // console.log('Value is set to: ', request);
         });
 
         if (request.method === 'signin' && request.res && request.res.status && request.res.status.hasOwnProperty('SuccessValue')) {
-          console.log('need to save publick key - request: ', request);
+          // console.log('need to save publick key - request: ', request);
 
           const { accountId, contractId, accessKey } = request;
           chrome.storage.local.set({ [`${contractId}-${accountId}`]: accessKey }, function () {

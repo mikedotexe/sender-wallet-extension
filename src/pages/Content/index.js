@@ -4,7 +4,8 @@ import * as nearAPI from 'near-api-js';
 import { keyStores, KeyPair } from 'near-api-js';
 import { functionCall } from 'near-api-js/lib/transaction';
 
-import config, { DEFAULT_FUNCTION_CALL_GAS } from '../../config';
+import config from '../../config';
+import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
 
 console.log('Content script works!');
 console.log('Must reload extension for modifications to take effect.');
@@ -30,7 +31,6 @@ updatePersistStore();
 window.addEventListener('message', async function (event) {
   try {
     let request = event.data;
-    console.log('request: ', request);
 
     if (!_.startsWith(request.type, 'sender-wallet')) {
       return;
@@ -89,7 +89,7 @@ window.addEventListener('message', async function (event) {
         const account = await near.account(accountId);
         const functionCallActions = _.map(actions, (action) => {
           const { methodName, args, gas, deposit, msg } = action;
-          return functionCall(methodName, args, gas || DEFAULT_FUNCTION_CALL_GAS, deposit, msg);
+          return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT, msg);
         })
         const res = await account.signAndSendTransaction({
           receiverId,
@@ -139,7 +139,9 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       const oldPersistStore = { ...extensionPersisStore };
       updatePersistStore().then((res) => {
         if (oldPersistStore.app.currentAccount.accountId !== res.app.currentAccount.accountId) {
-          window.postMessage(JSON.stringify({ type: 'sender-wallet-fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId }));
+          console.log('oldPersistStore.app.currentAccount.accountId: ', oldPersistStore.app.currentAccount.accountId);
+          console.log('res.app.currentAccount.accountId: ', res.app.currentAccount.accountId);
+          window.postMessage({ type: 'sender-wallet-fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId });
         }
       });
     }
@@ -154,4 +156,4 @@ function injectScript(file, node) {
   th.appendChild(s);
 }
 injectScript(chrome.runtime.getURL('script.bundle.js'), 'body');
-// injectScript(chrome.runtime.getURL('nearApiJs.bundle.js'), 'body');
+injectScript(chrome.runtime.getURL('nearApiJs.bundle.js'), 'body');

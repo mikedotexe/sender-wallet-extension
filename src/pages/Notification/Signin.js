@@ -30,16 +30,6 @@ const WrapperBasePage = styled(Box)`
   position: relative;
   overflow: auto;
   margin-bottom: 60px;
-
-  .action-button {
-    width: 144px;
-    height: 48px;
-    background: #333333;
-    box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);
-    border-radius: 12px;
-    color: white;
-    font-size: 16px;
-  }
 `
 
 const Signin = () => {
@@ -156,8 +146,16 @@ const Signin = () => {
       </Box>
 
       {
-        isSignin ? (
+        (text) && (
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
+          </Box>
+        )
+      }
+
+      {
+        isSignin ? (
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
             <CircularProgress></CircularProgress>
           </Box>
         ) : (
@@ -168,14 +166,6 @@ const Signin = () => {
             <Button sx={{ width: '315px', height: '30px', marginTop: '10px' }} onClick={rejectClicked}>{
               <Typography sx={{ color: '#777777', fontSize: '14px', lineHeight: '20px' }}>Cancel</Typography>
             }</Button>
-          </Box>
-        )
-      }
-
-      {
-        (text) && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
-            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
           </Box>
         )
       }

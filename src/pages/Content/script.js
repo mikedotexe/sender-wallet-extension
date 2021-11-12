@@ -44,8 +44,11 @@ class Wallet {
   onAccountChanged = (callback) => {
     window.addEventListener('message', function (event) {
       try {
-        const data = JSON.parse(event.data);
+        const { data } = event;
+        console.log('data: ', data);
         if (data.type === 'sender-wallet-fromContent' && data.method === 'accountChanged') {
+          this.authData = emptyAuthData;
+          this.accountId = '';
           callback(data.accountId);
         }
       } catch (error) {
@@ -90,9 +93,29 @@ class Wallet {
     this.accountId = '';
   }
 
-  signInSuccess = ({ accountId, publickKey, accessKey }) => {
+  signInSuccess = ({ accountId, publicKey, accessKey }) => {
     this.accountId = accountId;
-    this.authData = { accountId, allKeys: [publickKey], accessKey };
+    this.authData = { accountId, allKeys: [publicKey], accessKey };
+  }
+
+  /**
+   * Make a view function call
+   * @param {*} contractId contract account id
+   * @param {*} methodName function call methodName
+   * @param {*} params function call params
+   * @returns 
+   */
+  viewFunctionCall = ({ contractId, methodName, params = {} }) => {
+    // eslint-disable-next-line no-undef
+    const connection = nearApi.Connection.fromConfig({
+      networkId: 'testnet',
+      provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.testnet.near.org/' } },
+      signer: {},
+    })
+
+    // eslint-disable-next-line no-undef
+    const account = new nearApi.Account(connection, 'dontcare');
+    return account.viewFunction(contractId, methodName, params);
   }
 
   /**
@@ -134,21 +157,22 @@ window.wallet = new Wallet();
 window.addEventListener('message', function (event) {
   try {
     const { data } = event;
+    console.log('script data: ', data);
     if (data.type === 'sender-wallet-result') {
       if (data.method === 'init') {
         if (data.res === 'empty') {
           resolves[data.notificationId]({ accessKey: '' });
         } else {
-          const { accountId, publickKey, accessKey } = data;
-          window.wallet.signInSuccess({ accountId, publickKey, accessKey });
+          const { accountId, publicKey, accessKey } = data;
+          window.wallet.signInSuccess({ accountId, publicKey, accessKey });
           resolves[data.notificationId]({ accessKey });
         }
       } else if (data.method === 'signout' && data.res === 'success') {
         window.wallet.signOutSuccess();
         resolves[data.notificationId]({ result: 'success' });
       } else if (data.method === 'signin' && data.res && data.accessKey) {
-        const { accountId, publickKey, accessKey } = data;
-        window.wallet.signInSuccess({ accountId, publickKey, accessKey });
+        const { accountId, publicKey, accessKey } = data;
+        window.wallet.signInSuccess({ accountId, publicKey, accessKey });
         resolves[data.notificationId]({ accessKey });
       } else if (data.method === 'unlock' && data.res === 'success') {
         window.postMessage({ ...data, method: 'init', type: 'sender-wallet-fromPage' });

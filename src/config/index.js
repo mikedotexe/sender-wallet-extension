@@ -18,6 +18,4 @@ const config = {
   explorerUrl: "https://explorer.testnet.near.org",
 }
 
-export const DEFAULT_FUNCTION_CALL_GAS = parseNearAmount('0.00000000003');
-
 export default config;

@@ -14,8 +14,8 @@ import styled from 'styled-components';
 import _ from 'lodash';
 
 import { formatNearAmount } from '../../utils';
-import { nearService } from '../../core/near';
-import config, { DEFAULT_FUNCTION_CALL_GAS } from '../../config';
+import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
+import config from '../../config';
 
 const {
   transactions: {
@@ -98,7 +98,7 @@ const SignAndSendTransaction = () => {
   const confirmClicked = async () => {
     console.log('confirmClicked');
 
-    setText('Sign and sending, please do not clost this window.');
+    setText('Is signing, please do not clost this window.');
     setIsSignin(true);
 
     const { notificationId, actions, receiverId, method, amount } = params;
@@ -121,7 +121,7 @@ const SignAndSendTransaction = () => {
       } else {
         const functionCallActions = _.map(actions, (action) => {
           const { methodName, args, gas, deposit, msg } = action;
-          return functionCall(methodName, args, gas || DEFAULT_FUNCTION_CALL_GAS, deposit, msg);
+          return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT, msg);
         })
         console.log('account: ', account);
         console.log('functionCallActions: ', functionCallActions);
@@ -166,6 +166,7 @@ const SignAndSendTransaction = () => {
         {
           !_.isEmpty(params.actions) && (
             <Button
+              disabled={isSignin}
               onClick={() => {
                 history.push(`transactionDetails${location.search}`)
               }}
@@ -174,6 +175,14 @@ const SignAndSendTransaction = () => {
           )
         }
       </Box>
+
+      {
+        (text) && (
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
+          </Box>
+        )
+      }
 
       {
         isSignin ? (
@@ -206,14 +215,6 @@ const SignAndSendTransaction = () => {
             >
               <Typography sx={{ color: '#202046', fontSize: '16px', lineHeight: '22px' }}>Allow</Typography>
             </Button>
-          </Box>
-        )
-      }
-
-      {
-        (text) && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
-            <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
           </Box>
         )
       }

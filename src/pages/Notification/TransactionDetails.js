@@ -15,6 +15,7 @@ import BN from 'bn.js';
 import backIcon from '../../assets/img/back.png';
 import { parseNearAmount } from 'near-api-js/lib/utils/format';
 import { fixedNumber } from '../../utils';
+import { FT_TRANSFER_GAS } from '../../core/near';
 
 const WrapperBasePage = styled(Box)`
   display: flex;
@@ -51,9 +52,7 @@ const TransactionDetails = () => {
     const { actions } = params;
     let gas = new BN(0);
     _.forEach(actions, (action) => {
-      if (action.gas) {
-        gas = gas.add(new BN(action.gas));
-      }
+      gas = action.gas ? gas.add(new BN(action.gas)) : gas.add(new BN(FT_TRANSFER_GAS));
     })
     return gas.toString();
   }, [params])
