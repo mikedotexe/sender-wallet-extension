@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 
 import { useSelector } from 'react-redux';
 import { useLocation, useHistory } from 'react-router-dom';
@@ -12,8 +12,9 @@ import queryString from 'query-string';
 import * as nearAPI from 'near-api-js';
 import styled from 'styled-components';
 import _ from 'lodash';
+import BN from 'bn.js';
 
-import { formatNearAmount } from '../../utils';
+import { fixedNearAmount, formatNearAmount } from '../../utils';
 import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
 import config from '../../config';
 
@@ -86,6 +87,22 @@ const SignAndSendTransaction = () => {
     document.title = "Sign And Send Transaction";
   }, [])
 
+  const balance = useMemo(() => {
+    const { balance: { total } } = currentAccount;
+    return fixedNearAmount(total);
+  }, [currentAccount])
+
+  const nearAmount = useMemo(() => {
+    let amount = params.amount || '0';
+    amount = new BN(amount);
+
+    const { actions } = params;
+    _.forEach(actions, (action) => {
+      amount = action.deposit ? amount.add(new BN(action.deposit)) : amount.add(new BN(FT_TRANSFER_DEPOSIT));
+    })
+    return fixedNearAmount(amount);
+  }, [params])
+
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
@@ -157,10 +174,10 @@ const SignAndSendTransaction = () => {
       </Box>
       <Typography align='center' sx={{ marginTop: '8px', fontSize: '16px', color: 'white', lineHeight: '22px' }}>{params.url}</Typography>
 
-      <Typography align='center' sx={{ marginTop: '30px', fontSize: '56px', color: 'white', lineHeight: '51px' }}>{formatNearAmount(params.amount)} NEAR</Typography>
+      <Typography align='center' sx={{ marginTop: '30px', fontSize: '56px', color: 'white', lineHeight: '51px' }}>{nearAmount || 0} NEAR</Typography>
 
       <Box sx={{ marginTop: '20px', position: 'relative' }}>
-        <Item title="Available Balance" value="3.23 NEAR"></Item>
+        <Item title="Available Balance" value={balance}></Item>
         <Item title="To" value={params.receiverId || params.contractId}></Item>
 
         {
@@ -178,7 +195,7 @@ const SignAndSendTransaction = () => {
 
       {
         (text) && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
             <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
           </Box>
         )
@@ -186,7 +203,7 @@ const SignAndSendTransaction = () => {
 
       {
         isSignin ? (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '80px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '50px' }}>
             <CircularProgress></CircularProgress>
           </Box>
         ) : (

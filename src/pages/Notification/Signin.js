@@ -147,7 +147,7 @@ const Signin = () => {
 
       {
         (text) && (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '20px' }}>
             <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>{text}</Typography>
           </Box>
         )
@@ -155,7 +155,7 @@ const Signin = () => {
 
       {
         isSignin ? (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '10px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '30px' }}>
             <CircularProgress></CircularProgress>
           </Box>
         ) : (
