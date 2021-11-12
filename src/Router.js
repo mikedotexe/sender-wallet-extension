@@ -16,6 +16,7 @@ import ChangePwd from './pages/Settings/ChangePwd';
 
 import Signin from './pages/Notification/Signin';
 import SignAndSendTransaction from './pages/Notification/SignAndSendTransaction';
+import TransactionDetails from './pages/Notification/TransactionDetails';
 
 function Router() {
   return (
@@ -35,6 +36,7 @@ function Router() {
         <Route exact path='/settings/changepwd' component={ChangePwd}></Route>
         <Route exact path='/notification/signin' component={Signin}></Route>
         <Route exact path='/notification/signAndSendTransaction' component={SignAndSendTransaction}></Route>
+        <Route exact path='/notification/transactionDetails' component={TransactionDetails}></Route>
       </Switch>
     </HashRouter>
   )

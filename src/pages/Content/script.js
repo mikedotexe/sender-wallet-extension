@@ -25,7 +25,7 @@ class Wallet {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'sender-wallet-fromPage', contractId, notificationId, method: 'init' };
-      window.postMessage(JSON.stringify(data));
+      window.postMessage(data);
     })
   }
 
@@ -58,7 +58,7 @@ class Wallet {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'sender-wallet-fromPage', contractId: this.contractId, notificationId, method: 'signout' };
-      window.postMessage(JSON.stringify(data));
+      window.postMessage(data);
     })
   }
 
@@ -81,7 +81,7 @@ class Wallet {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'sender-wallet-fromPage', contractId: (contractId || this.contractId), methodNames, method: 'signin', notificationId };
-      window.postMessage(JSON.stringify(data));
+      window.postMessage(data);
     })
   }
 
@@ -97,27 +97,34 @@ class Wallet {
 
   /**
    * 
-   * @param {*} contractId contract account id
-   * @param {*} methodName contract method name
-   * @param {*} receiverId receiver account id
-   * @param {*} amount transfer near amount
-   * @param {*} params function call arguments
-   * @param {*} gas transaction gas
-   * @param {*} deposit transaction attached deposit
+   * @param {*} receiverId received account id
+   * @param {*} actions { methodName, args, gas, deposit, msg }
    * @param {*} usingAccessKey If 'true', will using access key to make function call and no need to request user to sign this transaction. Set 'false' will popup a notification window to request user to sign this transaction.
-   * 
-   * @returns the result of send transaction
+   * @returns 
    */
-  signAndSendTransaction = ({ contractId, methodName, receiverId, amount, params, gas, deposit, usingAccessKey }) => {
+  signAndSendTransaction = ({ receiverId, actions, usingAccessKey = false }) => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      const data = { type: 'sender-wallet-fromPage', contractId, receiverId, amount, methodName, params, gas, deposit, method: 'signAndSendTransaction', notificationId };
+      const data = { type: 'sender-wallet-fromPage', receiverId, actions, method: 'signAndSendTransaction', notificationId };
       if (usingAccessKey) {
         const { accessKey } = this.authData;
         data.accessKey = accessKey;
       }
-      window.postMessage(JSON.stringify(data));
+      window.postMessage(data);
+    })
+  }
+
+  /**
+   * @param {*} receiverId received account id
+   * @param {*} amount send near amount
+   */
+  sendMoney = ({ receiverId, amount }) => {
+    return new Promise((resolve, reject) => {
+      const notificationId = getNotificationId();
+      resolves[notificationId] = resolve;
+      const data = { type: 'sender-wallet-fromPage', receiverId, amount, method: 'sendMoney', notificationId };
+      window.postMessage(data);
     })
   }
 }
@@ -126,9 +133,8 @@ window.wallet = new Wallet();
 
 window.addEventListener('message', function (event) {
   try {
-    const data = JSON.parse(event.data);
+    const { data } = event;
     if (data.type === 'sender-wallet-result') {
-      console.log('inject script message: ', event.data);
       if (data.method === 'init') {
         if (data.res === 'empty') {
           resolves[data.notificationId]({ accessKey: '' });
@@ -145,7 +151,7 @@ window.addEventListener('message', function (event) {
         window.wallet.signInSuccess({ accountId, publickKey, accessKey });
         resolves[data.notificationId]({ accessKey });
       } else if (data.method === 'unlock' && data.res === 'success') {
-        window.postMessage(JSON.stringify({ ...data, method: 'init', type: 'sender-wallet-fromPage' }));
+        window.postMessage({ ...data, method: 'init', type: 'sender-wallet-fromPage' });
       } else {
         resolves[data.notificationId](data);
       }

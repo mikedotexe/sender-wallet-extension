@@ -29,6 +29,8 @@ const Loading = () => {
   const appStore = useSelector((state) => state.app);
 
   useEffect(() => {
+    history.push('notification/signAndSendTransaction?amount=1000000000000000000000000&method=signAndSendTransaction&notificationId=1636620793936&receiverId=amazingbeerbelly.testnet&type=sender-wallet-fromPage&url=http%3A%2F%2Flocalhost%3A1234%2F');
+    return;
     setTimeout(() => {
       const params = location.search;
       if (appStore.lockupPassword) {

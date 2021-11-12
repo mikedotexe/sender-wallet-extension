@@ -7,6 +7,8 @@
 //   explorerUrl: "https://explorer.mainnet.near.org",
 // }
 
+import { parseNearAmount } from "near-api-js/lib/utils/format";
+
 const config = {
   network: 'testnet',
   networkId: 'testnet',
@@ -15,5 +17,7 @@ const config = {
   helperUrl: "https://helper.testnet.near.org",
   explorerUrl: "https://explorer.testnet.near.org",
 }
+
+export const DEFAULT_FUNCTION_CALL_GAS = parseNearAmount('0.00000000003');
 
 export default config;

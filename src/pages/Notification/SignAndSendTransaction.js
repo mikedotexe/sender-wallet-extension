@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { useSelector } from 'react-redux';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
@@ -15,11 +15,16 @@ import _ from 'lodash';
 
 import { formatNearAmount } from '../../utils';
 import { nearService } from '../../core/near';
-import config from '../../config';
+import config, { DEFAULT_FUNCTION_CALL_GAS } from '../../config';
 
-const { connect, keyStores, KeyPair } = nearAPI;
-
-const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
+const {
+  transactions: {
+    functionCall
+  },
+  connect,
+  keyStores,
+  KeyPair
+} = nearAPI;
 
 const WrapperBasePage = styled(Box)`
   display: flex;
@@ -31,20 +36,36 @@ const WrapperBasePage = styled(Box)`
   overflow: auto;
   box-sizing: border-box;
   padding: 20px;
-
-  .action-button {
-    width: 144px;
-    height: 48px;
-    background: #333333;
-    box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);
-    border-radius: 12px;
-    color: white;
-    font-size: 16px;
-  }
 `
+
+const Item = ({ title, value, ...props }) => {
+  return (
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        border: '1px solid #090909',
+        width: '335px',
+        height: '48px',
+        borderRadius: '12px',
+        paddingLeft: '12px',
+        paddingRight: '12px',
+        boxSizing: 'border-box',
+        boxShadow: '0px 0px 1px rgba(219, 219, 219, 0.5)',
+        marginTop: '10px',
+      }}
+      {...props}
+    >
+      <Typography sx={{ color: '#CCCCCC', fontSize: '12px', lineHeight: '17px' }}>{title}</Typography>
+      <Typography sx={{ color: '#FAD165', fontSize: '14px', lineHeight: '20px' }}>{value}</Typography>
+    </Box>
+  )
+}
 
 const SignAndSendTransaction = () => {
   const location = useLocation();
+  const history = useHistory();
   const appStore = useSelector((state) => state.app);
   const [params, setParams] = useState({});
   const [text, setText] = useState('');
@@ -55,7 +76,12 @@ const SignAndSendTransaction = () => {
   useEffect(() => {
     console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
-    setParams({ ...data, params: data.params ? JSON.parse(data.params) : '' });
+    const { notificationId } = data;
+    const key = `notification-request-${notificationId}`;
+    chrome.storage.local.get([key], function (result) {
+      console.log('result: ', result);
+      setParams(result[key]);
+    })
 
     document.title = "Sign And Send Transaction";
   }, [])
@@ -63,7 +89,7 @@ const SignAndSendTransaction = () => {
   const rejectClicked = () => {
     console.log('rejectClicked');
     const { notificationId } = params;
-    chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
+    chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
       console.log('notification ....: ', response);
       window.close();
     })
@@ -75,7 +101,7 @@ const SignAndSendTransaction = () => {
     setText('Sign and sending, please do not clost this window.');
     setIsSignin(true);
 
-    const { notificationId, contractId, methodName, params: args, gas, deposit, receiverId, amount } = params;
+    const { notificationId, actions, receiverId, method, amount } = params;
     console.log('params: ', params);
     try {
       const { secretKey, accountId } = currentAccount;
@@ -89,20 +115,25 @@ const SignAndSendTransaction = () => {
       const account = await near.account(accountId);
 
       let res;
-      if (contractId) {
-        if (methodName === 'ft_transfer') {
-          await nearService.setSigner({ secretKey, accountId });
-          res = await nearService.transfer({ contractId, amount: `${args.amount}`, receiverId: args.receiver_id });
-        } else {
-          console.log('{ contractId, methodName, args, gas, attachedDeposit: deposit }: ', { contractId, methodName, args, gas, attachedDeposit: deposit });
-          res = await account.functionCall({ contractId, methodName, args: args || {}, gas, attachedDeposit: deposit });
-        }
-      } else {
+
+      if (method === 'sendMoney') {
         res = await account.sendMoney(receiverId, amount);
+      } else {
+        const functionCallActions = _.map(actions, (action) => {
+          const { methodName, args, gas, deposit, msg } = action;
+          return functionCall(methodName, args, gas || DEFAULT_FUNCTION_CALL_GAS, deposit, msg);
+        })
+        console.log('account: ', account);
+        console.log('functionCallActions: ', functionCallActions);
+        res = await account.signAndSendTransaction({
+          receiverId,
+          actions: functionCallActions,
+        })
       }
+
       console.log('res: ', res);
 
-      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', res, method: 'signAndSendTransaction', notificationId }, function (response) {
+      chrome.runtime.sendMessage({ type: 'sender-wallet-result', res, method, notificationId }, function (response) {
         console.log('signAndSendTransaction success ....: ', response);
         setIsSignin(false);
         window.close();
@@ -110,7 +141,7 @@ const SignAndSendTransaction = () => {
     } catch (error) {
       console.log('signAndSendTransaction error: ', error);
       setText(error.message);
-      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: error.message, method: 'signAndSendTransaction', notificationId }, function (response) {
+      chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: error.message, method, notificationId }, function (response) {
         console.log('signAndSendTransaction failed ....: ', response);
         setIsSignin(false);
       })
@@ -119,82 +150,62 @@ const SignAndSendTransaction = () => {
 
   return (
     <WrapperBasePage>
-      <Typography align='center' sx={{ marginTop: '26px', fontSize: '26px', color: 'rgb(37, 118, 205)' }}>{params.url}</Typography>
-      <Typography align='center' sx={{ marginTop: '10px', fontSize: '26px', color: 'white' }}>request to Send Transaction by using this account:</Typography>
-      <Typography align='center' sx={{ marginTop: '10px', fontSize: '20px', color: 'rgb(37, 118, 205)' }}>{currentAccount.accountId}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Button disabled sx={{ height: '34px', backgroundColor: '#FFCE3E', borderRadius: '24px', marginTop: '31px' }}>
+          <Typography sx={{ color: '#282828', paddingLeft: '15px', paddingRight: '15px' }}>Transfer is being requested</Typography>
+        </Button>
+      </Box>
+      <Typography align='center' sx={{ marginTop: '8px', fontSize: '16px', color: 'white', lineHeight: '22px' }}>{params.url}</Typography>
 
-      <Box sx={{ marginTop: '15px' }}>
+      <Typography align='center' sx={{ marginTop: '30px', fontSize: '56px', color: 'white', lineHeight: '51px' }}>{formatNearAmount(params.amount)} NEAR</Typography>
+
+      <Box sx={{ marginTop: '20px', position: 'relative' }}>
+        <Item title="Available Balance" value="3.23 NEAR"></Item>
+        <Item title="To" value={params.receiverId || params.contractId}></Item>
+
         {
-          params.contractId && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Contract ID</Typography>
-              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{params.contractId}</Typography>
-            </Box>
-          )
-        }
-        {
-          params.methodName && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Method</Typography>
-              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{params.methodName}</Typography>
-            </Box>
-          )
-        }
-        {
-          params.receiverId && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Receiver</Typography>
-              <Typography sx={{ fontSize: '15px', color: 'white' }}>{params.receiverId}</Typography>
-            </Box>
-          )
-        }
-        {
-          params.amount && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Amount</Typography>
-              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.amount)}</Typography>
-            </Box>
-          )
-        }
-        {
-          params.params && (
-            _.map(Object.keys(params.params), (key) => {
-              return (
-                <Box key={key} sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>{key}</Typography>
-                  <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{'' + params.params[key]}</Typography>
-                </Box>
-              )
-            })
-          )
-        }
-        {
-          params.gas && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Gas</Typography>
-              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.gas)} NEAR</Typography>
-            </Box>
-          )
-        }
-        {
-          params.deposit && (
-            <Box sx={{ display: 'flex', marginTop: '5px', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography align='left' sx={{ fontSize: '18px', color: 'rgb(37, 118, 205)' }}>Deposit</Typography>
-              <Typography align='right' sx={{ fontSize: '15px', color: 'white' }}>{formatNearAmount(params.deposit)} NEAR</Typography>
-            </Box>
+          !_.isEmpty(params.actions) && (
+            <Button
+              onClick={() => {
+                history.push(`transactionDetails${location.search}`)
+              }}
+              style={{ fontSize: '14px', lineHeight: '19px', color: '#FFCE3E', position: 'absolute', right: 0, bottom: '-30px' }}
+            >More</Button>
           )
         }
       </Box>
 
       {
         isSignin ? (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: '80px' }}>
             <CircularProgress></CircularProgress>
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
-            <Button className="action-button" onClick={rejectClicked}>Reject</Button>
-            <Button className="action-button" onClick={confirmClicked}>Confirm</Button>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '80px' }}>
+            <Button
+              sx={{
+                backgroundColor: '#333333',
+                width: '150px',
+                height: '48px',
+                borderRadius: '12px',
+                boxShadow: '0px 2px 4px rgba(30, 30, 30, 0.5)',
+              }}
+              onClick={rejectClicked}
+            >
+              <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '22px' }}>Reject</Typography>
+            </Button>
+            <Button
+              sx={{
+                backgroundColor: '#FFCE3E',
+                width: '150px',
+                height: '48px',
+                borderRadius: '12px',
+                boxShadow: '0px 2px 4px rgba(30, 30, 30, 0.5)',
+              }}
+              onClick={confirmClicked}
+            >
+              <Typography sx={{ color: '#202046', fontSize: '16px', lineHeight: '22px' }}>Allow</Typography>
+            </Button>
           </Box>
         )
       }

@@ -16,8 +16,6 @@ import unlockIcon from '../../assets/img/unlock.png';
 import passwordHash from '../../core/passwordHash';
 import { setLockup } from '../../reducers/app';
 
-const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
-
 const WrapperBox = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -68,7 +66,7 @@ const Unlock = () => {
       const { notificationId } = data;
       if (notificationId) {
         setTimeout(() => {
-          chrome.runtime.sendMessage(extensionId, { ...data, type: 'sender-wallet-result', res: 'success', method: 'unlock' }, function (response) {
+          chrome.runtime.sendMessage({ ...data, type: 'sender-wallet-result', res: 'success', method: 'unlock' }, function (response) {
             window.close();
           })
         }, 500)

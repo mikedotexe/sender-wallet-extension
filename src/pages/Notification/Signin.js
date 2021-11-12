@@ -7,6 +7,7 @@ import Box from '@material-ui/core/Box';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
+import Avatar from '@material-ui/core/Avatar';
 
 import queryString from 'query-string';
 import * as nearAPI from 'near-api-js';
@@ -14,10 +15,11 @@ import { key_pair } from 'near-api-js/lib/utils';
 import styled from 'styled-components';
 
 import config from '../../config';
+import vectorIcon from '../../assets/img/vector.png';
+import selectIcon from '../../assets/img/select.png';
+import notSelectIcon from '../../assets/img/not_select.png';
 
 const { connect, keyStores, KeyPair } = nearAPI;
-
-const extensionId = 'ecfidfkflgnmfdgimhkhgpfhacgmahja';
 
 const WrapperBasePage = styled(Box)`
   display: flex;
@@ -50,25 +52,27 @@ const Signin = () => {
   const { currentAccount } = appStore;
 
   useEffect(() => {
-    console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
-    setParams(data);
+    const { notificationId } = data;
+
+    const key = `notification-request-${notificationId}`;
+    chrome.storage.local.get([key], function (result) {
+      setParams(result[key]);
+    })
 
     document.title = "Request Signin";
   }, [])
 
   const rejectClicked = () => {
-    console.log('rejectClicked');
+    console.log('rejectClicked: ', params);
     const { notificationId } = params;
-    chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
+    chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
       console.log('notification ....: ', response);
       window.close();
     })
   }
 
   const confirmClicked = async () => {
-    console.log('confirmClicked');
-
     setText('Is connecting, please do not close this window.');
     setIsSignin(true);
 
@@ -93,7 +97,7 @@ const Signin = () => {
         contractId,
       };
 
-      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', res, method: 'signin', notificationId, ...params }, function (response) {
+      chrome.runtime.sendMessage({ type: 'sender-wallet-result', res, method: 'signin', notificationId, ...params }, function (response) {
         console.log('signin success ....: ', response);
         setIsSignin(false);
         window.close();
@@ -101,7 +105,7 @@ const Signin = () => {
     } catch (error) {
       console.log('error: ', error);
       setText(error.message);
-      chrome.runtime.sendMessage(extensionId, { type: 'sender-wallet-result', error: error.message, method: 'signin', notificationId }, function (response) {
+      chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: error.message, method: 'signin', notificationId }, function (response) {
         console.log('signin failed ....: ', response);
         setIsSignin(false);
       })
@@ -110,14 +114,46 @@ const Signin = () => {
 
   return (
     <WrapperBasePage>
-      <Typography align='center' sx={{ marginTop: '26px', fontSize: '26px', color: 'white' }}>Connecting with:</Typography>
-      <Typography align='center' sx={{ marginTop: '10px', fontSize: '20px', color: 'rgb(37, 118, 205)' }}>{currentAccount.accountId}</Typography>
-
-      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', margin: '10px' }}>
-        <text style={{ textAlign: 'center', lineHeight: '30px', fontSize: '15px', color: 'white' }}>Only connect to sites that you trust. Once connected, <text style={{ color: 'rgb(37, 118, 205)' }}>{params.url || 'localhost'}</text> will have limited permissions:</text>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Button disabled sx={{ height: '34px', backgroundColor: '#FFCE3E', borderRadius: '24px', marginTop: '31px' }}>
+          <Typography sx={{ color: '#282828', paddingLeft: '15px', paddingRight: '15px' }}>Connecting...</Typography>
+        </Button>
       </Box>
-      <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '30px' }}>1. View the address of your permited account</Typography>
-      <Typography align='center' sx={{ fontSize: '13px', color: 'white', marginTop: '10px' }}>2. View the balance of your permited account</Typography>
+      <Typography align='center' sx={{ marginTop: '8px', fontSize: '16px', color: 'white', lineHeight: '22px' }}>{currentAccount.accountId}</Typography>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-around', paddingLeft: '90px', paddingRight: '90px', boxSizing: 'border-box', marginTop: '25px' }}>
+        <Avatar></Avatar>
+        <img src={vectorIcon} alt="vector"></img>
+        <Avatar></Avatar>
+      </Box>
+
+
+      <Box sx={{ backgroundColor: '#FAD1650D', margin: '25px', padding: '10px', borderRadius: '12px' }}>
+        <Typography sx={{ fontSize: '14px', color: '#FAD165', lineHeight: '20px' }}>Please connect your trusted applications, once connected, localhost will have restricted access.</Typography>
+      </Box>
+
+      <Box sx={{ margin: '25px', display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ backgroundColor: '#312F29', borderRadius: '28px', width: '28px', height: '28px', position: 'relative' }}>
+            <img style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} src={selectIcon} alt="select"></img>
+          </Box>
+          <Typography sx={{ width: '285px', marginLeft: '12px', fontSize: '11px', lineHeight: '15px', color: '#FAD165' }}>Check the address of the account you are connected</Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+          <Box sx={{ backgroundColor: '#312F29', borderRadius: '28px', width: '28px', height: '28px', position: 'relative' }}>
+            <img style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} src={selectIcon} alt="select"></img>
+          </Box>
+          <Typography sx={{ width: '285px', marginLeft: '12px', fontSize: '11px', lineHeight: '15px', color: '#FAD165' }}>Check the balance of your connected account</Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', marginTop: '15px' }}>
+          <Box sx={{ backgroundColor: '#312F29', borderRadius: '28px', width: '28px', height: '28px', position: 'relative' }}>
+            <img style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, margin: 'auto' }} src={notSelectIcon} alt="notSelect"></img>
+          </Box>
+          <Typography sx={{ width: '285px', marginLeft: '12px', fontSize: '11px', lineHeight: '15px', color: '#5F5F5F' }}>The app does not have permission to transfer NEAR passes</Typography>
+        </Box>
+      </Box>
 
       {
         isSignin ? (
@@ -125,9 +161,13 @@ const Signin = () => {
             <CircularProgress></CircularProgress>
           </Box>
         ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
-            <Button className="action-button" onClick={rejectClicked}>Reject</Button>
-            <Button className="action-button" onClick={confirmClicked}>Confirm</Button>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
+            <Button sx={{ width: '315px', height: '48px', backgroundColor: '#FFCE3E', borderRadius: '12px' }} onClick={confirmClicked}>
+              <Typography sx={{ color: '#282828', fontSize: '16px', lineHeight: '23px' }}>Connect</Typography>
+            </Button>
+            <Button sx={{ width: '315px', height: '30px', marginTop: '10px' }} onClick={rejectClicked}>{
+              <Typography sx={{ color: '#777777', fontSize: '14px', lineHeight: '20px' }}>Cancel</Typography>
+            }</Button>
           </Box>
         )
       }
