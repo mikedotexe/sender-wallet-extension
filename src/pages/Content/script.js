@@ -129,6 +129,7 @@ class Wallet {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
+      // const data = { type: 'sender-wallet-fromPage', transactions: [{ receiverId, actions }], method: 'signAndSendTransaction', notificationId };
       const data = { type: 'sender-wallet-fromPage', receiverId, actions, method: 'signAndSendTransaction', notificationId };
       if (usingAccessKey) {
         const { accessKey } = this.authData;
@@ -147,6 +148,25 @@ class Wallet {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'sender-wallet-fromPage', receiverId, amount, method: 'sendMoney', notificationId };
+      window.postMessage(data);
+    })
+  }
+
+  /**
+   * 
+   * @param {*} transactions transaction list
+   * @param {*} usingAccessKey If 'true', will using access key to make function call and no need to request user to sign this transaction. Set 'false' will popup a notification window to request user to sign this transaction.
+   * @returns
+   */
+  requestSignTransactions = ({ transactions, usingAccessKey = false }) => {
+    return new Promise((resolve, reject) => {
+      const notificationId = getNotificationId();
+      resolves[notificationId] = resolve;
+      const data = { type: 'sender-wallet-fromPage', transactions, method: 'requestSignTransactions', notificationId };
+      if (usingAccessKey) {
+        const { accessKey } = this.authData;
+        data.accessKey = accessKey;
+      }
       window.postMessage(data);
     })
   }

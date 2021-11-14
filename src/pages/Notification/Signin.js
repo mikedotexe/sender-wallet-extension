@@ -79,7 +79,7 @@ const Signin = () => {
       const account = await near.account(accountId);
       const accessKeyPair = nearAPI.utils.KeyPair.fromRandom('ed25519');
       const pk = accessKeyPair.getPublicKey().toString();
-      const res = await account.addKey(key_pair.PublicKey.from(pk), contractId, methodNames);
+      const res = await account.addKey(key_pair.PublicKey.from(pk), contractId, (methodNames || ''));
       const params = {
         accountId,
         publicKey,

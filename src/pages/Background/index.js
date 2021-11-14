@@ -16,7 +16,7 @@ chrome.runtime.onMessage.addListener(
         if (request.method === 'signin') {
           url = `popup.html#/notification/signin?${stringified}`;
         }
-        if (request.method === 'signAndSendTransaction' || request.method === 'sendMoney') {
+        if (request.method === 'signAndSendTransaction' || request.method === 'sendMoney' || request.method === 'requestSignTransactions') {
           url = `popup.html#/notification/signAndSendTransaction?${stringified}`;
         }
         console.log('url: ', url);

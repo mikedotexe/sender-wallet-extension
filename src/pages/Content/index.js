@@ -79,25 +79,38 @@ window.addEventListener('message', async function (event) {
       })
     }
 
-    if (request.type === 'sender-wallet-fromPage' && request.method === 'signAndSendTransaction') {
-      const { accessKey, receiverId, actions } = request;
+    if (request.type === 'sender-wallet-fromPage' && (request.method === 'signAndSendTransaction' || request.method === 'requestSignTransactions')) {
+      let { accessKey, receiverId, actions, transactions } = request;
       if (accessKey) {
         const keyStore = new keyStores.InMemoryKeyStore();
         const keyPair = KeyPair.fromString(accessKey.secretKey);
         await keyStore.setKey('testnet', accountId, keyPair);
         const near = await nearAPI.connect(Object.assign({ deps: { keyStore } }, config));
         const account = await near.account(accountId);
-        const functionCallActions = _.map(actions, (action) => {
-          const { methodName, args, gas, deposit, msg } = action;
-          return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT, msg);
-        })
-        const res = await account.signAndSendTransaction({
-          receiverId,
-          actions: functionCallActions,
-        })
-        console.log('res: ', res);
+
+        let results = [];
+
+        if (request.method === 'signAndSendTransaction') {
+          transactions = [{ receiverId, actions }]
+        }
+        for (let { receiverId, nonce, blockHash, actions } of transactions) {
+          const functionCallActions = _.map(actions, (action) => {
+            const { methodName, args, gas, deposit } = action;
+            return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT);
+          })
+          let res;
+          if (nonce && blockHash) {
+            const signer = await nearAPI.InMemorySigner(keyStore);
+            const [, signedTransaction] = await nearAPI.transactions.signTransaction(receiverId, nonce, functionCallActions, blockHash, signer, accountId, config.network);
+            res = await near.connection.provider.sendTransaction(signedTransaction);
+          } else {
+            res = await account.signAndSendTransaction({ receiverId, actions: functionCallActions });
+          }
+          results.push(res);
+        }
+        console.log('res: ', results);
         // const res = await account.functionCall({ contractId, methodName, args: params, gas, attachedDeposit: deposit });
-        window.postMessage({ ...request, type: 'sender-wallet-result', res });
+        window.postMessage({ ...request, type: 'sender-wallet-result', res: results });
       } else {
         console.log('send message to bg');
         // Default to signAndSendTransaction notification

@@ -49,10 +49,13 @@ const TransactionDetails = () => {
   }, [])
 
   const gas = useMemo(() => {
-    const { actions } = params;
     let gas = new BN(0);
-    _.forEach(actions, (action) => {
-      gas = action.gas ? gas.add(new BN(action.gas)) : gas.add(new BN(FT_TRANSFER_GAS));
+    const { transactions } = params;
+    _.forEach(transactions, (transaction) => {
+      const { actions } = transaction;
+      _.forEach(actions, (action) => {
+        gas = action.gas ? gas.add(new BN(action.gas)) : gas.add(new BN(FT_TRANSFER_GAS));
+      })
     })
     return gas.toString();
   }, [params])
@@ -80,45 +83,54 @@ const TransactionDetails = () => {
 
       <div style={{ border: '1px solid #353535', width: '335px', height: 0, marginTop: '10px' }}></div>
 
-      <Box sx={{ display: 'flex', marginTop: '18px' }}>
-        <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '22px' }}>
-          For Contract:
-        </Typography>
-        <Typography sx={{ color: '#FFCE3E', marginLeft: '11px' }}>{params.receiverId}</Typography>
-      </Box>
+      {
+        _.map(params.transactions, (transaction) => {
+          const { receiverId, actions } = transaction;
+          return (
+            <>
+              <Box sx={{ display: 'flex', marginTop: '18px' }}>
+                <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '22px' }}>
+                  For Contract:
+                </Typography>
+                <Typography sx={{ color: '#FFCE3E', marginLeft: '11px' }}>{receiverId}</Typography>
+              </Box>
 
-      <Box sx={{ marginTop: '10px', marginLeft: '10px' }}>
-        {
-          _.map(params.actions, (action) => {
-            const { methodName, args } = action;
-            return (
-              <Box key={methodName}>
-                <Typography sx={{ fontSize: '14px', color: 'white' }}>Calling function: {methodName}</Typography>
+              <Box sx={{ marginTop: '10px', marginLeft: '10px' }}>
                 {
-                  _.isEmpty(args) ? (
-                    <Box sx={{ marginTop: '10px', marginLeft: '5px' }}>
-                      <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`Arguments: {}`}</Typography>
-                    </Box>
-                  ) : (
-                    <Box sx={{ marginTop: '10px', marginLeft: '5px' }}>
-                      <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`Arguments: {`}</Typography>
-                      {
-                        _.map(_.keys(args), (key) => {
-                          const value = args[key];
-                          return (
-                            <Typography key={key} sx={{ fontSize: '14px', color: '#777777', marginLeft: '20px' }}>{`"${key}": "${value}",`}</Typography>
+                  _.map(actions, (action) => {
+                    const { methodName, args } = action;
+                    return (
+                      <Box key={methodName}>
+                        <Typography sx={{ fontSize: '14px', color: 'white' }}>Calling function: {methodName}</Typography>
+                        {
+                          _.isEmpty(args) ? (
+                            <Box sx={{ marginTop: '10px', marginLeft: '5px' }}>
+                              <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`Arguments: {}`}</Typography>
+                            </Box>
+                          ) : (
+                            <Box sx={{ marginTop: '10px', marginLeft: '5px' }}>
+                              <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`Arguments: {`}</Typography>
+                              {
+                                _.map(_.keys(args), (key) => {
+                                  const value = args[key];
+                                  return (
+                                    <Typography key={key} sx={{ fontSize: '14px', color: '#777777', marginLeft: '20px' }}>{`"${key}": "${value}",`}</Typography>
+                                  )
+                                })
+                              }
+                              <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`}`}</Typography>
+                            </Box>
                           )
-                        })
-                      }
-                      <Typography sx={{ fontSize: '14px', color: '#777777' }}>{`}`}</Typography>
-                    </Box>
-                  )
+                        }
+                      </Box>
+                    )
+                  })
                 }
               </Box>
-            )
-          })
-        }
-      </Box>
+            </>
+          )
+        })
+      }
 
       <div style={{ border: '1px solid #353535', width: '335px', height: 0, marginTop: '20px' }}></div>
 

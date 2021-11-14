@@ -87,6 +87,20 @@ const SignAndSendTransaction = () => {
     document.title = "Sign And Send Transaction";
   }, [])
 
+  const toList = useMemo(() => {
+    let to = [];
+    const receiverId = (params.contractId || params.receiverId);
+    if (receiverId) {
+      to.push(receiverId);
+    }
+
+    _.forEach(params.transactions, (transaction) => {
+      to.push(transaction.method || transaction.methodName || transaction.receiverId);
+    })
+
+    return _.uniq(to);
+  }, [params.contractId, params.receiverId, params.transactions]);
+
   const balance = useMemo(() => {
     const { balance: { total } } = currentAccount;
     return fixedNearAmount(total);
@@ -96,9 +110,12 @@ const SignAndSendTransaction = () => {
     let amount = params.amount || '0';
     amount = new BN(amount);
 
-    const { actions } = params;
-    _.forEach(actions, (action) => {
-      amount = action.deposit ? amount.add(new BN(action.deposit)) : amount.add(new BN(FT_TRANSFER_DEPOSIT));
+    const { transactions } = params;
+    _.forEach(transactions, (transaction) => {
+      const { actions } = transaction;
+      _.forEach(actions, (action) => {
+        amount = action.deposit ? amount.add(new BN(action.deposit)) : amount.add(new BN(FT_TRANSFER_DEPOSIT));
+      })
     })
     return fixedNearAmount(amount);
   }, [params])
@@ -118,7 +135,7 @@ const SignAndSendTransaction = () => {
     setText('Is signing, please do not clost this window.');
     setIsSignin(true);
 
-    const { notificationId, actions, receiverId, method, amount } = params;
+    const { notificationId, method, amount } = params;
     console.log('params: ', params);
     try {
       const { secretKey, accountId } = currentAccount;
@@ -131,26 +148,37 @@ const SignAndSendTransaction = () => {
       })
       const account = await near.account(accountId);
 
-      let res;
+      let results = [];
 
       if (method === 'sendMoney') {
-        res = await account.sendMoney(receiverId, amount);
+        const { receiverId } = params;
+        const res = await account.sendMoney(receiverId, amount);
+        results = [res];
       } else {
-        const functionCallActions = _.map(actions, (action) => {
-          const { methodName, args, gas, deposit, msg } = action;
-          return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT, msg);
-        })
-        console.log('account: ', account);
-        console.log('functionCallActions: ', functionCallActions);
-        res = await account.signAndSendTransaction({
-          receiverId,
-          actions: functionCallActions,
-        })
+        let { transactions, receiverId, actions } = params;
+        if (method === 'signAndSendTransaction') {
+          transactions = [{ receiverId, actions }];
+        }
+        for (let { receiverId, actions, nonce, blockHash } of transactions) {
+          const functionCallActions = _.map(actions, (action) => {
+            const { methodName, args } = action;
+            const gas = action.gas ? action.gas : FT_TRANSFER_GAS;
+            const deposit = action.deposit ? action.deposit : FT_TRANSFER_DEPOSIT;
+            return functionCall(methodName, args, gas, deposit);
+          })
+          let res;
+          if (nonce && blockHash) {
+            const signer = await nearAPI.InMemorySigner(keyStore);
+            const [, signedTransaction] = await nearAPI.transactions.signTransaction(receiverId, nonce, functionCallActions, blockHash, signer, accountId, config.network);
+            res = await near.connection.provider.sendTransaction(signedTransaction);
+          } else {
+            res = await account.signAndSendTransaction({ receiverId, actions: functionCallActions });
+          }
+          results.push(res);
+        }
       }
 
-      console.log('res: ', res);
-
-      chrome.runtime.sendMessage({ type: 'sender-wallet-result', res, method, notificationId }, function (response) {
+      chrome.runtime.sendMessage({ type: 'sender-wallet-result', res: results, method, notificationId }, function (response) {
         console.log('signAndSendTransaction success ....: ', response);
         setIsSignin(false);
         window.close();
@@ -178,10 +206,14 @@ const SignAndSendTransaction = () => {
 
       <Box sx={{ marginTop: '20px', position: 'relative' }}>
         <Item title="Available Balance" value={balance}></Item>
-        <Item title="To" value={params.receiverId || params.contractId}></Item>
+        {
+          _.map(toList, (to) => {
+            return <Item title="To" value={to} key={to}></Item>
+          })
+        }
 
         {
-          !_.isEmpty(params.actions) && (
+          !_.isEmpty(params.transactions) && (
             <Button
               disabled={isSignin}
               onClick={() => {
