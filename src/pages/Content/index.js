@@ -99,8 +99,9 @@ window.addEventListener('message', async function (event) {
             return functionCall(methodName, args, gas || FT_TRANSFER_GAS, deposit || FT_TRANSFER_DEPOSIT);
           })
           let res;
-          if (nonce && blockHash) {
-            const signer = await nearAPI.InMemorySigner(keyStore);
+          const recreateTransaction = account.deployMultisig || true;
+          if (!recreateTransaction) {
+            const signer = new nearAPI.InMemorySigner(keyStore);
             const [, signedTransaction] = await nearAPI.transactions.signTransaction(receiverId, nonce, functionCallActions, blockHash, signer, accountId, config.network);
             res = await near.connection.provider.sendTransaction(signedTransaction);
           } else {
