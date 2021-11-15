@@ -2,9 +2,9 @@ import axios from 'axios';
 import _ from 'lodash';
 
 import config from '../config';
+import apiKey from '../config/apiKey';
 
 const currencyQuotesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
-const apiKey = '3e99843c-4ed8-4000-8b7b-7b8c3fdc94af';
 const { helperUrl } = config;
 
 const apiHelper = {
@@ -18,7 +18,7 @@ const apiHelper = {
     const url = `${currencyQuotesUrl}?symbol=${symbols}`;
     const res = await axios.get(url, {
       headers: {
-        'X-CMC_PRO_API_KEY': apiKey,
+        'X-CMC_PRO_API_KEY': apiKey.coinMarketCap,
       }
     })
     return res.data.data;
