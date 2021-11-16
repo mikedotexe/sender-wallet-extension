@@ -1,5 +1,20 @@
+import _ from 'lodash';
 const extension = require('extensionizer');
 const queryString = require('query-string');
+
+extension.windows.onRemoved.addListener((windowId) => {
+  const key = `notification-windowId-${windowId}`;
+  chrome.storage.local.get([key], function (result) {
+    let notificationId = null
+    if (!_.isEmpty(result) && result[key]) {
+      notificationId = result[key];
+
+      const request = { type: 'sender-wallet-result', error: 'User reject', notificationId };
+      chrome.storage.local.set({ [`notification-result-${request.notificationId}`]: request }, function () {
+      });
+    }
+  });
+})
 
 chrome.runtime.onMessage.addListener(
   function (request, sender, sendResponse) {
@@ -40,6 +55,8 @@ chrome.runtime.onMessage.addListener(
             // Open the chrome extension's popup to ask user to reject or approve
             extension.windows.create(options, (newWindow) => {
               console.log('newWindow: ', newWindow);
+
+              chrome.storage.local.set({ [`notification-windowId-${newWindow.id}`]: request.notificationId }, function () { });
             })
           });
         });
