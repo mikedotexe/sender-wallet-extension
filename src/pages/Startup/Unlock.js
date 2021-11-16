@@ -59,7 +59,6 @@ const Unlock = () => {
   }
   const unlockClicked = () => {
     const data = queryString.parse(location.search);
-    console.log('data: ', data);
     const isCorrect = passwordHash.verify(password, salt, lockupPassword)
     if (isCorrect) {
       dispatch(setLockup(false));

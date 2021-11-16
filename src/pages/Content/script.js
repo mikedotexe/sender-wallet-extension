@@ -45,7 +45,6 @@ class Wallet {
     window.addEventListener('message', function (event) {
       try {
         const { data } = event;
-        console.log('data: ', data);
         if (data.type === 'sender-wallet-fromContent' && data.method === 'accountChanged') {
           this.authData = emptyAuthData;
           this.accountId = '';
@@ -122,19 +121,14 @@ class Wallet {
    * 
    * @param {*} receiverId received account id
    * @param {*} actions { methodName, args, gas, deposit, msg }
-   * @param {*} usingAccessKey If 'true', will using access key to make function call and no need to request user to sign this transaction. Set 'false' will popup a notification window to request user to sign this transaction.
    * @returns 
    */
-  signAndSendTransaction = ({ receiverId, actions, usingAccessKey = false }) => {
+  signAndSendTransaction = ({ receiverId, actions }) => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
-      // const data = { type: 'sender-wallet-fromPage', transactions: [{ receiverId, actions }], method: 'signAndSendTransaction', notificationId };
-      const data = { type: 'sender-wallet-fromPage', receiverId, actions, method: 'signAndSendTransaction', notificationId };
-      if (usingAccessKey) {
-        const { accessKey } = this.authData;
-        data.accessKey = accessKey;
-      }
+      const data = { type: 'sender-wallet-fromPage', transactions: [{ receiverId, actions }], method: 'signAndSendTransaction', notificationId };
+      // const data = { type: 'sender-wallet-fromPage', receiverId, actions, method: 'signAndSendTransaction', notificationId };
       window.postMessage(data);
     })
   }
@@ -155,18 +149,13 @@ class Wallet {
   /**
    * 
    * @param {*} transactions transaction list
-   * @param {*} usingAccessKey If 'true', will using access key to make function call and no need to request user to sign this transaction. Set 'false' will popup a notification window to request user to sign this transaction.
    * @returns
    */
-  requestSignTransactions = ({ transactions, usingAccessKey = false }) => {
+  requestSignTransactions = ({ transactions }) => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
       resolves[notificationId] = resolve;
       const data = { type: 'sender-wallet-fromPage', transactions, method: 'requestSignTransactions', notificationId };
-      if (usingAccessKey) {
-        const { accessKey } = this.authData;
-        data.accessKey = accessKey;
-      }
       window.postMessage(data);
     })
   }
@@ -177,7 +166,6 @@ window.wallet = new Wallet();
 window.addEventListener('message', function (event) {
   try {
     const { data } = event;
-    console.log('script data: ', data);
     if (data.type === 'sender-wallet-result') {
       if (data.method === 'init') {
         if (data.res === 'empty') {

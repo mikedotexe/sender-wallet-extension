@@ -549,7 +549,7 @@ export default class Near {
 
           return validator;
         } catch (e) {
-          console.warn('Error getting fee for validator %s: %s', account_id, e);
+          // console.warn('Error getting fee for validator %s: %s', account_id, e);
         }
       })
     )).filter((v) => !!v)

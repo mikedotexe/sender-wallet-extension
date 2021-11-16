@@ -14,7 +14,7 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import BN from 'bn.js';
 
-import { fixedNearAmount, formatNearAmount } from '../../utils';
+import { fixedNearAmount } from '../../utils';
 import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
 import config from '../../config';
 
@@ -155,10 +155,7 @@ const SignAndSendTransaction = () => {
         const res = await account.sendMoney(receiverId, amount);
         results = [res];
       } else {
-        let { transactions, receiverId, actions } = params;
-        if (method === 'signAndSendTransaction') {
-          transactions = [{ receiverId, actions }];
-        }
+        let { transactions } = params;
         for (let { receiverId, actions, nonce, blockHash } of transactions) {
           const functionCallActions = _.map(actions, (action) => {
             const { methodName, args } = action;

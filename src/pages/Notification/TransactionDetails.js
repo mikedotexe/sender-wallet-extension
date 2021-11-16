@@ -13,7 +13,7 @@ import _ from 'lodash';
 import BN from 'bn.js';
 
 import backIcon from '../../assets/img/back.png';
-import { parseNearAmount } from 'near-api-js/lib/utils/format';
+import { formatNearAmount } from 'near-api-js/lib/utils/format';
 import { fixedNumber } from '../../utils';
 import { FT_TRANSFER_GAS } from '../../core/near';
 
@@ -64,7 +64,7 @@ const TransactionDetails = () => {
     if (!marketStore || !marketStore.prices['NEAR']) {
       return null;
     }
-    const nearAmount = parseNearAmount(gas);
+    const nearAmount = formatNearAmount(gas);
     return fixedNumber(Number(nearAmount) * marketStore.prices['NEAR'], 4);
   }, [gas, marketStore])
 
@@ -136,7 +136,7 @@ const TransactionDetails = () => {
 
       <Typography align="left" sx={{ marginTop: '25px', color: 'white', fontSize: '16px', lineHeight: '22px' }}>Transaction Fees</Typography>
       <Typography align="left" sx={{ marginLeft: '10px', marginTop: '10px', color: 'white', fontSize: '14px', lineHeight: '20px' }}>Gas Limit:{gas || '0'}</Typography>
-      <Typography align="left" sx={{ marginLeft: '10px', marginTop: '5px', color: 'white', fontSize: '14px', lineHeight: '20px' }}>{gasPrice ? `Gas price estimate: ${gasPrice}` : 'Gas price estimate is unabailable'}</Typography>
+      <Typography align="left" sx={{ marginLeft: '10px', marginTop: '5px', color: 'white', fontSize: '14px', lineHeight: '20px' }}>{gasPrice ? `Gas price estimate: $${gasPrice}` : 'Gas price estimate is unabailable'}</Typography>
     </WrapperBasePage>
   )
 }

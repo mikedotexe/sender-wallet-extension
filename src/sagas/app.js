@@ -6,6 +6,8 @@ import {
 } from 'redux-saga/effects';
 import _ from 'lodash';
 import { push } from 'connected-react-router';
+import BN from 'bn.js';
+import * as nearApi from 'near-api-js';
 
 import { setImportStatus, setSendStatus, setStakingStatus, setSwapStatus, setUnstakingStatus } from '../reducers/loading';
 import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
@@ -67,6 +69,8 @@ function* updateAccountSaga() {
     const tokens = yield call(nearService.getTokensAndBalance);
     const validatorDepositMap = yield call(nearService.getValidatorDepositMap, { accountId });
     const balance = yield call(nearService.getAccountBalance);
+    balance.reservedForTransactions = BN.min(new BN(balance.available), new BN(nearApi.utils.format.parseNearAmount('0.05'))).toString();
+    balance.available = new BN(balance.available).sub(new BN(balance.reservedForTransactions)).toString();
     const {
       validators,
       totalUnstaked,
