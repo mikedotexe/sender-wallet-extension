@@ -132,7 +132,7 @@ const SignAndSendTransaction = () => {
   const confirmClicked = async () => {
     console.log('confirmClicked');
 
-    setText('Is signing, please do not clost this window.');
+    setText('Signing, please do not close this window.');
     setIsSignin(true);
 
     const { notificationId, method, amount } = params;
