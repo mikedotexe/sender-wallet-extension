@@ -245,6 +245,9 @@ const SignAndSendTransaction = () => {
                 height: '48px',
                 borderRadius: '12px',
                 boxShadow: '0px 2px 4px rgba(30, 30, 30, 0.5)',
+                "&.MuiButtonBase-root:hover": {
+                  backgroundColor: '#333333',
+                },
               }}
               onClick={rejectClicked}
             >
@@ -257,6 +260,9 @@ const SignAndSendTransaction = () => {
                 height: '48px',
                 borderRadius: '12px',
                 boxShadow: '0px 2px 4px rgba(30, 30, 30, 0.5)',
+                "&.MuiButtonBase-root:hover": {
+                  backgroundColor: '#FFCE3E',
+                },
               }}
               onClick={confirmClicked}
             >

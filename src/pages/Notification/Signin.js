@@ -63,7 +63,7 @@ const Signin = () => {
   }
 
   const confirmClicked = async () => {
-    setText('Is connecting, please do not close this window.');
+    setText('Connecting, please do not close this window.');
     setIsSignin(true);
 
     const { notificationId, contractId, methodNames } = params;
@@ -160,12 +160,22 @@ const Signin = () => {
           </Box>
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'space-around', marginTop: '40px' }}>
-            <Button sx={{ width: '315px', height: '48px', backgroundColor: '#FFCE3E', borderRadius: '12px' }} onClick={confirmClicked}>
+            <Button sx={{
+              width: '315px', height: '48px', backgroundColor: '#FFCE3E', borderRadius: '12px',
+              "&.MuiButtonBase-root:hover": {
+                backgroundColor: '#FFCE3E',
+              }
+            }} onClick={confirmClicked}>
               <Typography sx={{ color: '#282828', fontSize: '16px', lineHeight: '23px' }}>Connect</Typography>
             </Button>
-            <Button sx={{ width: '315px', height: '30px', marginTop: '10px' }} onClick={rejectClicked}>{
-              <Typography sx={{ color: '#777777', fontSize: '14px', lineHeight: '20px' }}>Cancel</Typography>
-            }</Button>
+            <Button sx={{
+              width: '315px', height: '30px', marginTop: '10px',
+              "&.MuiButtonBase-root:hover": {
+                backgroundColor: '#333333',
+              },
+            }} onClick={rejectClicked}>{
+                <Typography sx={{ color: '#777777', fontSize: '14px', lineHeight: '20px' }}>Cancel</Typography>
+              }</Button>
           </Box>
         )
       }
