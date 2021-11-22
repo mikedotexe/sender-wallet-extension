@@ -6,10 +6,6 @@ export const loadingSlice = createSlice({
     // Import page's loading status and result
     importLoading: false,
     importError: null,
-
-    // Swap page's loading status and result
-    swapLoading: false,
-    swapError: null,
   },
   reducers: {
     initStatus: (state) => {
@@ -22,13 +18,9 @@ export const loadingSlice = createSlice({
       state.importLoading = loading;
       state.importError = error;
     },
-    setSwapStatus: (state, { payload: { loading, error } }) => {
-      state.swapLoading = loading;
-      state.swapError = error;
-    },
   }
 })
 
-export const { initStatus, setImportStatus, setSwapStatus } = loadingSlice.actions;
+export const { initStatus, setImportStatus } = loadingSlice.actions;
 
 export default loadingSlice.reducer;

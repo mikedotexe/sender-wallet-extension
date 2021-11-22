@@ -37,6 +37,13 @@ export const tempSlice = createSlice({
       unstakeAmount: 0,
       selectUnstakeValidator: {},
     },
+    swapResultDrawer: {
+      display: false,
+      error: null,
+      swapAmount: 0,
+      swapFrom: '',
+      swapTo: '',
+    },
     twoFaDrawer: {
       display: false,
       resolver: null,
@@ -86,6 +93,11 @@ export const tempSlice = createSlice({
       state.unstakingResultDrawer = { ...state.unstakingResultDrawer, ...unstakingResultDrawer };
     },
 
+    setSwapResultDrawer: (state, action) => {
+      const swapResultDrawer = action.payload;
+      state.swapResultDrawer = { ...state.swapResultDrawer, ...swapResultDrawer };
+    },
+
     setTwoFaDrawer: (state, action) => {
       const { display, resolver, rejecter } = action.payload;
       state.twoFaDrawer = { display, resolver, rejecter };
@@ -103,6 +115,7 @@ export const {
   setStakingResultDrawer,
   setUnstakingConfirmDrawer,
   setUnstakingResultDrawer,
+  setSwapResultDrawer,
   setTwoFaDrawer,
 } = tempSlice.actions;
 

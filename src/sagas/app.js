@@ -9,7 +9,7 @@ import { push } from 'connected-react-router';
 import BN from 'bn.js';
 import * as nearApi from 'near-api-js';
 
-import { setImportStatus, setSwapStatus } from '../reducers/loading';
+import { setImportStatus } from '../reducers/loading';
 import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
@@ -17,7 +17,7 @@ import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from 
 import passwordHash from '../core/passwordHash';
 import { nearService } from '../core/near';
 import apiHelper from '../apiHelper';
-import { setStakingResultDrawer, setTransferConfirmDrawer, setTransferResultDrawer, setUnstakingConfirmDrawer, setUnstakingResultDrawer } from '../reducers/temp';
+import { setStakingResultDrawer, setSwapResultDrawer, setTransferConfirmDrawer, setTransferResultDrawer, setUnstakingConfirmDrawer, setUnstakingResultDrawer } from '../reducers/temp';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -177,7 +177,6 @@ function* unstakeSaga(action) {
 
 function* swapSaga(action) {
   const { swapFrom, swapTo, amount } = action;
-  yield put(setSwapStatus({ loading: true }));
   try {
     const appStore = yield select(getAppStore);
     const { currentAccount } = appStore;
@@ -190,11 +189,11 @@ function* swapSaga(action) {
     } else {
       yield call(nearService.wrapNearWithdraw, { amount: `${parseAmount}` });
     }
-    yield put(setSwapStatus({ loading: false, error: null }));
+    yield put(setSwapResultDrawer({ display: true, error: null, swapFrom, swapTo, swapAmount: amount }));
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('swap error: ', error);
-    yield put(setSwapStatus({ loading: false, error: error.message }));
+    yield put(setSwapResultDrawer({ display: true, error: error.message, swapFrom, swapTo, swapAmount: amount }));
   }
 }
 

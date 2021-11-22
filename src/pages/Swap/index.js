@@ -5,7 +5,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
 import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import styled from 'styled-components';
@@ -13,18 +12,12 @@ import _ from 'lodash';
 
 import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
-import BottomDrawer from '../../components/BottomDrawer';
 import Input from '../../components/Input';
 import arrowIcon from '../../assets/img/arrow_down.png';
 import swapIcon from '../../assets/img/swap.png';
-import exchangeIcon from '../../assets/img/exchange.png';
-import successIcon from '../../assets/img/success.png';
-import failIcon from '../../assets/img/fail.png';
-import closeIcon from '../../assets/img/drawer_close.png';
 import { fixedNearAmount } from '../../utils';
 import { APP_SWAP_NEAR } from '../../actions/app';
-import { initStatus } from '../../reducers/loading';
-import { usePrevious } from '../../hooks';
+import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   padding-left: 25px;
@@ -112,24 +105,23 @@ const getTokenBalance = (tokens, symbol) => {
 
 const Swap = () => {
   const dispatch = useDispatch();
+
   const appStore = useSelector((state) => state.app);
-  const loadingStore = useSelector((state) => state.loading);
+  const tempStore = useSelector((state) => state.temp);
+
   const [swapFrom, setSwapFrom] = useState('NEAR');
   const [swapAmount, setSwapAmount] = useState('');
   const [swapTo, setSwapTo] = useState('wNEAR');
-  const [swapFromAnchorEl, setSwapFromAnchorEl] = React.useState(null);
-  const [swapToAnchorEl, setSwapTPAnchorEl] = React.useState(null);
-  const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
+  const [swapFromAnchorEl, setSwapFromAnchorEl] = useState(null);
+  const [swapToAnchorEl, setSwapTPAnchorEl] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const { tokens } = appStore.currentAccount;
-  const { swapLoading, swapError } = loadingStore;
-  const preSwapLoading = usePrevious(swapLoading);
+  const { display } = tempStore.swapResultDrawer;
 
   useEffect(() => {
-    if (preSwapLoading && !swapLoading) {
-      setResultDrawerOpen(true);
-    }
-  }, [swapLoading])
+    setLoading(false);
+  }, [display])
 
   const swapFromBalance = useMemo(() => {
     const balance = getTokenBalance(tokens, swapFrom);
@@ -178,12 +170,8 @@ const Swap = () => {
   }
 
   const swapClicked = () => {
+    setLoading(true);
     dispatch({ type: APP_SWAP_NEAR, swapFrom, swapTo, amount: swapAmount });
-  }
-
-  const handleCloseDrawer = () => {
-    setResultDrawerOpen(false);
-    dispatch(initStatus());
   }
 
   return (
@@ -299,54 +287,12 @@ const Swap = () => {
       </Box> */}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Button className="swap-button" disabled={swapLoading} onClick={swapClicked}>
-          <Typography sx={{ fontSize: '16px', color: 'white' }}>{swapLoading ? 'Swaping...' : 'Swap'}</Typography>
+        <Button className="swap-button" disabled={loading} onClick={swapClicked}>
+          <Typography sx={{ fontSize: '16px', color: 'white' }}>{loading ? 'Swaping...' : 'Swap'}</Typography>
         </Button>
       </Box>
 
-      <BottomDrawer
-        open={resultDrawerOpen}
-        onClose={handleCloseDrawer}
-      >
-        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-          <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
-
-          {
-            !swapError ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={successIcon} alt="success"></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Swap successful!</Typography>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={failIcon} alt="fail" style={{ width: '42px', height: '42px' }}></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Swap failed!</Typography>
-              </Box>
-            )
-          }
-
-          {
-            !swapError ? (
-              <Typography align='center' sx={{ marginLeft: '16px', marginRight: '16px', fontSize: '14px', color: '#5E5E5E', marginTop: '16px', lineHeight: '16px', marginBottom: '37px' }}>Your swap: {swapAmount} {swapFrom} to {swapAmount} {swapTo} has successfully been confirmed</Typography>
-            ) : (
-              <Typography align='center' sx={{ marginLeft: '16px', marginRight: '16px', fontSize: '14px', color: '#5E5E5E', marginTop: '16px', lineHeight: '16px', marginBottom: '37px' }}>Sorry, {swapError}</Typography>
-            )
-          }
-
-          <Divider sx={{ width: '100%', height: '1px', borderRadius: '4px', marginTop: '11px', boxSizing: 'border-box', border: '1px solid #E9EBEF' }}></Divider>
-
-          <Button
-            sx={{
-              backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
-              '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
-            }}
-            onClick={handleCloseDrawer}
-          >
-            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!swapError ? 'Rerturn' : 'Try Again'}</Typography>
-          </Button>
-        </Box>
-      </BottomDrawer>
+      <SwapResultDrawer />
     </WrapperBasePage>
   )
 }
