@@ -10,13 +10,13 @@ import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 
 import BaseBox from '../../components/BaseBox';
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import Input from '../../components/Input';
 import { APP_SET_PASSWORD } from '../../actions/app';
 import backIcon from '../../assets/img/back.png';
 import passwordHash from '../../core/passwordHash';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   display: flex;
   flex-direction: column;
   background-color: rgb(29, 29, 29);

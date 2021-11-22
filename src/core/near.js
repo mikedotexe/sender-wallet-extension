@@ -1,3 +1,5 @@
+import { useDispatch } from 'react-redux';
+
 import * as nearAPI from "near-api-js";
 import BN from 'bn.js';
 import _ from 'lodash';
@@ -6,6 +8,9 @@ import config from '../config';
 import { parseSeedPhrase } from '../utils';
 import apiHelper from "../apiHelper";
 import Validator from '../data/Validator';
+import { transactions } from "near-api-js";
+import { setTwoFaDrawer } from "../reducers/temp";
+import { store } from '../Store';
 
 // const WRAP_NEAR_CONTRSCT = 'wrap.near';
 const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
@@ -17,10 +22,11 @@ const {
   utils: {
     format: {
       parseNearAmount,
-    }
+    },
   },
   providers,
   Contract,
+  multisig: { Account2FA },
 } = nearAPI;
 
 const { nodeUrl, network } = config;
@@ -39,6 +45,17 @@ export const FT_TRANSFER_GAS = parseNearAmount('0.00000000003');
 // "This 1 yoctoNEAR is not enforced by this standard, but is encouraged to do. While ability to receive attached deposit is enforced by this token."
 // from: https://github.com/near/NEPs/issues/141
 export const FT_TRANSFER_DEPOSIT = '1';
+
+export const MULTISIG_CONTRACT_HASHES = [
+  // https://github.com/near/core-contracts/blob/fa3e2c6819ef790fdb1ec9eed6b4104cd13eb4b7/multisig/src/lib.rs
+  '7GQStUCd8bmCK43bzD8PRh7sD2uyyeMJU5h8Rj3kXXJk',
+  // https://github.com/near/core-contracts/blob/fb595e6ec09014d392e9874c2c5d6bbc910362c7/multisig/src/lib.rs
+  'AEE3vt6S3pS2s7K6HXnZc46VyMyJcjygSMsaafFh67DF',
+  // https://github.com/near/core-contracts/blob/636e7e43f1205f4d81431fad0be39c5cb65455f1/multisig/src/lib.rs
+  '8DKTSceSbxVgh4ANXwqmRqGyPWCuZAR1fCqGPXUjD5nZ',
+  // https://github.com/near/core-contracts/blob/f93c146d87a779a2063a30d2c1567701306fcae4/multisig/res/multisig.wasm
+  '55E7imniT2uuYrECn17qJAk9fLcwQW4ftNSwmCJL5Di',
+];
 
 const STAKING_GAS_BASE = '25000000000000'; // 25 Tgas
 const STAKING_AMOUNT_DEVIATION = parseNearAmount('0.00001');
@@ -132,6 +149,19 @@ export const getRpcValidators = async () => {
   return validators;
 }
 
+/**
+ * Check account has 2fa enabled
+ * @param {*} account 
+ * @returns true if account's 2fa is enabled
+ */
+export const has2faEnabled = async (account) => {
+  const state = await account.state();
+  if (!state) {
+    return false;
+  }
+  return MULTISIG_CONTRACT_HASHES.includes(state.code_hash);
+}
+
 export default class Near {
   constructor() {
     this.viewAccount = getViewAccount();
@@ -150,8 +180,28 @@ export default class Near {
   }
 
   /**
+   * Get account object.
+   * @returns If has enabled 2fa, return an Account2FA instance.
+   */
+  getAccount = async () => {
+    if (await has2faEnabled(this.signer)) {
+      const account = new Account2FA(this.signer.connection, this.signer.accountId, {
+        helperUrl: config.helperUrl,
+        getCode: () => {
+          return new Promise((resolve, reject) => {
+            store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject }));
+          })
+        },
+      });
+      return account;
+    } else {
+      return this.signer;
+    }
+  }
+
+  /**
    * Get account id by publickKey from the helper api
-   * @param {*} publicKey 
+   * @param {*} publicKey
    * @returns account id
    */
   getAccountId = async (publicKey) => {
@@ -355,6 +405,7 @@ export default class Near {
    * @returns
    */
   transfer = async ({ memo, contractId, amount, receiverId }) => {
+    const account = await this.getAccount();
     if (contractId) {
       await this.checkStorageBalance({ contractId, receiverId });
 
@@ -369,7 +420,15 @@ export default class Near {
         ]
       });
     } else {
-      return await this.signer.sendMoney(receiverId, amount);
+      console.log('receiverId: ', receiverId);
+      const res = await account.signAndSendTransaction({
+        receiverId,
+        actions: [transactions.transfer(amount)],
+      })
+      console.log('res: ', res);
+      return res;
+      // return await this.signer.sendMoney(receiverId, amount);
+      // return await account.sendMoney(receiverId, amount);
     }
   }
 

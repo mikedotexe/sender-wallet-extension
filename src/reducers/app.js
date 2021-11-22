@@ -9,6 +9,7 @@ export const appSlice = createSlice({
     lockupPassword: '',
     isLockup: false,
     salt: '',
+    pengdingRequest: [],
   },
   reducers: {
     setSalt: (state, action) => {

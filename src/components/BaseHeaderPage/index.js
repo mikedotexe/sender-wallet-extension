@@ -16,7 +16,7 @@ const WrapperBox = styled(Box)`
   margin-bottom: 60px;
 `
 
-const BasePage = ({ className, children }) => {
+const BaseHeaderPage = ({ className, children }) => {
   return (
     <WrapperBox className={className}>
       <Header />
@@ -26,4 +26,4 @@ const BasePage = ({ className, children }) => {
   )
 }
 
-export default BasePage;
+export default BaseHeaderPage;

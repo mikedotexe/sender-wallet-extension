@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -7,26 +7,21 @@ import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import Avatar from '@material-ui/core/Avatar';
 import Button from '@material-ui/core/Button';
-import Divider from '@material-ui/core/Divider';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
-import BottomDrawer from '../../components/BottomDrawer';
+import TransferResultDrawer from '../../components/BottomDrawer/TransferResultDrawer';
 import backIcon from '../../assets/img/back.png';
 import arrowIcon from '../../assets/img/arrow.png';
-import successIcon from '../../assets/img/success.png';
-import failIcon from '../../assets/img/fail.png';
-import closeIcon from '../../assets/img/drawer_close.png';
-import { fixedNearAmount, fixedTokenAmount, fixedNumber, parseNearAmount } from '../../utils';
-import { nearService } from '../../core/near';
-import { APP_ACCOUNT_TRANSFER } from '../../actions/app';
-import { usePrevious } from '../../hooks';
+import { fixedNearAmount, fixedTokenAmount, fixedNumber } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
+import { setTransferConfirmDrawer } from '../../reducers/temp';
+import TransferConfirmDrawer from '../../components/BottomDrawer/TransferConfirmDrawer';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .amount-input {
     text-align: center;
     margin-top: 30px;
@@ -60,25 +55,18 @@ const WrapperBasePage = styled(BasePage)`
 const Send = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+
   const tempStore = useSelector((state) => state.temp);
   const appStore = useSelector((state) => state.app);
-  const loadingStore = useSelector((state) => state.loading);
   const marketStore = useSelector((state) => state.market);
-  const [confirmDrawerOpen, setConfirmDrawerOpen] = useState(false);
-  const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
+
   const [sendAmount, setSendAmount] = useState('');
   const [sendAmountPrice, setSendAmountPrice] = useState(0);
   const [receiver, setReceiver] = useState('');
-  const [estimatedFees, setEstimatedFees] = useState(0);
-  const [estimatedFeesPrice, setEstimatedFeesPrice] = useState(0);
-  const [estimatedTotalFees, setEstimatedTotalFees] = useState(0);
-  const [estimatedTotalFeesPrice, setEstimatedTotalFeesPrice] = useState(0);
+  const [code, setCode] = useState('');
 
   const { prices } = marketStore;
-  const { tokens, accountId } = appStore.currentAccount;
-  const { sendLoading, sendError } = loadingStore;
-
-  const preSendLoading = usePrevious(sendLoading);
+  const { tokens } = appStore.currentAccount;
 
   const selectToken = useMemo(() => {
     let t;
@@ -95,46 +83,6 @@ const Send = () => {
     t.price = fixedNumber(Number(prices[t.symbol]) * Number(t.balance), 4);
     return t;
   }, [tempStore.selectToken, tokens, prices])
-
-  useEffect(() => {
-    const getEstimatedTotalFees = async () => {
-      const fees = await nearService.getEstimatedTotalFees({ accountId, contractId: selectToken.accountId });
-      const nearFees = fixedNearAmount(fees);
-      setEstimatedFees(nearFees);
-      const nearFeesPrice = fixedNumber(Number(nearFees) * prices['NEAR'], 4);
-      setEstimatedFeesPrice(nearFeesPrice);
-    }
-    getEstimatedTotalFees();
-  }, [selectToken, accountId])
-
-  useEffect(() => {
-    const getEstimatedTotalNearAmount = async () => {
-      let nearTotalFees;
-      if (selectToken.symbol === 'NEAR') {
-        const fees = await nearService.getEstimatedTotalNearAmount({ amount: parseNearAmount(sendAmount) });
-        nearTotalFees = fixedNearAmount(fees);
-        setEstimatedTotalFees(nearTotalFees);
-      } else {
-        nearTotalFees = estimatedFees;
-        setEstimatedTotalFees(nearTotalFees);
-      }
-
-      const nearTotalFeesPrice = fixedNumber(Number(nearTotalFees) * prices['NEAR'], 4);
-      setEstimatedTotalFeesPrice(nearTotalFeesPrice);
-    }
-    getEstimatedTotalNearAmount();
-  }, [estimatedFees, sendAmount, selectToken])
-
-  useEffect(() => {
-    if (preSendLoading && !sendLoading) {
-      setConfirmDrawerOpen(false);
-
-      // Show result drawer
-      setTimeout(() => {
-        setResultDrawerOpen(true);
-      }, 1000)
-    }
-  }, [sendLoading])
 
   const backClicked = () => {
     history.goBack();
@@ -156,21 +104,20 @@ const Send = () => {
     history.push('/tokens');
   }
 
-  const handleCloseDrawer = () => {
-    setConfirmDrawerOpen(false);
-    setResultDrawerOpen(false);
-  }
-
   const sendClicked = () => {
-    setConfirmDrawerOpen(true);
-  }
-
-  const confirmClicked = () => {
-    dispatch({ type: APP_ACCOUNT_TRANSFER, receiverId: receiver, amount: sendAmount, token: selectToken });
+    dispatch(setTransferConfirmDrawer({ display: true, sendAmount, selectToken, receiver }));
   }
 
   const useMaxClicked = () => {
     setSendAmount(selectToken.balance);
+  }
+
+  const verifyClicked = () => {
+    tempStore.twoFaModal.resolver(code);
+  }
+
+  const codeChanged = (e) => {
+    setCode(e.target.value);
   }
 
   return (
@@ -213,128 +160,44 @@ const Send = () => {
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Button disabled={!sendAmount && !receiver} className="send-button" onClick={sendClicked}>
+        <Button disabled={!sendAmount || !receiver} className="send-button" onClick={sendClicked}>
           <Typography sx={{ fontSize: '16px', color: 'white' }}>Send</Typography>
         </Button>
       </Box>
 
-      <BottomDrawer
-        open={confirmDrawerOpen}
-        onClose={() => setConfirmDrawerOpen(false)}
+      <TransferConfirmDrawer />
+      <TransferResultDrawer />
+
+      {/* <BottomDrawer
+        open={twoFaDrawerOpen}
+        onClose={() => {
+          setTwoFaDrawerOpen(false);
+          tempStore.twoFaModal.rejecter(new Error('User reject'));
+        }}
       >
         <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-          <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
-
-          <Typography sx={{ fontSize: '14px', color: '#202046', marginTop: '16px' }}>You are sending</Typography>
-
-          <Typography sx={{ fontSize: '28px', color: '#202046', marginTop: '10px' }}>{sendAmount} {selectToken.symbol}</Typography>
-          <Typography sx={{ fontSize: '14px', color: '#5E5E5E' }}>≈ ${sendAmountPrice} USD</Typography>
-
-          <Divider sx={{ width: '100%', height: '1px', borderRadius: '4px', marginTop: '11px', boxSizing: 'border-box', border: '1px solid #E9EBEF' }}></Divider>
-
-          <Typography sx={{ fontSize: '16px', color: '#202046', marginTop: '11px' }}>To</Typography>
-          <Typography sx={{ fontSize: '16px', color: '#588912', marginTop: '8px' }}>{receiver}</Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>Estimated fees</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{`< ${estimatedFees} NEAR`}</Typography>
-          </Box>
-          <Typography sx={{ alignSelf: 'self-end', fontSize: '12px', color: '#5E5E5E', marginRight: '25px' }}>{`< $${estimatedFeesPrice} USD`}</Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>Estimated total</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{`< ${estimatedTotalFees} NEAR`}</Typography>
-          </Box>
-          <Typography sx={{ alignSelf: 'self-end', fontSize: '12px', color: '#5E5E5E', marginRight: '25px' }}>{`< $${estimatedTotalFeesPrice} USD`}</Typography>
-
+          <BaseBox>
+            <Input placeholder='' onChange={codeChanged}></Input>
+          </BaseBox>
           <Button
-            disabled={sendLoading}
             sx={{
               backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '12px', height: '48px',
               '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
             }}
-            onClick={confirmClicked}
+            onClick={verifyClicked}
           >
-            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{sendLoading ? 'Sending...' : 'Confirm'}</Typography>
+            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{'Verify'}</Typography>
           </Button>
 
-          <Button sx={{ width: '325px', height: '48px' }} onClick={() => setConfirmDrawerOpen(false)}>
+          <Button sx={{ width: '325px', height: '48px' }} onClick={() => {
+            setTwoFaDrawerOpen(false);
+            tempStore.twoFaModal.rejecter(new Error('User reject'));
+          }}>
             <Typography sx={{ fontSize: '14px', color: '#777777' }}>Cancel</Typography>
           </Button>
         </Box>
-      </BottomDrawer>
-
-      <BottomDrawer
-        open={resultDrawerOpen}
-        onClose={() => setResultDrawerOpen(false)}
-      >
-        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-          <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
-
-          {
-            !sendError ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={successIcon} alt="success"></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Transfer successful!</Typography>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={failIcon} alt="fail" style={{ width: '42px', height: '42px' }}></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Transfer failed!</Typography>
-              </Box>
-            )
-          }
-
-          {
-            !sendError ? (
-              <Typography sx={{ fontSize: '38px', color: '#202046', marginTop: '16px', lineHeight: '34px' }}>${sendAmountPrice}</Typography>
-            ) : (
-              <Typography sx={{ marginLeft: '16px', marginRight: '16px', fontSize: '14px', color: '#5E5E5E', marginTop: '16px', lineHeight: '16px', marginBottom: '37px' }}>Sorry, {sendError}</Typography>
-            )
-          }
-
-          <Divider sx={{ width: '100%', height: '1px', borderRadius: '4px', marginTop: '11px', boxSizing: 'border-box', border: '1px solid #E9EBEF' }}></Divider>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>Amount</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{`${sendAmount} ${selectToken.symbol}`}</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>To</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{receiver}</Typography>
-          </Box>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>Estimated fees</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{`< ${estimatedFees} NEAR`}</Typography>
-          </Box>
-          <Typography sx={{ alignSelf: 'self-end', fontSize: '12px', color: '#5E5E5E', marginRight: '25px' }}>{`< $${estimatedFeesPrice} USD`}</Typography>
-
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '21px', width: '100%' }}>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '25px' }}>Estimated total</Typography>
-            <Typography sx={{ fontSize: '16px', color: '#202046', marginRight: '25px' }}>{`< ${estimatedTotalFees} NEAR`}</Typography>
-          </Box>
-          <Typography sx={{ alignSelf: 'self-end', fontSize: '12px', color: '#5E5E5E', marginRight: '25px' }}>{`< $${estimatedTotalFeesPrice} USD`}</Typography>
-
-          <Button
-            sx={{
-              backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
-              '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
-            }}
-            onClick={() => {
-              if (!sendError) {
-                history.push('/home');
-              }
-              handleCloseDrawer();
-            }}
-          >
-            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!sendError ? 'Rerturn' : 'Try Again'}</Typography>
-          </Button>
-        </Box>
-      </BottomDrawer>
+      </BottomDrawer> */}
     </WrapperBasePage >
   )
 }

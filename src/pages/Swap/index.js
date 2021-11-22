@@ -11,7 +11,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import BottomDrawer from '../../components/BottomDrawer';
 import Input from '../../components/Input';
@@ -26,7 +26,7 @@ import { APP_SWAP_NEAR } from '../../actions/app';
 import { initStatus } from '../../reducers/loading';
 import { usePrevious } from '../../hooks';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   padding-left: 25px;
   padding-right: 25px;
   box-sizing: border-box;

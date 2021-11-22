@@ -10,7 +10,7 @@ import Avatar from '@material-ui/core/Avatar';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import List from '../../components/List';
@@ -20,7 +20,7 @@ import selectedIcon from '../../assets/img/selected.png';
 import { setSelectToken } from '../../reducers/temp';
 import nearIcon from '../../assets/img/NEAR.png';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
     flex: 1;
     margin-left: 11px;

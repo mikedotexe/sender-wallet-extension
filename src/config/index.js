@@ -10,8 +10,8 @@
 const config = {
   network: 'testnet',
   networkId: 'testnet',
-  // nodeUrl: "https://rpc.testnet.near.org",
-  nodeUrl: "https://public-rpc.blockpi.io/http/near-testnet",
+  nodeUrl: "https://rpc.testnet.near.org",
+  // nodeUrl: "https://public-rpc.blockpi.io/http/near-testnet",
   walletUrl: "https://wallet.testnet.near.org",
   helperUrl: "https://helper.testnet.near.org",
   explorerUrl: "https://explorer.testnet.near.org",

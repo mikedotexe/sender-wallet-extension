@@ -9,7 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import BottomDrawer from '../../components/BottomDrawer';
 import Input from '../../components/Input';
@@ -22,7 +22,7 @@ import { APP_ACCOUNT_UNSTAKING } from '../../actions/app';
 import { usePrevious } from '../../hooks';
 import { initStatus } from '../../reducers/loading';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
     flex: 1;
     margin-left: 11px;

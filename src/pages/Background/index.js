@@ -56,6 +56,7 @@ chrome.runtime.onMessage.addListener(
             extension.windows.create(options, (newWindow) => {
               console.log('newWindow: ', newWindow);
 
+              chrome.action.setBadgeText({ text: '1', tabId: newWindow.id });
               chrome.storage.local.set({ [`notification-windowId-${newWindow.id}`]: request.notificationId }, function () { });
             })
           });

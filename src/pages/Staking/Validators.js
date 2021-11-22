@@ -9,7 +9,7 @@ import Button from '@material-ui/core/Button';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import List from '../../components/List';
@@ -18,7 +18,7 @@ import searchIcon from '../../assets/img/search.png';
 import { setSelectUnstakeValidator, setSelectValidator } from '../../reducers/temp';
 import { fixedNearAmount } from '../../utils';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
     flex: 1;
     margin-left: 11px;

@@ -8,13 +8,13 @@ import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import arrowIcon from '../../assets/img/arrow.png';
 import currencyIcon from '../../assets/img/currency.png';
 import languageIcon from '../../assets/img/language.png';
 import changePasswordIcon from '../../assets/img/change_password.png';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .button {
     background: #333333;
     box-shadow: 0px 2px 4px rgba(30, 30, 30, 0.5);

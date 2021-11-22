@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import _ from 'lodash';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BottomNavigation from '../../components/BottomNavigation';
 
 import WalletPage from '../Wallet';
@@ -32,7 +32,7 @@ const Home = () => {
   // }, [appStore.currentAccount.tokens])
 
   return (
-    <BasePage>
+    <BaseHeaderPage>
       {value === 0 && <WalletPage />}
       {value === 1 && <SwapPage />}
       {value === 2 && <StakingPage />}
@@ -44,7 +44,7 @@ const Home = () => {
           dispatch(setBottomTabValue(newValue));
         }}
       />
-    </BasePage>
+    </BaseHeaderPage>
   )
 }
 

@@ -10,7 +10,7 @@ import Divider from '@material-ui/core/Divider';
 import _ from 'lodash';
 import styled from 'styled-components';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import List from '../../components/List';
@@ -24,7 +24,7 @@ import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { initStatus } from '../../reducers/loading';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .list {
     background: #FFFFFF;
     box-shadow: 0px 0px 20px rgba(30, 30, 30, 0.06);

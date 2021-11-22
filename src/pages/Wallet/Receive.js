@@ -10,11 +10,11 @@ import QRcode from 'qrcode.react';
 import styled from 'styled-components';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 
-import BasePage from '../../components/BasePage';
+import BaseHeaderPage from '../../components/BaseHeaderPage';
 import backIcon from '../../assets/img/back.png';
 import copyIcon from '../../assets/img/copy.png';
 
-const WrapperBasePage = styled(BasePage)`
+const WrapperBasePage = styled(BaseHeaderPage)`
   .copy-view {
     width: 325px;
     background: #1E1E1E;

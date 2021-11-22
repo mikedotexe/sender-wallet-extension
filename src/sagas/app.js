@@ -17,6 +17,7 @@ import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from 
 import passwordHash from '../core/passwordHash';
 import { nearService } from '../core/near';
 import apiHelper from '../apiHelper';
+import { setTransferConfirmDrawer, setTransferResultDrawer } from '../reducers/temp';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -108,9 +109,9 @@ function* updateAccountSaga() {
 }
 
 function* transferSaga(action) {
+  console.log('action: ', action);
   const { receiverId, amount, token } = action;
   const { accountId: contractId, decimals } = token;
-  yield put(setSendStatus({ loading: true }))
   try {
     const appStore = yield select(getAppStore);
     const { currentAccount } = appStore;
@@ -124,11 +125,13 @@ function* transferSaga(action) {
       parseAmount = parseNearAmount(amount);
     }
     yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
-    yield put(setSendStatus({ loading: false, error: null }));
+    yield put(setTransferConfirmDrawer({ display: false }));
+    yield put(setTransferResultDrawer({ display: true, error: null, selectToken: token, sendAmount: amount, receiver: receiverId }))
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('transfer error: ', error);
-    yield put(setSendStatus({ loading: false, error: error.message }))
+    yield put(setTransferConfirmDrawer({ display: false }));
+    yield put(setTransferResultDrawer({ display: true, error: error.message, selectToken: token, sendAmount: amount, receiver: receiverId }))
   }
 }
 
