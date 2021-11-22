@@ -17,7 +17,7 @@ import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from 
 import passwordHash from '../core/passwordHash';
 import { nearService } from '../core/near';
 import apiHelper from '../apiHelper';
-import { setTransferConfirmDrawer, setTransferResultDrawer } from '../reducers/temp';
+import { setStakingResultDrawer, setTransferConfirmDrawer, setTransferResultDrawer } from '../reducers/temp';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -109,7 +109,6 @@ function* updateAccountSaga() {
 }
 
 function* transferSaga(action) {
-  console.log('action: ', action);
   const { receiverId, amount, token } = action;
   const { accountId: contractId, decimals } = token;
   try {
@@ -137,22 +136,21 @@ function* transferSaga(action) {
 
 function* stakingSaga(action) {
   const { amount } = action;
-  yield put(setStakingStatus({ loading: true }));
+  const appStore = yield select(getAppStore);
+  const tempStore = yield select(getTempStore);
+  const { currentAccount } = appStore;
+  const { mnemonic, accountId } = currentAccount;
+  const { selectValidator } = tempStore;
   try {
-    const appStore = yield select(getAppStore);
-    const tempStore = yield select(getTempStore);
-    const { currentAccount } = appStore;
-    const { mnemonic, accountId } = currentAccount;
-    const { selectValidator } = tempStore;
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     const parseAmount = parseNearAmount(amount);
     yield call(nearService.stake, { amount: `${parseAmount}`, validatorId: selectValidator.accountId });
-    yield put(setStakingStatus({ loading: false, error: null }));
+    yield put(setStakingResultDrawer({ display: true, error: null, selectValidator, stakeAmount: amount }));
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
     console.log('staking error: ', error);
-    yield put(setStakingStatus({ loading: false, error: error.message }))
+    yield put(setStakingResultDrawer({ display: true, error: error.message, selectValidator, stakeAmount: amount }));
   }
 }
 

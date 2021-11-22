@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -15,14 +15,9 @@ import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import List from '../../components/List';
 import ButtonGroup from '../../components/ButtonGroup';
-import BottomDrawer from '../../components/BottomDrawer';
 import { fixedNearAmount, fixedNumber } from '../../utils';
 import { APP_ACCOUNT_STAKING } from '../../actions/app';
-import { usePrevious } from '../../hooks';
-import successIcon from '../../assets/img/success.png';
-import failIcon from '../../assets/img/fail.png';
-import closeIcon from '../../assets/img/drawer_close.png';
-import { initStatus } from '../../reducers/loading';
+import StakingResultDrawer from '../../components/BottomDrawer/StakingResultDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .list {
@@ -74,25 +69,20 @@ const Validator = ({ data: validator }) => {
 const Staking = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+
   const appStore = useSelector((state) => state.app);
   const marketStore = useSelector((state) => state.market);
-  const loadingStore = useSelector((state) => state.loading);
   const tempStore = useSelector((state) => state.temp);
+
   const [tabValue, setTabValue] = useState(0);
   const [stakeAmount, setStakeAmount] = useState('');
-  const [resultDrawerOpen, setResultDrawerOpen] = useState(false);
+  const [loading, setLoading] = useState('');
 
-  const { selectValidator } = tempStore;
-  const { stakingLoading, stakingError } = loadingStore;
-  const preStakingLoading = usePrevious(stakingLoading);
+  const { selectValidator, stakingResultDrawer } = tempStore;
 
   useEffect(() => {
-    if (preStakingLoading && !stakingLoading) {
-      setTimeout(() => {
-        setResultDrawerOpen(true);
-      }, 500)
-    }
-  }, [stakingLoading])
+    setLoading(false);
+  }, [stakingResultDrawer.display])
 
   const validators = useMemo(() => {
     return _.filter(appStore.currentAccount.validators, (validator) => validator.staked !== '0');
@@ -130,26 +120,18 @@ const Staking = () => {
     return fixedNumber(Number(totalAvailable) * marketStore.prices['NEAR'], 4);
   }, [totalAvailable, marketStore.prices])
 
-  const selectValidatorClick = () => {
-    history.push('/staking/validators/false');
-  }
-
-  const stakeAmountPrice = useMemo(() => {
-    return fixedNumber(Number(stakeAmount) * marketStore.prices['NEAR'], 4);
-  }, [stakeAmount, marketStore.prices])
-
   const stakeAmountChanged = useCallback((e) => {
     const amount = e.target.value;
     setStakeAmount(amount);
   }, [])
 
   const submitStakeClicked = useCallback(() => {
+    setLoading(true);
     dispatch({ type: APP_ACCOUNT_STAKING, amount: stakeAmount })
   }, [stakeAmount])
 
-  const handleCloseDrawer = () => {
-    setResultDrawerOpen(false);
-    dispatch(initStatus());
+  const selectValidatorClick = () => {
+    history.push('/staking/validators/false');
   }
 
   const unstakeClicked = () => {
@@ -178,8 +160,8 @@ const Staking = () => {
         </BaseBox>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Button className="submit-button" onClick={submitStakeClicked} disabled={stakingLoading || !stakeAmount || !selectValidator.accountId}>
-            <Typography sx={{ fontSize: '16px', color: 'white' }}>{stakingLoading ? 'Staking...' : 'Submit Stake'}</Typography>
+          <Button className="submit-button" onClick={submitStakeClicked} disabled={loading || !stakeAmount || !selectValidator.accountId}>
+            <Typography sx={{ fontSize: '16px', color: 'white' }}>{loading ? 'Staking...' : 'Submit Stake'}</Typography>
           </Button>
         </Box>
       </Box>
@@ -246,66 +228,7 @@ const Staking = () => {
         }
       </Box>
 
-      <BottomDrawer
-        open={resultDrawerOpen}
-        onClose={handleCloseDrawer}
-      >
-        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-          <Divider sx={{ backgroundColor: '#9CA2AA', width: '36px', height: '4px', borderRadius: '100px', marginTop: '11px' }}></Divider>
-
-          {
-            !stakingError ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={successIcon} alt="success"></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Stake successful!</Typography>
-              </Box>
-            ) : (
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '15px' }}>
-                <img src={failIcon} alt="fail" style={{ width: '42px', height: '42px' }}></img>
-                <Typography sx={{ fontSize: '16px', color: '#202046', marginLeft: '16px' }}>Stake failed!</Typography>
-              </Box>
-            )
-          }
-
-          {
-            !stakingError ? (
-              <Typography align='center' sx={{ marginLeft: '16px', marginRight: '16px', fontSize: '14px', color: '#5E5E5E', marginTop: '16px', lineHeight: '16px', marginBottom: '37px' }}>Your stake has successfully been delegated to your chosen validator</Typography>
-            ) : (
-              <Typography align='center' sx={{ marginLeft: '16px', marginRight: '16px', fontSize: '14px', color: '#5E5E5E', marginTop: '16px', lineHeight: '16px', marginBottom: '37px' }}>Sorry, {stakingError}</Typography>
-            )
-          }
-
-          <Divider sx={{ width: '100%', height: '1px', borderRadius: '4px', marginTop: '11px', boxSizing: 'border-box', border: '1px solid #E9EBEF' }}></Divider>
-
-          <Box sx={{ marginTop: '35px', width: '100%', paddingLeft: '25px', paddingRight: '25px', boxSizing: 'border-box' }} key={selectValidator.accountId}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Typography sx={{ width: '200px', fontSize: '14px', color: '#25272A', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{selectValidator.accountId}</Typography>
-              <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{stakeAmount} NEAR</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alginItems: 'center', justifyContent: 'space-between' }}>
-              <Box sx={{ display: 'flex', alginItems: 'center', justifyContent: 'start' }}>
-                <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{selectValidator.fee.percentage}%</Typography>
-                <Typography sx={{ fontSize: '14px', color: '#5E5E5E', marginLeft: '4px', marginRight: '5px' }}>-</Typography>
-                <Typography sx={{ fontSize: '14px', color: selectValidator.active ? '#588912' : '#CECECE', fontWeight: 'bold' }}>{selectValidator.active ? 'active' : 'inactive'}</Typography>
-              </Box>
-              <Typography sx={{ fontSize: '12px', color: '#5E5E5E', fontWeight: 'bold' }}>≈${stakeAmountPrice} USD</Typography>
-            </Box>
-
-            {!stakingError && (<Typography align='center' sx={{ fontSize: '14px', color: '#5E5E5E', marginTop: '34px', lineHeight: '16px', marginBottom: '20px' }}>You can now view your delegation and staking rewards from your validators list.</Typography>)}
-          </Box>
-
-          <Button
-            sx={{
-              backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '18px', height: '48px', marginBottom: '37px',
-              '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
-            }}
-            onClick={handleCloseDrawer}
-          >
-            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!stakingError ? 'Rerturn' : 'Try Again'}</Typography>
-          </Button>
-        </Box>
-      </BottomDrawer>
+      <StakingResultDrawer />
     </WrapperBasePage>
   )
 }

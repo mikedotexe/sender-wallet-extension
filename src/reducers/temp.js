@@ -22,6 +22,9 @@ export const tempSlice = createSlice({
     },
     stakingResultDrawer: {
       display: false,
+      error: null,
+      stakeAmount: 0,
+      selectValidator: {},
     },
     unstakingConfirmDrawer: {
       display: false,
@@ -63,6 +66,11 @@ export const tempSlice = createSlice({
       state.transferResultDrawer = { ...state.transferResultDrawer, ...transferResultDrawer };
     },
 
+    setStakingResultDrawer: (state, action) => {
+      const stakingResultDrawer = action.payload;
+      state.stakingResultDrawer = { ...state.stakingResultDrawer, ...stakingResultDrawer };
+    },
+
     setTwoFaDrawer: (state, action) => {
       const { display, resolver, rejecter } = action.payload;
       state.twoFaDrawer = { display, resolver, rejecter };
@@ -77,6 +85,7 @@ export const {
   setSelectUnstakeValidator,
   setTransferConfirmDrawer,
   setTransferResultDrawer,
+  setStakingResultDrawer,
   setTwoFaDrawer,
 } = tempSlice.actions;
 
