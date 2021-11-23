@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -18,16 +18,9 @@ const TwoFaDrawer = () => {
 
   const tempStore = useSelector((state) => state.temp);
 
-  const [loading, setLoading] = useState(false);
-
-  const { display, rejecter, resolver, method, error } = tempStore.twoFaDrawer;
+  const { display, rejecter, resolver, method, loading, error } = tempStore.twoFaDrawer;
 
   const [code, setCode] = useState('');
-
-  useEffect(() => {
-    setLoading(false);
-    console.log('error: ', error);
-  }, [display, error])
 
   const codeChanged = useCallback((e) => {
     setCode(e.target.value);
@@ -39,12 +32,12 @@ const TwoFaDrawer = () => {
     } catch (error) {
       console.log('handle close error: ', error);
     } finally {
-      dispatch(setTwoFaDrawer({ display: false }));
+      dispatch(setTwoFaDrawer({ display: false, loading: false }));
     }
   }
 
   const handleVerify = () => {
-    setLoading(true);
+    dispatch(setTwoFaDrawer({ loading: true }));
 
     setTimeout(() => {
       resolver(code);
@@ -53,7 +46,7 @@ const TwoFaDrawer = () => {
 
   return (
     <BottomDrawer
-      open={!display}
+      open={display}
       onClose={handleClose}
     >
       <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleClose}><img src={closeIcon} alt="close"></img></Button>
@@ -69,8 +62,10 @@ const TwoFaDrawer = () => {
         <Typography sx={{ color: '#000000', fontSize: '14px', marginTop: '25px', marginBottom: '26px' }}>Enter your 6-digit verification code</Typography>
 
         <BaseBox sx={{ backgroundColor: '#F1F2F6', borderWidth: 0 }}>
-          <Input placeholder='' onChange={codeChanged}></Input>
+          <Input maxLength={6} style={{ color: '#5E5E5E' }} placeholder='' onChange={codeChanged}></Input>
         </BaseBox>
+
+        {(error && !loading) && (<Typography sx={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>{error}</Typography>)}
 
         <Typography sx={{ color: '#5E5E5E', fontSize: '14px', marginTop: '25px' }}>
           I didn’t receive code.
@@ -78,7 +73,7 @@ const TwoFaDrawer = () => {
         </Typography>
 
         <Button
-          disabled={code.length !== 6}
+          disabled={code.length !== 6 || loading}
           sx={{
             backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '16px', height: '48px',
             '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }

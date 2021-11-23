@@ -50,6 +50,7 @@ export const tempSlice = createSlice({
       rejecter: null,
       method: '',
       error: null,
+      loading: false,
     },
   },
   reducers: {

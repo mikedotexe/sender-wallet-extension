@@ -195,11 +195,10 @@ export default class Near {
         },
         verifyCode: async (securityCode) => {
           try {
-            const res = await account.verifyCodeDefault(securityCode);
-            console.log('res: ', res);
+            await account.verifyCodeDefault(securityCode);
+            store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
           } catch (error) {
-            console.log('error: ', error);
-            store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct' }));
+            store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct', loading: false }));
             throw error;
           }
         }
