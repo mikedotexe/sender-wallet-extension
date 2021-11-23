@@ -16,6 +16,7 @@ import { fixedNearAmount, fixedNumber } from '../../utils';
 import UnstakingConfirmDrawer from '../../components/BottomDrawer/UnstakingConfirmDrawer';
 import UnstakingResultDrawer from '../../components/BottomDrawer/UnstakingResultDrawer';
 import { setUnstakingConfirmDrawer } from '../../reducers/temp';
+import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
@@ -109,6 +110,7 @@ const Unstake = () => {
 
       <UnstakingConfirmDrawer />
       <UnstakingResultDrawer />
+      <TwoFaDrawer />
     </WrapperBasePage>
   )
 }

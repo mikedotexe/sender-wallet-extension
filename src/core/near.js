@@ -187,11 +187,22 @@ export default class Near {
     if (await has2faEnabled(this.signer)) {
       const account = new Account2FA(this.signer.connection, this.signer.accountId, {
         helperUrl: config.helperUrl,
-        getCode: () => {
+        getCode: (method) => {
+          console.log('method: ', method);
           return new Promise((resolve, reject) => {
-            store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject }));
+            store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject, method }));
           })
         },
+        verifyCode: async (securityCode) => {
+          try {
+            const res = await account.verifyCodeDefault(securityCode);
+            console.log('res: ', res);
+          } catch (error) {
+            console.log('error: ', error);
+            store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct' }));
+            throw error;
+          }
+        }
       });
       return account;
     } else {
@@ -330,7 +341,8 @@ export default class Near {
    * @returns the result of functionCall
    */
   transferStorageDeposit = async ({ contractId, receiverId, storageDepositAmount }) => {
-    return this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+    return account.signAndSendTransaction({
       receiverId: contractId,
       actions: [
         functionCall('storage_deposit', {
@@ -369,7 +381,9 @@ export default class Near {
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
-    return await this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+
+    return await account.signAndSendTransaction({
       receiverId: contractId,
       actions: [
         functionCall('near_deposit', {}, FT_TRANSFER_GAS, amount),
@@ -387,7 +401,9 @@ export default class Near {
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
-    return await this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+
+    return await account.signAndSendTransaction({
       receiverId: contractId,
       actions: [
         functionCall('near_withdraw', { amount }, FT_TRANSFER_GAS, FT_TRANSFER_DEPOSIT),
@@ -409,7 +425,7 @@ export default class Near {
     if (contractId) {
       await this.checkStorageBalance({ contractId, receiverId });
 
-      return await this.signer.signAndSendTransaction({
+      return await account.signAndSendTransaction({
         receiverId: contractId,
         actions: [
           functionCall('ft_transfer', {
@@ -420,15 +436,11 @@ export default class Near {
         ]
       });
     } else {
-      console.log('receiverId: ', receiverId);
       const res = await account.signAndSendTransaction({
         receiverId,
         actions: [transactions.transfer(amount)],
       })
-      console.log('res: ', res);
       return res;
-      // return await this.signer.sendMoney(receiverId, amount);
-      // return await account.sendMoney(receiverId, amount);
     }
   }
 
@@ -440,7 +452,8 @@ export default class Near {
    * @returns stake result
    */
   stake = async ({ validatorId, amount }) => {
-    const res = await this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+    const res = await account.signAndSendTransaction({
       receiverId: validatorId,
       actions: [
         functionCall('deposit_and_stake', {}, STAKING_GAS_BASE * 5, amount),
@@ -468,7 +481,9 @@ export default class Near {
       action = functionCall('unstake_all', {}, STAKING_GAS_BASE * 7, '0');
     }
 
-    const res = await this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+
+    const res = await account.signAndSendTransaction({
       receiverId: validatorId, actions: [action],
     })
 
@@ -493,7 +508,9 @@ export default class Near {
       action = functionCall('withdraw_all', {}, STAKING_GAS_BASE * 7, '0');
     }
 
-    const res = await this.signer.signAndSendTransaction({
+    const account = await this.getAccount();
+
+    const res = await account.signAndSendTransaction({
       receiverId: validatorId, actions: [action],
     })
 

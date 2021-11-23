@@ -19,6 +19,7 @@ import searchIcon from '../../assets/img/search.png';
 import selectedIcon from '../../assets/img/selected.png';
 import { setSelectToken } from '../../reducers/temp';
 import nearIcon from '../../assets/img/NEAR.png';
+import wnearIcon from '../../assets/img/wNEAR.png';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
@@ -31,6 +32,8 @@ const TokenItem = ({ data }) => {
   const dispatch = useDispatch();
   const history = useHistory();
 
+  const icon = data.icon ? data.icon : (data.symbol === 'wNEAR' ? wnearIcon : nearIcon);
+
   return (
     <Button
       sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '25px', paddingRight: '25px', height: '60px' }}
@@ -40,7 +43,7 @@ const TokenItem = ({ data }) => {
       }}
     >
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Avatar src={data.icon || nearIcon} alt={data.name}></Avatar>
+        <Avatar src={icon} alt={data.name}></Avatar>
         <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px' }}>{data.symbol}</Typography>
       </Box>
 

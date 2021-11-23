@@ -18,8 +18,9 @@ import backIcon from '../../assets/img/back.png';
 import arrowIcon from '../../assets/img/arrow.png';
 import { fixedNearAmount, fixedTokenAmount, fixedNumber } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
-import { setTransferConfirmDrawer } from '../../reducers/temp';
+import { setTransferConfirmDrawer, setTwoFaDrawer } from '../../reducers/temp';
 import TransferConfirmDrawer from '../../components/BottomDrawer/TransferConfirmDrawer';
+import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .amount-input {
@@ -112,14 +113,6 @@ const Send = () => {
     setSendAmount(selectToken.balance);
   }
 
-  const verifyClicked = () => {
-    tempStore.twoFaModal.resolver(code);
-  }
-
-  const codeChanged = (e) => {
-    setCode(e.target.value);
-  }
-
   return (
     <WrapperBasePage>
       <Box sx={{ paddingTop: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -167,37 +160,8 @@ const Send = () => {
 
       <TransferConfirmDrawer />
       <TransferResultDrawer />
+      <TwoFaDrawer />
 
-      {/* <BottomDrawer
-        open={twoFaDrawerOpen}
-        onClose={() => {
-          setTwoFaDrawerOpen(false);
-          tempStore.twoFaModal.rejecter(new Error('User reject'));
-        }}
-      >
-        <Button sx={{ position: 'absolute', right: 0, top: 0 }} onClick={handleCloseDrawer}><img src={closeIcon} alt="close"></img></Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-          <BaseBox>
-            <Input placeholder='' onChange={codeChanged}></Input>
-          </BaseBox>
-          <Button
-            sx={{
-              backgroundColor: '#FFCE3E', borderRadius: '12px', width: '325px', marginTop: '12px', height: '48px',
-              '&.MuiButton-root:hover': { backgroundColor: '#FFB21E' }
-            }}
-            onClick={verifyClicked}
-          >
-            <Typography sx={{ fontSize: '16px', color: '#202046' }}>{'Verify'}</Typography>
-          </Button>
-
-          <Button sx={{ width: '325px', height: '48px' }} onClick={() => {
-            setTwoFaDrawerOpen(false);
-            tempStore.twoFaModal.rejecter(new Error('User reject'));
-          }}>
-            <Typography sx={{ fontSize: '14px', color: '#777777' }}>Cancel</Typography>
-          </Button>
-        </Box>
-      </BottomDrawer> */}
     </WrapperBasePage >
   )
 }

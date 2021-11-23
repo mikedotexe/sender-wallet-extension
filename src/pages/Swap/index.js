@@ -18,6 +18,7 @@ import swapIcon from '../../assets/img/swap.png';
 import { fixedNearAmount } from '../../utils';
 import { APP_SWAP_NEAR } from '../../actions/app';
 import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
+import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   padding-left: 25px;
@@ -293,6 +294,7 @@ const Swap = () => {
       </Box>
 
       <SwapResultDrawer />
+      <TwoFaDrawer />
     </WrapperBasePage>
   )
 }

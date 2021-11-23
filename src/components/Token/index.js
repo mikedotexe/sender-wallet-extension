@@ -6,6 +6,7 @@ import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 import { fixedNumber } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
+import wnearIcon from '../../assets/img/wNEAR.png';
 
 const WrapperToken = styled.div`
   height: 68px;
@@ -31,10 +32,11 @@ const Token = ({ style, data, index }) => {
   const price = data.price ? fixedNumber(data.price) : 'Price Unavailable';
   let total = data.price ? (Number(data.price) * Number(data.balance)) : ''
   total = total ? `≈ $${fixedNumber(total)}` : '- USD';
+  const icon = data.icon ? data.icon : (data.symbol === 'wNEAR' ? wnearIcon : nearIcon);
 
   return (
     <WrapperToken>
-      <Avatar src={data.icon || nearIcon} alt={data.name}></Avatar>
+      <Avatar src={icon} alt={data.name}></Avatar>
       <Box className="info">
         <Box className="line">
           <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.symbol}</Typography>

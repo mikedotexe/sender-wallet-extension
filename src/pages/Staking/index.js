@@ -18,6 +18,7 @@ import ButtonGroup from '../../components/ButtonGroup';
 import { fixedNearAmount, fixedNumber } from '../../utils';
 import { APP_ACCOUNT_STAKING } from '../../actions/app';
 import StakingResultDrawer from '../../components/BottomDrawer/StakingResultDrawer';
+import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .list {
@@ -229,6 +230,7 @@ const Staking = () => {
       </Box>
 
       <StakingResultDrawer />
+      <TwoFaDrawer />
     </WrapperBasePage>
   )
 }
