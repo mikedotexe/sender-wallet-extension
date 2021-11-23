@@ -10,7 +10,7 @@ import BN from 'bn.js';
 import * as nearApi from 'near-api-js';
 
 import { setImportStatus } from '../reducers/loading';
-import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_UPDATE_TRANSACTIONS } from '../actions/app';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
 import { addAccount, changeAccount, setPassword, setSalt, updateAccounts } from '../reducers/app';

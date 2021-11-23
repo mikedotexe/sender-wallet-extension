@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -12,15 +12,31 @@ import BaseBox from '../BaseBox';
 import Input from '../Input';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { setTwoFaDrawer } from '../../reducers/temp';
+import { nearService } from '../../core/near';
 
 const TwoFaDrawer = () => {
   const dispatch = useDispatch();
 
   const tempStore = useSelector((state) => state.temp);
+  const appStore = useSelector((state) => state.app);
+
+  const [resendCountDown, setResendCountDown] = useState(0);
+
+  const { currentAccount } = appStore;
+  const { secretKey, accountId } = currentAccount;
+
 
   const { display, rejecter, resolver, method, loading, error } = tempStore.twoFaDrawer;
 
   const [code, setCode] = useState('');
+
+  useEffect(() => {
+    if (resendCountDown - 1 >= 0) {
+      setTimeout(() => {
+        setResendCountDown(resendCountDown - 1);
+      }, 1000);
+    }
+  }, [resendCountDown])
 
   const codeChanged = useCallback((e) => {
     setCode(e.target.value);
@@ -42,6 +58,15 @@ const TwoFaDrawer = () => {
     setTimeout(() => {
       resolver(code);
     }, 500);
+  }
+
+  const handleResendCode = async () => {
+    nearService.setSigner({ secretKey, accountId });
+    const res = await nearService.twoFactorMethod('sendCode', []);
+    console.log('res: ', res);
+    if (res) {
+      setResendCountDown(60);
+    }
   }
 
   return (
@@ -69,7 +94,13 @@ const TwoFaDrawer = () => {
 
         <Typography sx={{ color: '#5E5E5E', fontSize: '14px', marginTop: '25px' }}>
           I didn’t receive code.
-          <Button sx={{ fontWeight: 'bold', color: '#5E5E5E' }}>Resend Code</Button>
+          {
+            (resendCountDown > 0) ? (
+              <Button disabled sx={{ fontWeight: 'bold', color: '#5E5E5E' }}>{resendCountDown} s</Button>
+            ) : (
+              <Button onClick={handleResendCode} sx={{ fontWeight: 'bold', color: '#5E5E5E' }}>Resend Code</Button>
+            )
+          }
         </Typography>
 
         <Button

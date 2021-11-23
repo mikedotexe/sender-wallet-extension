@@ -188,7 +188,6 @@ export default class Near {
       const account = new Account2FA(this.signer.connection, this.signer.accountId, {
         helperUrl: config.helperUrl,
         getCode: (method) => {
-          console.log('method: ', method);
           return new Promise((resolve, reject) => {
             store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject, method }));
           })
@@ -208,6 +207,14 @@ export default class Near {
       return this.signer;
     }
   }
+
+  twoFactorMethod = async (method, args) => {
+    const account = await this.getAccount();
+    if (account[method]) {
+      return await account[method](...args);
+    }
+    return false;
+  };
 
   /**
    * Get account id by publickKey from the helper api
