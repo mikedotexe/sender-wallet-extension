@@ -25,6 +25,18 @@ import arrowupIcon from '../../assets/img/arrow-up.png';
 import arrowdownIcon from '../../assets/img/arrow-down.png';
 import { APP_UPDATE_ACCOUNT } from '../../actions/app';
 import { fixedNearAmount, fixedNumber, fixedTokenAmount } from '../../utils';
+import TransferConfirmDrawer from '../../components/BottomDrawer/TransferConfirmDrawer';
+import TransferResultDrawer from '../../components/BottomDrawer/TransferResultDrawer';
+import StakingConfirmDrawer from '../../components/BottomDrawer/StakingConfirmDrawer';
+import StakingResultDrawer from '../../components/BottomDrawer/StakingResultDrawer';
+import UnstakingConfirmDrawer from '../../components/BottomDrawer/UnstakingConfirmDrawer';
+import UnstakingResultDrawer from '../../components/BottomDrawer/UnstakingResultDrawer';
+import SwapConfirmDrawer from '../../components/BottomDrawer/SwapConfirmDrawer';
+import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
+import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
+import { setStakingConfirmDrawer, setSwapConfirmDrawer, setTransferConfirmDrawer, setTwoFaDrawer, setUnstakingConfirmDrawer } from '../../reducers/temp';
+import { nearService } from '../../core/near';
+import { usePrevious } from '../../hooks';
 
 const WrappedBox = styled(Box)`
   .wallet-balance {
@@ -94,12 +106,18 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 const Wallet = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+
   const appStore = useSelector((state) => state.app);
   const marketStore = useSelector((state) => state.market);
+  const tempStore = useSelector((state) => state.temp);
+
   const [expanded, setExpanded] = useState(false);
   const [tabValue, setTabValue] = useState(0)
 
+  const preTwoFaDrawer = usePrevious(tempStore.twoFaDrawer);
+
   const { prices } = marketStore;
+  const { pendingRequests } = appStore;
 
   const currentAccount = useMemo(() => {
     return appStore.currentAccount;
@@ -136,6 +154,59 @@ const Wallet = () => {
 
   useEffect(() => {
     dispatch({ type: APP_UPDATE_ACCOUNT });
+  }, [])
+
+  // useEffect(() => {
+  //   if (preTwoFaDrawer.display && !tempStore.twoFaDrawer.display) {
+
+  //   }
+  // }, [tempStore.twoFaDrawer.display])
+
+  useEffect(() => {
+    const checkPendingRequest = async () => {
+      if (!_.isEmpty(pendingRequests)) {
+        const { secretKey, accountId } = appStore.currentAccount;
+        const pendingRequest = _.last(pendingRequests);
+        console.log('pendingRequest: ', pendingRequest);
+        await nearService.setSigner({ secretKey, accountId });
+        const { requestId, type } = pendingRequest;
+        if (requestId) {
+          const method = await nearService.get2faMethod()
+          if (method) {
+            dispatch(setTwoFaDrawer({ display: true, method, pendingRequest }));
+          }
+        } else {
+          switch (type) {
+            case 'transfer': {
+              const { sendAmount, selectToken, receiver } = pendingRequest;
+              dispatch(setTransferConfirmDrawer({ display: true, sendAmount, selectToken, receiver }));
+              break;
+            }
+            case 'staking': {
+              const { stakeAmount, selectValidator } = pendingRequest;
+              dispatch(setStakingConfirmDrawer({ display: true, stakeAmount, selectValidator }))
+              break;
+            }
+            case 'unstake': {
+              const { unstakeAmount, selectUnstakeValidator } = pendingRequest;
+              dispatch(setUnstakingConfirmDrawer({ display: true, unstakeAmount, selectUnstakeValidator }))
+              break;
+            }
+            case 'swap': {
+              const { swapFrom, swapTo, swapAmount } = pendingRequest;
+              dispatch(setSwapConfirmDrawer({ display: true, swapFrom, swapTo, swapAmount }));
+              break;
+            }
+            default: {
+              console.log('123');
+              break;
+            }
+          }
+        }
+        // dispatch(setTwoFaDrawer({ display: true, method: { detail: pendingRequest } }))
+      }
+    }
+    checkPendingRequest();
   }, [])
 
   const receiveClicked = () => {
@@ -234,6 +305,16 @@ const Wallet = () => {
           )
         }
       </Box>
+
+      <TransferConfirmDrawer />
+      <TransferResultDrawer />
+      <StakingConfirmDrawer />
+      <StakingResultDrawer />
+      <UnstakingConfirmDrawer />
+      <UnstakingResultDrawer />
+      <SwapConfirmDrawer />
+      <SwapResultDrawer />
+      <TwoFaDrawer />
     </WrappedBox>
   )
 }

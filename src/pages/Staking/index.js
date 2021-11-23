@@ -19,6 +19,8 @@ import { fixedNearAmount, fixedNumber } from '../../utils';
 import { APP_ACCOUNT_STAKING } from '../../actions/app';
 import StakingResultDrawer from '../../components/BottomDrawer/StakingResultDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
+import { setStakingConfirmDrawer } from '../../reducers/temp';
+import StakingConfirmDrawer from '../../components/BottomDrawer/StakingConfirmDrawer';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .list {
@@ -77,13 +79,8 @@ const Staking = () => {
 
   const [tabValue, setTabValue] = useState(0);
   const [stakeAmount, setStakeAmount] = useState('');
-  const [loading, setLoading] = useState('');
 
-  const { selectValidator, stakingResultDrawer } = tempStore;
-
-  useEffect(() => {
-    setLoading(false);
-  }, [stakingResultDrawer.display])
+  const { selectValidator } = tempStore;
 
   const validators = useMemo(() => {
     return _.filter(appStore.currentAccount.validators, (validator) => validator.staked !== '0');
@@ -127,8 +124,7 @@ const Staking = () => {
   }, [])
 
   const submitStakeClicked = useCallback(() => {
-    setLoading(true);
-    dispatch({ type: APP_ACCOUNT_STAKING, amount: stakeAmount })
+    dispatch(setStakingConfirmDrawer({ display: true, stakeAmount, selectValidator }))
   }, [stakeAmount])
 
   const selectValidatorClick = () => {
@@ -161,8 +157,8 @@ const Staking = () => {
         </BaseBox>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Button className="submit-button" onClick={submitStakeClicked} disabled={loading || !stakeAmount || !selectValidator.accountId}>
-            <Typography sx={{ fontSize: '16px', color: 'white' }}>{loading ? 'Staking...' : 'Submit Stake'}</Typography>
+          <Button className="submit-button" onClick={submitStakeClicked} disabled={!stakeAmount || !selectValidator.accountId}>
+            <Typography sx={{ fontSize: '16px', color: 'white' }}>{'Submit Stake'}</Typography>
           </Button>
         </Box>
       </Box>
@@ -229,6 +225,7 @@ const Staking = () => {
         }
       </Box>
 
+      <StakingConfirmDrawer />
       <StakingResultDrawer />
       <TwoFaDrawer />
     </WrapperBasePage>

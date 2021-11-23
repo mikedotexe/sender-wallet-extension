@@ -11,6 +11,8 @@ import Validator from '../data/Validator';
 import { transactions } from "near-api-js";
 import { setTwoFaDrawer } from "../reducers/temp";
 import { store } from '../Store';
+import { APP_ADD_PENDING_REQUEST, APP_REMOVE_PENDING_REQUEST, APP_UPDATE_PENDING_REQUEST } from '../actions/app';
+import { setTransferResultDrawer, setSwapResultDrawer, setStakingResultDrawer, setUnstakingResultDrawer } from '../reducers/temp';
 
 // const WRAP_NEAR_CONTRSCT = 'wrap.near';
 const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
@@ -187,6 +189,11 @@ export default class Near {
     if (await has2faEnabled(this.signer)) {
       const account = new Account2FA(this.signer.connection, this.signer.accountId, {
         helperUrl: config.helperUrl,
+        sendCode: async () => {
+          const requestId = await account.sendCodeDefault();
+          store.dispatch({ type: APP_UPDATE_PENDING_REQUEST, requestId });
+          console.log('sendCode requestId: ', requestId);
+        },
         getCode: (method) => {
           return new Promise((resolve, reject) => {
             store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject, method }));
@@ -194,20 +201,84 @@ export default class Near {
         },
         verifyCode: async (securityCode) => {
           try {
-            await account.verifyCodeDefault(securityCode);
+            const res = await account.verifyCodeDefault(securityCode);
+            console.log('res: ', res);
             store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
+            // store.dispatch({ type: APP_REMOVE_PENDING_REQUEST });
           } catch (error) {
             store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct', loading: false }));
             throw error;
           }
         }
       });
+
+      // const { signAndSendTransaction } = account;
+      // const newSignAndSendTransaction = async ({ receiverId, actions, type }) => {
+      //   console.log('signAndSendTransaction');
+      //   const pendingRequest = { receiverId, actions, signerId: this.signer.accountId, type };
+      //   store.dispatch({ type: APP_ADD_PENDING_REQUEST, ...pendingRequest });
+      //   return await signAndSendTransaction({ receiverId, actions })
+      // };
+
+      // account.signAndSendTransaction = newSignAndSendTransaction;
+
+      account.verifyCodeWithRequest = async (securityCode, pendingRequest) => {
+        let err;
+        const { accountId } = account;
+        const { requestId, type } = pendingRequest;
+        try {
+          await account.postSignedJson('/2fa/verify', {
+            accountId,
+            securityCode,
+            requestId
+          });
+          store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
+          store.dispatch({ type: APP_REMOVE_PENDING_REQUEST, requestId });
+        } catch (error) {
+          store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct', loading: false }));
+          err = error.message;
+        }
+
+        switch (type) {
+          case 'transfer': {
+            const { sendAmount, selectToken, receiver } = pendingRequest;
+            store.dispatch(setTransferResultDrawer({ display: true, error: err, sendAmount, selectToken, receiver }));
+            break;
+          }
+          case 'staking': {
+            const { stakeAmount, selectValidator } = pendingRequest;
+            store.dispatch(setStakingResultDrawer({ display: true, error: err, stakeAmount, selectValidator }))
+            break;
+          }
+          case 'unstake': {
+            const { unstakeAmount, selectUnstakeValidator } = pendingRequest;
+            store.dispatch(setUnstakingResultDrawer({ display: true, error: err, unstakeAmount, selectUnstakeValidator }))
+            break;
+          }
+          case 'swap': {
+            const { swapFrom, swapTo, swapAmount } = pendingRequest;
+            store.dispatch(setSwapResultDrawer({ display: true, error: err, swapFrom, swapTo, swapAmount }));
+            break;
+          }
+          default: {
+            console.log('123');
+            break;
+          }
+        }
+      };
+
       return account;
     } else {
       return this.signer;
     }
   }
 
+  /**
+   * Call two factor method
+   * @param {*} method method name
+   * @param {*} args method arguments
+   * @returns request id
+   */
   twoFactorMethod = async (method, args) => {
     const account = await this.getAccount();
     if (account[method]) {
@@ -215,6 +286,21 @@ export default class Near {
     }
     return false;
   };
+
+  get2faMethod = async () => {
+    const account = await this.getAccount();
+    if (account.get2faMethod) {
+      return await account.get2faMethod();
+    }
+    return null;
+  }
+
+  verifyCodeWithRequest = async (securityCode, pendingRequest) => {
+    const account = await this.getAccount();
+    if (account.verifyCodeWithRequest) {
+      await account.verifyCodeWithRequest(securityCode, pendingRequest);
+    }
+  }
 
   /**
    * Get account id by publickKey from the helper api
@@ -390,6 +476,8 @@ export default class Near {
     const account = await this.getAccount();
 
     return await account.signAndSendTransaction({
+      type: 'wNearDeposit',
+      amount,
       receiverId: contractId,
       actions: [
         functionCall('near_deposit', {}, FT_TRANSFER_GAS, amount),
@@ -410,6 +498,8 @@ export default class Near {
     const account = await this.getAccount();
 
     return await account.signAndSendTransaction({
+      type: 'wNearWithdraw',
+      amount,
       receiverId: contractId,
       actions: [
         functionCall('near_withdraw', { amount }, FT_TRANSFER_GAS, FT_TRANSFER_DEPOSIT),
@@ -432,7 +522,9 @@ export default class Near {
       await this.checkStorageBalance({ contractId, receiverId });
 
       return await account.signAndSendTransaction({
+        type: 'transfer',
         receiverId: contractId,
+        amount,
         actions: [
           functionCall('ft_transfer', {
             amount,
@@ -443,6 +535,8 @@ export default class Near {
       });
     } else {
       const res = await account.signAndSendTransaction({
+        type: 'transfer',
+        amount,
         receiverId,
         actions: [transactions.transfer(amount)],
       })
@@ -460,7 +554,9 @@ export default class Near {
   stake = async ({ validatorId, amount }) => {
     const account = await this.getAccount();
     const res = await account.signAndSendTransaction({
+      type: 'stake',
       receiverId: validatorId,
+      amount,
       actions: [
         functionCall('deposit_and_stake', {}, STAKING_GAS_BASE * 5, amount),
       ]
@@ -490,7 +586,7 @@ export default class Near {
     const account = await this.getAccount();
 
     const res = await account.signAndSendTransaction({
-      receiverId: validatorId, actions: [action],
+      receiverId: validatorId, actions: [action], type: 'unstake', amount,
     })
 
     // wait for explorer to index results
@@ -517,7 +613,7 @@ export default class Near {
     const account = await this.getAccount();
 
     const res = await account.signAndSendTransaction({
-      receiverId: validatorId, actions: [action],
+      receiverId: validatorId, actions: [action], type: 'withdraw', amount,
     })
 
     // wait for explorer to index results

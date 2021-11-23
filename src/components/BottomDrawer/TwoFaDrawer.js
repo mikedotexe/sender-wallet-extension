@@ -13,6 +13,7 @@ import Input from '../Input';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { setTwoFaDrawer } from '../../reducers/temp';
 import { nearService } from '../../core/near';
+import { APP_REMOVE_PENDING_REQUEST } from '../../actions/app';
 
 const TwoFaDrawer = () => {
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const TwoFaDrawer = () => {
   const { secretKey, accountId } = currentAccount;
 
 
-  const { display, rejecter, resolver, method, loading, error } = tempStore.twoFaDrawer;
+  const { display, rejecter, resolver, method, loading, error, pendingRequest } = tempStore.twoFaDrawer;
 
   const [code, setCode] = useState('');
 
@@ -47,6 +48,7 @@ const TwoFaDrawer = () => {
       rejecter(new Error('User reject'));
     } catch (error) {
       console.log('handle close error: ', error);
+      dispatch({ type: APP_REMOVE_PENDING_REQUEST });
     } finally {
       dispatch(setTwoFaDrawer({ display: false, loading: false }));
     }
@@ -55,13 +57,18 @@ const TwoFaDrawer = () => {
   const handleVerify = () => {
     dispatch(setTwoFaDrawer({ loading: true }));
 
-    setTimeout(() => {
-      resolver(code);
+    setTimeout(async () => {
+      if (resolver) {
+        resolver(code);
+      } else {
+        await nearService.setSigner({ secretKey, accountId });
+        await nearService.verifyCodeWithRequest(code, pendingRequest);
+      }
     }, 500);
   }
 
   const handleResendCode = async () => {
-    nearService.setSigner({ secretKey, accountId });
+    await nearService.setSigner({ secretKey, accountId });
     const res = await nearService.twoFactorMethod('sendCode', []);
     console.log('res: ', res);
     if (res) {

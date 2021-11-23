@@ -20,6 +20,11 @@ export const tempSlice = createSlice({
       receiver: '',
       error: null,
     },
+    stakingConfirmDrawer: {
+      display: false,
+      stakeAmount: 0,
+      selectValidator: {},
+    },
     stakingResultDrawer: {
       display: false,
       error: null,
@@ -37,6 +42,12 @@ export const tempSlice = createSlice({
       unstakeAmount: 0,
       selectUnstakeValidator: {},
     },
+    swapConfirmDrawer: {
+      display: false,
+      swapAmount: 0,
+      swapFrom: '',
+      swapTo: '',
+    },
     swapResultDrawer: {
       display: false,
       error: null,
@@ -51,6 +62,7 @@ export const tempSlice = createSlice({
       method: '',
       error: null,
       loading: false,
+      requestId: null,
     },
   },
   reducers: {
@@ -81,6 +93,11 @@ export const tempSlice = createSlice({
       state.transferResultDrawer = { ...state.transferResultDrawer, ...transferResultDrawer };
     },
 
+    setStakingConfirmDrawer: (state, action) => {
+      const stakingConfirmDrawer = action.payload;
+      state.stakingConfirmDrawer = { ...state.stakingConfirmDrawer, ...stakingConfirmDrawer };
+    },
+
     setStakingResultDrawer: (state, action) => {
       const stakingResultDrawer = action.payload;
       state.stakingResultDrawer = { ...state.stakingResultDrawer, ...stakingResultDrawer };
@@ -94,6 +111,11 @@ export const tempSlice = createSlice({
     setUnstakingResultDrawer: (state, action) => {
       const unstakingResultDrawer = action.payload;
       state.unstakingResultDrawer = { ...state.unstakingResultDrawer, ...unstakingResultDrawer };
+    },
+
+    setSwapConfirmDrawer: (state, action) => {
+      const swapConfirmDrawer = action.payload;
+      state.swapConfirmDrawer = { ...state.swapConfirmDrawer, ...swapConfirmDrawer };
     },
 
     setSwapResultDrawer: (state, action) => {
@@ -121,9 +143,11 @@ export const {
   setSelectUnstakeValidator,
   setTransferConfirmDrawer,
   setTransferResultDrawer,
+  setStakingConfirmDrawer,
   setStakingResultDrawer,
   setUnstakingConfirmDrawer,
   setUnstakingResultDrawer,
+  setSwapConfirmDrawer,
   setSwapResultDrawer,
   setTwoFaDrawer,
 } = tempSlice.actions;

@@ -16,9 +16,10 @@ import Input from '../../components/Input';
 import arrowIcon from '../../assets/img/arrow_down.png';
 import swapIcon from '../../assets/img/swap.png';
 import { fixedNearAmount } from '../../utils';
-import { APP_SWAP_NEAR } from '../../actions/app';
 import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
+import SwapConfirmDrawer from '../../components/BottomDrawer/SwapConfirmDrawer';
+import { setSwapConfirmDrawer } from '../../reducers/temp';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   padding-left: 25px;
@@ -108,21 +109,14 @@ const Swap = () => {
   const dispatch = useDispatch();
 
   const appStore = useSelector((state) => state.app);
-  const tempStore = useSelector((state) => state.temp);
 
   const [swapFrom, setSwapFrom] = useState('NEAR');
   const [swapAmount, setSwapAmount] = useState('');
   const [swapTo, setSwapTo] = useState('wNEAR');
   const [swapFromAnchorEl, setSwapFromAnchorEl] = useState(null);
   const [swapToAnchorEl, setSwapTPAnchorEl] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const { tokens } = appStore.currentAccount;
-  const { display } = tempStore.swapResultDrawer;
-
-  useEffect(() => {
-    setLoading(false);
-  }, [display])
 
   const swapFromBalance = useMemo(() => {
     const balance = getTokenBalance(tokens, swapFrom);
@@ -171,8 +165,7 @@ const Swap = () => {
   }
 
   const swapClicked = () => {
-    setLoading(true);
-    dispatch({ type: APP_SWAP_NEAR, swapFrom, swapTo, amount: swapAmount });
+    dispatch(setSwapConfirmDrawer({ display: true, swapFrom, swapTo, swapAmount }));
   }
 
   return (
@@ -288,11 +281,12 @@ const Swap = () => {
       </Box> */}
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Button className="swap-button" disabled={loading} onClick={swapClicked}>
-          <Typography sx={{ fontSize: '16px', color: 'white' }}>{loading ? 'Swaping...' : 'Swap'}</Typography>
+        <Button className="swap-button" disabled={!swapAmount} onClick={swapClicked}>
+          <Typography sx={{ fontSize: '16px', color: 'white' }}>{'Swap'}</Typography>
         </Button>
       </Box>
 
+      <SwapConfirmDrawer />
       <SwapResultDrawer />
       <TwoFaDrawer />
     </WrapperBasePage>

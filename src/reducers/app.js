@@ -9,7 +9,7 @@ export const appSlice = createSlice({
     lockupPassword: '',
     isLockup: false,
     salt: '',
-    pengdingRequest: [],
+    pendingRequests: [],
   },
   reducers: {
     setSalt: (state, action) => {
@@ -36,10 +36,14 @@ export const appSlice = createSlice({
     updateAccounts: (state, action) => {
       const accounts = action.payload;
       state.accounts = accounts;
+    },
+    setPendingRequests: (state, action) => {
+      const pendingRequests = action.payload;
+      state.pendingRequests = pendingRequests;
     }
   }
 })
 
-export const { setSalt, setPassword, setLockup, addAccount, changeAccount, updateAccounts } = appSlice.actions;
+export const { setSalt, setPassword, setLockup, addAccount, changeAccount, updateAccounts, setPendingRequests } = appSlice.actions;
 
 export default appSlice.reducer;
