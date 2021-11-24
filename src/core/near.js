@@ -203,6 +203,7 @@ export default class Near {
             const res = await account.verifyCodeDefault(securityCode);
             console.log('res: ', res);
             store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
+            store.dispatch({ type: APP_REMOVE_PENDING_REQUEST });
           } catch (error) {
             store.dispatch(setTwoFaDrawer({ display: true, error: error.message, loading: false }));
             throw error;
