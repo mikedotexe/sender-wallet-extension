@@ -16,7 +16,7 @@ import BN from 'bn.js';
 
 import { fixedNearAmount } from '../../utils';
 import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
-import config from '../../config';
+import config, { network } from '../../config';
 
 const {
   transactions: {
@@ -141,7 +141,7 @@ const SignAndSendTransaction = () => {
       const { secretKey, accountId } = currentAccount;
       const keyStore = new keyStores.InMemoryKeyStore();
       const keyPair = KeyPair.fromString(secretKey);
-      await keyStore.setKey('testnet', accountId, keyPair);
+      await keyStore.setKey(network, accountId, keyPair);
       const near = await connect({
         ...config,
         keyStore,

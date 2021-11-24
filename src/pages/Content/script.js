@@ -107,8 +107,10 @@ class Wallet {
   viewFunctionCall = ({ contractId, methodName, params = {} }) => {
     // eslint-disable-next-line no-undef
     const connection = nearApi.Connection.fromConfig({
-      networkId: 'testnet',
-      provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.testnet.near.org/' } },
+      // networkId: 'testnet',
+      // provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.testnet.near.org/' } },
+      networkId: 'mainnet',
+      provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.mainnet.near.org/' } },
       signer: {},
     })
 
