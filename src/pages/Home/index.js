@@ -50,11 +50,12 @@ const Home = () => {
 
   useEffect(() => {
     const checkPendingRequest = async () => {
-      if (!_.isEmpty(pendingRequests)) {
+      const { secretKey, accountId } = appStore.currentAccount;
+      const filterPendingRequests = _.filter(pendingRequests, request => request.signerId === accountId);
+      if (!_.isEmpty(filterPendingRequests)) {
         setLoading(true);
-        const { secretKey, accountId } = appStore.currentAccount;
-        const pendingRequest = _.last(pendingRequests);
-        console.log('pendingRequest: ', pendingRequest);
+        const pendingRequest = _.last(filterPendingRequests);
+        console.log('filterPendingRequests: ', filterPendingRequests);
         await nearService.setSigner({ secretKey, accountId });
         const { requestId, type } = pendingRequest;
         if (requestId) {
