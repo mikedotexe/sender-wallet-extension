@@ -118,6 +118,10 @@ const Staking = () => {
     return fixedNumber(Number(totalAvailable) * marketStore.prices['NEAR'], 4);
   }, [totalAvailable, marketStore.prices])
 
+  const withdrawDisabled = useMemo(() => {
+    return !totalPending;
+  }, [totalPending])
+
   const stakeAmountChanged = useCallback((e) => {
     const amount = e.target.value;
     setStakeAmount(amount);
@@ -133,6 +137,10 @@ const Staking = () => {
 
   const unstakeClicked = () => {
     history.push('/staking/validators/true');
+  }
+
+  const withdrawClicked = () => {
+
   }
 
   return (
@@ -211,7 +219,7 @@ const Staking = () => {
 
               <Divider sx={{ marginTop: '12px', backgroundColor: '#F3F3F3' }}></Divider>
 
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', marginTop: '12px', marginBottom: '20px' }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', marginBottom: '20px' }}>
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Available for withdrawal</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
@@ -219,6 +227,9 @@ const Staking = () => {
                     <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalPendingPrice} USD</Typography>
                   </Box>
                 </Box>
+
+                {/* TODO: Withdraw */}
+                {/* {!withdrawDisabled && (<Button onClick={withdrawClicked} sx={{ borderRadius: '13px', border: "1px solid #588912", width: '75px', height: '30px' }}><Typography sx={{ fontSize: '14px', color: '#588912' }}>Withdraw</Typography></Button>)} */}
               </Box>
             </Box>
           )

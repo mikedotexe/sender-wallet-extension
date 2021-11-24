@@ -18,6 +18,7 @@ import backIcon from '../../assets/img/back.png';
 import arrowIcon from '../../assets/img/arrow.png';
 import { fixedNearAmount, fixedTokenAmount, fixedNumber } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
+import wnearIcon from '../../assets/img/wNEAR.png';
 import { setTransferConfirmDrawer, setTwoFaDrawer } from '../../reducers/temp';
 import TransferConfirmDrawer from '../../components/BottomDrawer/TransferConfirmDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
@@ -113,6 +114,10 @@ const Send = () => {
     setSendAmount(selectToken.balance);
   }
 
+  const icon = useMemo(() => {
+    return selectToken.icon ? selectToken.icon : (selectToken.symbol === 'wNEAR' ? wnearIcon : nearIcon);
+  }, [selectToken])
+
   return (
     <WrapperBasePage>
       <Box sx={{ paddingTop: '26px', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
@@ -144,7 +149,7 @@ const Send = () => {
         <BaseBox sx={{ paddingTop: '8px', paddingLeft: '15px', paddingRight: '15px', paddingBottom: '8px' }}>
           <Button sx={{ width: '100%', justifyContent: 'space-between' }} onClick={selectTokensClicked}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Avatar src={selectToken.icon || nearIcon} alt={selectToken.name}></Avatar>
+              <Avatar src={icon} alt={selectToken.name}></Avatar>
               <Typography sx={{ fontSize: '14px', color: 'white', marginLeft: '10px', lineHeight: '24px', fontWeight: 'bold' }}>{selectToken.symbol}</Typography>
             </Box>
             <img src={arrowIcon} alt='arrow'></img>

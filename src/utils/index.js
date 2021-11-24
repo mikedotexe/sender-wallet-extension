@@ -53,7 +53,16 @@ export const parseTokenAmount = (amount, decimals = 18) => {
 	if (_.isEmpty(amount)) {
 		return '0';
 	}
-	return Number(amount) * (10 ** decimals);
+
+	// return Number(amount) * (10 ** decimals);
+	const a = new BN('10');
+	console.log('a string: ', a.toString());
+	const b = new BN(decimals);
+	console.log('b string: ', b.toString());
+	const mul = a.pow(b);
+	console.log('mul string: ', mul.toString());
+	const bnAmount = new BN(`${amount}`).mul(mul);
+	return bnAmount.toString();
 }
 
 export const formatTokenAmount = (amount, decimals = 18) => {

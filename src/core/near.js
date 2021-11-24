@@ -195,7 +195,7 @@ export default class Near {
         },
         getCode: (method) => {
           return new Promise((resolve, reject) => {
-            store.dispatch(setTwoFaDrawer({ display: true, resolver: resolve, rejecter: reject, method }));
+            store.dispatch(setTwoFaDrawer({ display: true, error: null, resolver: resolve, rejecter: reject, method }));
           })
         },
         verifyCode: async (securityCode) => {
@@ -203,23 +203,12 @@ export default class Near {
             const res = await account.verifyCodeDefault(securityCode);
             console.log('res: ', res);
             store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
-            // store.dispatch({ type: APP_REMOVE_PENDING_REQUEST });
           } catch (error) {
-            store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct', loading: false }));
+            store.dispatch(setTwoFaDrawer({ display: true, error: error.message, loading: false }));
             throw error;
           }
         }
       });
-
-      // const { signAndSendTransaction } = account;
-      // const newSignAndSendTransaction = async ({ receiverId, actions, type }) => {
-      //   console.log('signAndSendTransaction');
-      //   const pendingRequest = { receiverId, actions, signerId: this.signer.accountId, type };
-      //   store.dispatch({ type: APP_ADD_PENDING_REQUEST, ...pendingRequest });
-      //   return await signAndSendTransaction({ receiverId, actions })
-      // };
-
-      // account.signAndSendTransaction = newSignAndSendTransaction;
 
       account.verifyCodeWithRequest = async (securityCode, pendingRequest) => {
         let err;
@@ -234,7 +223,8 @@ export default class Near {
           store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
           store.dispatch({ type: APP_REMOVE_PENDING_REQUEST, requestId });
         } catch (error) {
-          store.dispatch(setTwoFaDrawer({ display: true, error: 'Code is not correct', loading: false }));
+          console.log('error: ', error);
+          store.dispatch(setTwoFaDrawer({ error: 'Code is not correct', loading: false }));
           err = error.message;
         }
 

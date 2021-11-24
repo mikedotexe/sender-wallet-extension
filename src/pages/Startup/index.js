@@ -7,7 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
 
-import senderWalletLogo from '../../assets/img/sender-wallet-logo.png';
+import senderWalletLogo from '../../assets/img/Sender_logo_offical_version2-08.png';
 
 const WrapperBox = styled(Box)`
   display: flex;
@@ -18,6 +18,14 @@ const WrapperBox = styled(Box)`
   position: relative;
   overflow: auto;
   margin-bottom: 60px;
+
+  .sender-wallet-logo {
+    width: 300px;
+    height: 300px;
+    align-self: center;
+    margin-top: 50px;
+    border-radius: 300px;
+  }
 `
 
 const Startup = () => {

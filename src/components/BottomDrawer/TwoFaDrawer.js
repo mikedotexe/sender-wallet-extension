@@ -97,7 +97,7 @@ const TwoFaDrawer = () => {
           <Input maxLength={6} style={{ color: '#5E5E5E' }} placeholder='' onChange={codeChanged}></Input>
         </BaseBox>
 
-        {(error && !loading) && (<Typography sx={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>{error}</Typography>)}
+        {(error && !loading) && (<Typography align='center' sx={{ color: 'red', fontSize: '14px', marginTop: '10px' }}>{error}</Typography>)}
 
         <Typography sx={{ color: '#5E5E5E', fontSize: '14px', marginTop: '25px' }}>
           I didn’t receive code.

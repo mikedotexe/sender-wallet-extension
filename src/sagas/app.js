@@ -118,6 +118,7 @@ function* transferSaga(action) {
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     let parseAmount;
+    console.log('contractId: ', contractId);
     if (contractId) {
       parseAmount = parseTokenAmount(amount, decimals);
     } else {
@@ -129,6 +130,8 @@ function* transferSaga(action) {
       const pendingRequest = { selectToken: token, sendAmount: amount, receiver: receiverId, type: 'transfer', signerId: accountId }
       yield put({ type: APP_ADD_PENDING_REQUEST, pendingRequest })
     }
+
+    console.log('parseAmount: ', parseAmount);
 
     yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
 
@@ -274,7 +277,7 @@ function* removePendingRequestSaga(action) {
     if (requestId) {
       newpendingRequests = _.filter(pendingRequests, (request) => request.requestId !== requestId);
     } else {
-      newpendingRequests = newpendingRequests.pop();
+      newpendingRequests.pop();
     }
     yield put(setPendingRequests(newpendingRequests));
   } catch (error) {

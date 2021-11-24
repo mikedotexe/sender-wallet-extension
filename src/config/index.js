@@ -1,5 +1,5 @@
-export const network = 'mainnet';
-// const network = 'testnet';
+// export const network = 'mainnet';
+export const network = 'testnet';
 
 const config = {
   'mainnet': {
@@ -14,8 +14,8 @@ const config = {
   'testnet': {
     network: 'testnet',
     networkId: 'testnet',
-    nodeUrl: "https://rpc.testnet.near.org",
-    // nodeUrl: "https://public-rpc.blockpi.io/http/near-testnet",
+    // nodeUrl: "https://rpc.testnet.near.org",
+    nodeUrl: "https://public-rpc.blockpi.io/http/near-testnet",
     walletUrl: "https://wallet.testnet.near.org",
     helperUrl: "https://helper.testnet.near.org",
     explorerUrl: "https://explorer.testnet.near.org",
