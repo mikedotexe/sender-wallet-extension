@@ -14,7 +14,7 @@ import * as nearAPI from 'near-api-js';
 import { key_pair } from 'near-api-js/lib/utils';
 import styled from 'styled-components';
 
-import config from '../../config';
+import config, { network } from '../../config';
 import vectorIcon from '../../assets/img/vector.png';
 import selectIcon from '../../assets/img/select.png';
 import notSelectIcon from '../../assets/img/not_select.png';
@@ -71,7 +71,7 @@ const Signin = () => {
       const { secretKey, accountId, publicKey } = currentAccount;
       const keyPair = KeyPair.fromString(secretKey);
       const keyStore = new keyStores.InMemoryKeyStore();
-      await keyStore.setKey('testnet', accountId, keyPair);
+      await keyStore.setKey(network, accountId, keyPair);
       const near = await connect({
         ...config,
         keyStore,

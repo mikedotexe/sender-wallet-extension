@@ -7,8 +7,7 @@ import { parseSeedPhrase } from '../utils';
 import apiHelper from "../apiHelper";
 import Validator from '../data/Validator';
 
-// const WRAP_NEAR_CONTRSCT = 'wrap.near';
-const WRAP_NEAR_CONTRSCT = 'wrap.testnet';
+const WRAP_NEAR_CONTRACT = config.wrapNearContract;
 
 const {
   transactions: {
@@ -315,7 +314,7 @@ export default class Near {
    * @returns 
    */
   wrapNearDeposit = async ({ amount }) => {
-    const contractId = WRAP_NEAR_CONTRSCT;
+    const contractId = WRAP_NEAR_CONTRACT;
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
@@ -333,7 +332,7 @@ export default class Near {
    * @returns 
    */
   wrapNearWithdraw = async ({ amount }) => {
-    const contractId = WRAP_NEAR_CONTRSCT;
+    const contractId = WRAP_NEAR_CONTRACT;
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
