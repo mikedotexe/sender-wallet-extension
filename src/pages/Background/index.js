@@ -34,12 +34,8 @@ chrome.runtime.onMessage.addListener(
         if (request.method === 'signAndSendTransaction' || request.method === 'sendMoney' || request.method === 'requestSignTransactions') {
           url = `popup.html#/notification/signAndSendTransaction?${stringified}`;
         }
-        console.log('url: ', url);
 
         chrome.storage.local.set({ [`notification-request-${request.notificationId}`]: request }, function () {
-          // console.log(`notification-request-${request.notificationId} success`);
-          // console.log(`request: ${request}`);
-
           chrome.windows.getLastFocused().then(lastFocused => {
             const top = lastFocused.top
             const left = lastFocused.left + (lastFocused.width - 375);
@@ -54,33 +50,21 @@ chrome.runtime.onMessage.addListener(
 
             // Open the chrome extension's popup to ask user to reject or approve
             extension.windows.create(options, (newWindow) => {
-              console.log('newWindow: ', newWindow);
-
-              chrome.action.setBadgeText({ text: '1', tabId: newWindow.id });
               chrome.storage.local.set({ [`notification-windowId-${newWindow.id}`]: request.notificationId }, function () { });
             })
           });
         });
       }
 
-      // console.log('background receive request: ', request);
-
       if (request.type === 'sender-wallet-result') {
         // Set the result to chrome's extension local storage
         chrome.storage.local.set({ [`notification-result-${request.notificationId}`]: request }, function () {
-          // console.log('Notification: ');
-          // console.log('key: ', [`notification-result-${request.notificationId}`]);
-          // console.log('Value is set to: ', request);
         });
 
         if (request.method === 'signin' && request.res && request.res.status && request.res.status.hasOwnProperty('SuccessValue')) {
-          // console.log('need to save publick key - request: ', request);
 
           const { accountId, contractId, accessKey } = request;
           chrome.storage.local.set({ [`${contractId}-${accountId}`]: accessKey }, function () {
-            console.log('Contract access key: ');
-            console.log('key: ', [`${contractId}-${accountId}`]);
-            console.log('Value is set to: ', accessKey);
           })
         }
       }

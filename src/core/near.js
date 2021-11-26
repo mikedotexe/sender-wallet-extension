@@ -166,7 +166,6 @@ export const has2faEnabled = async (account) => {
 
 export default class NearService {
   constructor({ config = DEFAULT_MAINNET_RPC }) {
-    console.log('config: ', config);
     this.viewAccount = getViewAccount({ config });
     this.signer = null;
     this.config = config;
@@ -208,7 +207,6 @@ export default class NearService {
         sendCode: async () => {
           const requestId = await account.sendCodeDefault();
           store.dispatch({ type: APP_UPDATE_PENDING_REQUEST, requestId });
-          console.log('sendCode requestId: ', requestId);
         },
         getCode: (method) => {
           return new Promise((resolve, reject) => {
@@ -218,7 +216,6 @@ export default class NearService {
         verifyCode: async (securityCode) => {
           try {
             const res = await account.verifyCodeDefault(securityCode);
-            console.log('res: ', res);
             store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
             store.dispatch({ type: APP_REMOVE_PENDING_REQUEST });
           } catch (error) {
@@ -241,7 +238,6 @@ export default class NearService {
           store.dispatch(setTwoFaDrawer({ display: false, loading: false }));
           store.dispatch({ type: APP_REMOVE_PENDING_REQUEST, requestId });
         } catch (error) {
-          console.log('error: ', error);
           store.dispatch(setTwoFaDrawer({ error: 'Code is not correct', loading: false }));
           err = error.message;
         }
@@ -268,7 +264,6 @@ export default class NearService {
             break;
           }
           default: {
-            console.log('123');
             break;
           }
         }

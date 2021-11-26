@@ -47,10 +47,10 @@ const Home = () => {
 
   useEffect(() => {
     const tokens = _.map(currentAccount.tokens, (token) => token.symbol);
-    // dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
-    // setTimeout(() => {
-    //   dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
-    // }, 10000)
+    dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+    setTimeout(() => {
+      dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
+    }, 10000)
   }, [currentAccount.tokens])
 
   useEffect(() => {
@@ -59,7 +59,6 @@ const Home = () => {
       if (!_.isEmpty(filterPendingRequests)) {
         setLoading(true);
         const pendingRequest = _.last(filterPendingRequests);
-        console.log('filterPendingRequests: ', filterPendingRequests);
         await nearService.setSigner({ secretKey, accountId });
         const { requestId, type } = pendingRequest;
         if (requestId) {

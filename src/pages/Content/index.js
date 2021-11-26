@@ -44,7 +44,6 @@ window.addEventListener('message', async function (event) {
     if (request.type === 'sender-wallet-fromPage' && request.method === 'init') {
       const key = `${request.contractId}-${accountId}`;
       chrome.storage.local.get([key], function (result) {
-        console.log('result: ', result);
         if (!_.isEmpty(result) && result[key]) {
           window.postMessage({ ...request, type: 'sender-wallet-result', accountId, publicKey, accessKey: result[key], res: 'Get from storage' });
         } else {
@@ -55,7 +54,6 @@ window.addEventListener('message', async function (event) {
 
     if (request.type === 'sender-wallet-fromPage' && request.method === 'signout') {
       const key = `${request.contractId}-${accountId}`;
-      console.log('key: ', key);
       chrome.storage.local.set({ [key]: '' }, function (result) {
         window.postMessage({ ...request, type: 'sender-wallet-result', res: 'success' });
       })
@@ -93,8 +91,6 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
       const oldPersistStore = { ...extensionPersisStore };
       updatePersistStore().then((res) => {
         if (oldPersistStore.app.currentAccount.accountId !== res.app.currentAccount.accountId) {
-          console.log('oldPersistStore.app.currentAccount.accountId: ', oldPersistStore.app.currentAccount.accountId);
-          console.log('res.app.currentAccount.accountId: ', res.app.currentAccount.accountId);
           window.postMessage({ type: 'sender-wallet-fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId });
         }
       });

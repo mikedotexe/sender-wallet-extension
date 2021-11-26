@@ -74,7 +74,6 @@ const TwoFaDrawer = () => {
   const handleResendCode = async () => {
     await nearService.setSigner({ secretKey, accountId });
     const res = await nearService.twoFactorMethod('sendCode', []);
-    console.log('res: ', res);
     if (res) {
       setResendCountDown(60);
     }

@@ -75,12 +75,10 @@ const SignAndSendTransaction = () => {
   const { currentAccount } = appStore;
 
   useEffect(() => {
-    console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
     const { notificationId } = data;
     const key = `notification-request-${notificationId}`;
     chrome.storage.local.get([key], function (result) {
-      console.log('result: ', result);
       setParams(result[key]);
     })
 
@@ -121,22 +119,17 @@ const SignAndSendTransaction = () => {
   }, [params])
 
   const rejectClicked = () => {
-    console.log('rejectClicked');
     const { notificationId } = params;
     chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
-      console.log('notification ....: ', response);
       window.close();
     })
   }
 
   const confirmClicked = async () => {
-    console.log('confirmClicked');
-
     setText('Signing, please do not close this window.');
     setIsSignin(true);
 
     const { notificationId, method, amount } = params;
-    console.log('params: ', params);
     try {
       const { secretKey, accountId } = currentAccount;
       const keyStore = new keyStores.InMemoryKeyStore();
@@ -177,15 +170,12 @@ const SignAndSendTransaction = () => {
       }
 
       chrome.runtime.sendMessage({ type: 'sender-wallet-result', res: results, method, notificationId }, function (response) {
-        console.log('signAndSendTransaction success ....: ', response);
         setIsSignin(false);
         window.close();
       })
     } catch (error) {
-      console.log('signAndSendTransaction error: ', error);
       setText(error.message);
       chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: error.message, method, notificationId }, function (response) {
-        console.log('signAndSendTransaction failed ....: ', response);
         setIsSignin(false);
       })
     }

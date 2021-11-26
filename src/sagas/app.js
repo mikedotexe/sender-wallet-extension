@@ -42,9 +42,7 @@ function* importAccountSaga(action) {
     const { accounts, lockupPassword, currentRpc } = appStore;
     const isExist = _.findIndex(accounts, item => item.mnemonic === mnemonic);
     if (isExist < 0) {
-      console.log('currentRpc: ', currentRpc[network]);
       const account = yield call(formatAccount, { mnemonic, config: currentRpc[network] });
-      console.log('account: ', account);
       if (!account.accountId) {
         yield put(setImportStatus({ loading: false, error: 'Account is not exist in mainnet' }));
       } else {
@@ -128,7 +126,6 @@ function* transferSaga(action) {
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     let parseAmount;
-    console.log('contractId: ', contractId);
     if (contractId) {
       parseAmount = parseTokenAmount(amount, decimals);
     } else {
@@ -141,15 +138,12 @@ function* transferSaga(action) {
       yield put({ type: APP_ADD_PENDING_REQUEST, pendingRequest })
     }
 
-    console.log('parseAmount: ', parseAmount);
-
     yield call(nearService.transfer, { contractId, amount: `${parseAmount}`, receiverId });
 
     yield put(setTransferConfirmDrawer({ display: false }));
     yield put(setTransferResultDrawer({ display: true, error: null, selectToken: token, sendAmount: amount, receiver: receiverId }))
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
-    console.log('transfer error: ', error);
     yield put(setTransferConfirmDrawer({ display: false }));
     yield put(setTransferResultDrawer({ display: true, error: error.message, selectToken: token, sendAmount: amount, receiver: receiverId }))
   }
@@ -179,7 +173,6 @@ function* stakingSaga(action) {
     yield put(setStakingResultDrawer({ display: true, error: null, selectValidator, stakeAmount: amount }));
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
-    console.log('staking error: ', error);
     yield put(setStakingConfirmDrawer({ display: false }));
     yield put(setStakingResultDrawer({ display: true, error: error.message, selectValidator, stakeAmount: amount }));
   }
@@ -209,7 +202,6 @@ function* unstakeSaga(action) {
     yield put(setUnstakingResultDrawer({ display: true, error: null, selectUnstakeValidator, unstakeAmount: amount }));
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
-    console.log('unstaking error: ', error);
     yield put(setUnstakingConfirmDrawer({ display: false }));
     yield put(setUnstakingResultDrawer({ display: true, error: error.message, selectUnstakeValidator, unstakeAmount: amount }));
   }
@@ -242,7 +234,6 @@ function* swapSaga(action) {
     yield put(setSwapResultDrawer({ display: true, error: null, swapFrom, swapTo, swapAmount: amount }));
     yield put({ type: APP_UPDATE_ACCOUNT })
   } catch (error) {
-    console.log('swap error: ', error);
     yield put(setSwapConfirmDrawer({ display: false }));
     yield put(setSwapResultDrawer({ display: true, error: error.message, swapFrom, swapTo, swapAmount: amount }));
   }
@@ -251,7 +242,6 @@ function* swapSaga(action) {
 function* addPendingRequestSaga(action) {
   try {
     const { pendingRequest } = action;
-    console.log('pendingRequest: ', pendingRequest);
     const appStore = yield select(getAppStore);
     const { pendingRequests } = appStore;
     const newpendingRequests = [...pendingRequests, pendingRequest];
@@ -264,7 +254,6 @@ function* addPendingRequestSaga(action) {
 function* updatePendingRequestSaga(action) {
   try {
     const { requestId } = action;
-    console.log('requestId: ', requestId);
     const appStore = yield select(getAppStore);
     const { pendingRequests } = appStore;
     const newpendingRequests = [...pendingRequests];
@@ -320,7 +309,6 @@ function* addCustomRpcSaga(action) {
     yield put(initStatus());
     yield put(goBack());
   } catch (error) {
-    console.log('addCustomRpcSaga error: ', error);
     yield put(setCustomRpcStatus({ loading: false, error: error.message }));
   }
 }
@@ -353,7 +341,6 @@ function* updateCustomRpcSaga(action) {
     yield put(initStatus());
     yield put(goBack());
   } catch (error) {
-    console.log('updateCustomRpcSaga error: ', error);
     yield put(setCustomRpcStatus({ loading: false, error: error.message }));
   }
 }
@@ -370,7 +357,6 @@ function* removeCustomRpcSaga(action) {
     yield put(initStatus());
     yield put(goBack());
   } catch (error) {
-    console.log('removeCustomRpcSaga error: ', error);
     yield put(setCustomRpcStatus({ loading: false, error: error.message }));
   }
 }

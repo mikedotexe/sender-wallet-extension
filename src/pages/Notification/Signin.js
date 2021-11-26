@@ -54,10 +54,8 @@ const Signin = () => {
   }, [])
 
   const rejectClicked = () => {
-    console.log('rejectClicked: ', params);
     const { notificationId } = params;
     chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: 'User reject', notificationId }, function (response) {
-      console.log('notification ....: ', response);
       window.close();
     })
   }
@@ -88,15 +86,12 @@ const Signin = () => {
       };
 
       chrome.runtime.sendMessage({ type: 'sender-wallet-result', res, method: 'signin', notificationId, ...params }, function (response) {
-        console.log('signin success ....: ', response);
         setIsSignin(false);
         window.close();
       })
     } catch (error) {
-      console.log('error: ', error);
       setText(error.message);
       chrome.runtime.sendMessage({ type: 'sender-wallet-result', error: error.message, method: 'signin', notificationId }, function (response) {
-        console.log('signin failed ....: ', response);
         setIsSignin(false);
       })
     }

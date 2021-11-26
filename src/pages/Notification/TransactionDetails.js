@@ -36,12 +36,10 @@ const TransactionDetails = () => {
   const [params, setParams] = useState({});
 
   useEffect(() => {
-    console.log('window.location.search: ', location.search);
     const data = queryString.parse(location.search);
     const { notificationId } = data;
     const key = `notification-request-${notificationId}`;
     chrome.storage.local.get([key], function (result) {
-      console.log('result: ', result);
       setParams(result[key]);
     })
 
