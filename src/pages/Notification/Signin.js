@@ -14,7 +14,6 @@ import * as nearAPI from 'near-api-js';
 import { key_pair } from 'near-api-js/lib/utils';
 import styled from 'styled-components';
 
-import config, { network } from '../../config';
 import vectorIcon from '../../assets/img/vector.png';
 import selectIcon from '../../assets/img/select.png';
 import notSelectIcon from '../../assets/img/not_select.png';
@@ -39,7 +38,7 @@ const Signin = () => {
   const [text, setText] = useState('');
   const [isSignin, setIsSignin] = useState(false);
 
-  const { currentAccount } = appStore;
+  const { currentAccount, currentRpc } = appStore;
 
   useEffect(() => {
     const data = queryString.parse(location.search);
@@ -66,12 +65,12 @@ const Signin = () => {
 
     const { notificationId, contractId, methodNames } = params;
     try {
-      const { secretKey, accountId, publicKey } = currentAccount;
+      const { secretKey, accountId, publicKey, network } = currentAccount;
       const keyPair = KeyPair.fromString(secretKey);
       const keyStore = new keyStores.InMemoryKeyStore();
       await keyStore.setKey(network, accountId, keyPair);
       const near = await connect({
-        ...config,
+        ...currentRpc[network],
         keyStore,
       })
       const account = await near.account(accountId);

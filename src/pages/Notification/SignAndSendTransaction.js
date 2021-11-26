@@ -16,7 +16,6 @@ import BN from 'bn.js';
 
 import { fixedNearAmount } from '../../utils';
 import { FT_TRANSFER_DEPOSIT, FT_TRANSFER_GAS } from '../../core/near';
-import config, { network } from '../../config';
 
 const {
   transactions: {
@@ -72,7 +71,7 @@ const SignAndSendTransaction = () => {
   const [text, setText] = useState('');
   const [isSignin, setIsSignin] = useState(false);
 
-  const { currentAccount } = appStore;
+  const { currentAccount, currentRpc } = appStore;
 
   useEffect(() => {
     const data = queryString.parse(location.search);
@@ -131,12 +130,12 @@ const SignAndSendTransaction = () => {
 
     const { notificationId, method, amount } = params;
     try {
-      const { secretKey, accountId } = currentAccount;
+      const { secretKey, accountId, network } = currentAccount;
       const keyStore = new keyStores.InMemoryKeyStore();
       const keyPair = KeyPair.fromString(secretKey);
       await keyStore.setKey(network, accountId, keyPair);
       const near = await connect({
-        ...config,
+        ...currentRpc[network],
         keyStore,
       })
       const account = await near.account(accountId);
@@ -160,7 +159,7 @@ const SignAndSendTransaction = () => {
           const recreateTransaction = account.deployMultisig || true;
           if (!recreateTransaction) {
             const signer = new nearAPI.InMemorySigner(keyStore);
-            const [, signedTransaction] = await nearAPI.transactions.signTransaction(receiverId, nonce, functionCallActions, blockHash, signer, accountId, config.network);
+            const [, signedTransaction] = await nearAPI.transactions.signTransaction(receiverId, nonce, functionCallActions, blockHash, signer, accountId, network);
             res = await near.connection.provider.sendTransaction(signedTransaction);
           } else {
             res = await account.signAndSendTransaction({ receiverId, actions: functionCallActions });
