@@ -175,7 +175,7 @@ const Swap = () => {
         <Typography sx={{ color: '#777777' }}>Balance: {swapFromBalance || 0}</Typography>
       </Box>
       <BaseBox className="swap-input">
-        <Input onChange={swapAmountChanged} value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px' }}></Input>
+        <Input onChange={swapAmountChanged} value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px', width: '200px' }}></Input>
         <Button
           className="swap-currency-button"
           onClick={handleSwapFromClick}
@@ -219,7 +219,7 @@ const Swap = () => {
         <Typography sx={{ color: '#777777' }}>Balance: {swapToBalance || 0}</Typography>
       </Box>
       <BaseBox className="swap-input">
-        <Input disabled value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px' }}></Input>
+        <Input disabled value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px', width: '200px' }}></Input>
         <Button
           className="swap-currency-button"
           onClick={handleSwapToClick}

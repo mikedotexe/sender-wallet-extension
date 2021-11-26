@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import _ from 'lodash';
 import { DEFAULT_MAINNET_RPC, DEFAULT_TESTNET_RPC } from '../config/rpc';
 
 export const appSlice = createSlice({
@@ -55,7 +56,8 @@ export const appSlice = createSlice({
       state.rpcs = rpcs;
     },
     changeRpc: (state, action) => {
-      const { rpc, network } = action.payload;
+      const { index, network } = action.payload;
+      const rpc = _.find(state.rpcs, item => item.index === index);
       state.currentRpc = { ...state.currentRpc, [network]: rpc };
     }
   }

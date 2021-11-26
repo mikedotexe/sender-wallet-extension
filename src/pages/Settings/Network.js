@@ -59,7 +59,7 @@ const NetworkItem = (props) => {
   }, [index])
 
   return (
-    <Button disabled={!canEdit} className="button" onClick={() => history.push(`/settings/editNetwork${index}`)}>
+    <Button key={index} disabled={!canEdit} className="button" onClick={() => history.push(`/settings/editNetwork${index}`)}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Typography sx={{ marginLeft: '15px', fontSize: '16px', color: '#777777' }}>{name}</Typography>
       </Box>
@@ -104,8 +104,8 @@ const Network = () => {
         </Button>
       </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-        <Box class="network-title">
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', marginBottom: '30px' }}>
+        <Box className="network-title">
           <Typography sx={{ fontSize: '16px', color: '#777777', alignSelf: 'start' }}>Mainnet:</Typography>
         </Box>
         {
@@ -114,7 +114,7 @@ const Network = () => {
           })
         }
 
-        <Box class="network-title">
+        <Box className="network-title">
           <Typography sx={{ fontSize: '16px', color: '#777777', alignSelf: 'start' }}>Testnet:</Typography>
         </Box>
         {
