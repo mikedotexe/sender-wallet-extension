@@ -51,6 +51,7 @@ const StyledHeader = styled(Box)`
     border-radius: 12px;
     width: 250px;
     padding: 5px;
+    position: relative;
   }
 `;
 
@@ -138,11 +139,12 @@ const Header = () => {
             <img src={menu} alt="menu"></img>
           </Button>
           <Button className="network-btn" onClick={handleNetworkClicked} disabled={!displayMore}>
-            <img style={{ marginRight: '10px', width: '15px', height: '12px' }} src={networkIcon} alt="network"></img>
+            <img style={{ position: 'absolute', left: '10px', top: 'auto', bottom: 'auto', width: '15px', height: '12px' }} src={networkIcon} alt="network"></img>
             <Typography
               variant="h6"
               component="p"
               sx={{
+                width: '180px',
                 color: 'white',
                 textOverflow: 'ellipsis',
                 overflow: 'hidden',
@@ -153,7 +155,7 @@ const Header = () => {
               {rpc.name}
             </Typography>
             {
-              displayMore && (<img style={{ marginLeft: '10px', width: '10px', height: '6px' }} src={maskIcon} alt="mask"></img>)
+              displayMore && (<img style={{ position: 'absolute', right: '10px', top: 'auto', bottom: 'auto', width: '10px', height: '6px' }} src={maskIcon} alt="mask"></img>)
             }
           </Button>
 
