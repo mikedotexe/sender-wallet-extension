@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { DEFAULT_MAINNET_RPC, DEFAULT_TESTNET_RPC } from '../config/rpc';
 
 export const appSlice = createSlice({
   name: 'app',
@@ -10,6 +11,14 @@ export const appSlice = createSlice({
     isLockup: false,
     salt: '',
     pendingRequests: [],
+    rpcs: [
+      DEFAULT_MAINNET_RPC,
+      DEFAULT_TESTNET_RPC,
+    ],
+    currentRpc: {
+      'mainnet': DEFAULT_MAINNET_RPC,
+      'testnet': DEFAULT_TESTNET_RPC,
+    },
   },
   reducers: {
     setSalt: (state, action) => {
@@ -40,10 +49,18 @@ export const appSlice = createSlice({
     setPendingRequests: (state, action) => {
       const pendingRequests = action.payload;
       state.pendingRequests = pendingRequests;
+    },
+    setRpcs: (state, action) => {
+      const rpcs = action.payload;
+      state.rpcs = rpcs;
+    },
+    changeRpc: (state, action) => {
+      const { rpc, network } = action.payload;
+      state.currentRpc = { ...state.currentRpc, [network]: rpc };
     }
   }
 })
 
-export const { setSalt, setPassword, setLockup, addAccount, changeAccount, updateAccounts, setPendingRequests } = appSlice.actions;
+export const { setSalt, setPassword, setLockup, addAccount, changeAccount, updateAccounts, setPendingRequests, setRpcs, changeRpc } = appSlice.actions;
 
 export default appSlice.reducer;

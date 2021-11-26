@@ -13,7 +13,7 @@ import successIcon from '../../assets/img/success.png';
 import failIcon from '../../assets/img/fail.png';
 import closeIcon from '../../assets/img/drawer_close.png';
 
-import { nearService } from '../../core/near';
+import NearService from '../../core/near';
 import { fixedNearAmount, fixedNumber, parseNearAmount } from '../../utils';
 import { setTransferResultDrawer } from '../../reducers/temp';
 
@@ -30,8 +30,13 @@ const TransferResultDrawer = () => {
   const [estimatedTotalFeesPrice, setEstimatedTotalFeesPrice] = useState(0);
 
   const { prices } = marketStore;
-  const { accountId } = appStore.currentAccount;
+  const { currentRpc } = appStore;
+  const { accountId, network } = appStore.currentAccount;
   const { display, selectToken, sendAmount, receiver, error } = tempStore.transferResultDrawer;
+
+  const nearService = useMemo(() => {
+    return new NearService({ config: currentRpc[network] });
+  }, [currentRpc, network])
 
   const sendAmountPrice = useMemo(() => {
     const price = prices[selectToken.symbol] ? fixedNumber((Number(sendAmount) * prices[selectToken.symbol]), 4) : 0;

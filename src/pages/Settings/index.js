@@ -12,6 +12,7 @@ import BaseHeaderPage from '../../components/BaseHeaderPage';
 import arrowIcon from '../../assets/img/arrow.png';
 import currencyIcon from '../../assets/img/currency.png';
 import languageIcon from '../../assets/img/language.png';
+import networkIcon from '../../assets/img/networkIcon.png';
 import changePasswordIcon from '../../assets/img/change_password.png';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
@@ -60,6 +61,14 @@ const Settings = () => {
       title: 'Language',
       value: 'English',
       icon: <img style={{ width: '22px', height: '22px' }} src={languageIcon} alt="language"></img>,
+    },
+    {
+      title: 'Network',
+      value: '',
+      icon: <img style={{ width: '22px', height: '22px' }} src={networkIcon} alt="network"></img>,
+      onClick: () => {
+        history.push('/settings/network');
+      }
     },
   ]
 

@@ -64,6 +64,11 @@ export const tempSlice = createSlice({
       loading: false,
       requestId: null,
     },
+    networkResultDrawer: {
+      display: false,
+      error: null,
+      loading: false,
+    },
   },
   reducers: {
     setBottomTabValue: (state, action) => {
@@ -132,6 +137,11 @@ export const tempSlice = createSlice({
       state.unstakingResultDrawer = { ...state.unstakingResultDrawer, display: false };
       state.swapResultDrawer = { ...state.swapResultDrawer, display: false };
       state.twoFaDrawer = { ...state.twoFaDrawer, ...twoFaDrawer };
+    },
+
+    setNetworkResultDrawer: (state, action) => {
+      const networkResultDrawer = action.payload;
+      state.networkResultDrawer = { ...state.networkResultDrawer, ...networkResultDrawer };
     }
   }
 })
@@ -150,6 +160,7 @@ export const {
   setSwapConfirmDrawer,
   setSwapResultDrawer,
   setTwoFaDrawer,
+  setNetworkResultDrawer,
 } = tempSlice.actions;
 
 export default tempSlice.reducer;

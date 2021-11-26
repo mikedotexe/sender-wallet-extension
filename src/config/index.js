@@ -1,7 +1,4 @@
-// export const network = 'mainnet';
-export const network = 'testnet';
-
-const config = {
+export const config = {
   'mainnet': {
     network: 'mainnet',
     networkId: 'mainnet',
@@ -23,4 +20,6 @@ const config = {
   }
 }
 
-export default config[network];
+export const currencyQuotesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest';
+
+export default config;

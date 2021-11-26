@@ -7,6 +7,10 @@ import Box from '@material-ui/core/Box';
 import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import Typography from '@material-ui/core/Typography';
+import FormLabel from '@material-ui/core/FormLabel';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Radio from '@material-ui/core/Radio';
 
 import styled from 'styled-components';
 
@@ -47,9 +51,12 @@ const WrapperBox = styled(Box)`
 const Startup = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+
   const loadingStore = useSelector(state => state.loading);
+
   const [open, setOpen] = useState(false);
   const [mnemonic, setMnemonic] = useState('');
+  const [network, setNetwork] = useState('mainnet');
 
   const { importLoading, importError } = loadingStore;
 
@@ -67,7 +74,7 @@ const Startup = () => {
 
   const continueClicked = () => {
     if (checkPhrass(mnemonic)) {
-      dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic });
+      dispatch({ type: APP_IMPORT_ACCOUNT, mnemonic, network });
     } else {
       setOpen(true);
     }
@@ -78,6 +85,11 @@ const Startup = () => {
     setTimeout(() => {
       dispatch(initStatus());
     }, 500)
+  }
+
+  const networkOnChanged = (e) => {
+    const changedNetwork = e.target.value;
+    setNetwork(changedNetwork);
   }
 
   useEffect(() => {
@@ -108,8 +120,21 @@ const Startup = () => {
         {/* <Button sx={{ position: 'absolute', bottom: '15px', right: '15px', width: '15px', height: '15px', minWidth: '15px' }} onClick={pasteClicked}><img src={pasteIcon} alt='paste'></img></Button> */}
       </Box>
 
+      <Box sx={{ margin: '15px', marginLeft: '30px', marginRight: '30px' }}>
+        <FormLabel component="legend" sx={{ color: 'white' }}>Network</FormLabel>
+        <RadioGroup
+          row
+          aria-label="gender"
+          defaultValue="mainnet"
+          name="row-radio-buttons-group"
+          onChange={networkOnChanged}
+        >
+          <FormControlLabel sx={{ color: 'white' }} value="mainnet" control={<Radio sx={{ color: '#777777' }} />} label="Mainnet" />
+          <FormControlLabel sx={{ color: 'white' }} value="testnet" control={<Radio sx={{ color: '#777777' }} />} label="Testnet" />
+        </RadioGroup>
+      </Box>
 
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '40px' }}>
         <Button disabled={importLoading || !mnemonic} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }} onClick={continueClicked}>
           <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>{importLoading ? 'Importing...' : 'Continue'}</Typography>
         </Button>

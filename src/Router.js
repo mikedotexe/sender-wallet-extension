@@ -13,6 +13,9 @@ import Tokens from './pages/Wallet/Tokens';
 import Validators from './pages/Staking/Validators';
 import Unstake from './pages/Staking/Unstake';
 import ChangePwd from './pages/Settings/ChangePwd';
+import Network from './pages/Settings/Network';
+import AddNetwork from './pages/Settings/AddNetwork';
+import EditNetwork from './pages/Settings/EditNetwork';
 
 import Signin from './pages/Notification/Signin';
 import SignAndSendTransaction from './pages/Notification/SignAndSendTransaction';
@@ -34,6 +37,9 @@ function Router() {
         <Route exact path='/staking/validators/:isUnstake' component={Validators}></Route>
         <Route exact path='/staking/unstake' component={Unstake}></Route>
         <Route exact path='/settings/changepwd' component={ChangePwd}></Route>
+        <Route exact path='/settings/network' component={Network}></Route>
+        <Route exact path='/settings/addNetwork' component={AddNetwork}></Route>
+        <Route exact path='/settings/editNetwork:index' component={EditNetwork}></Route>
         <Route exact path='/notification/signin' component={Signin}></Route>
         <Route exact path='/notification/signAndSendTransaction' component={SignAndSendTransaction}></Route>
         <Route exact path='/notification/transactionDetails' component={TransactionDetails}></Route>

@@ -4,17 +4,15 @@ import * as nearAPI from "near-api-js";
 import BN from 'bn.js';
 import _ from 'lodash';
 
-import config from '../config';
 import { parseSeedPhrase } from '../utils';
-import apiHelper from "../apiHelper";
+import ApiHelper from "../apiHelper";
 import Validator from '../data/Validator';
 import { transactions } from "near-api-js";
 import { setTwoFaDrawer } from "../reducers/temp";
 import { store } from '../Store';
 import { APP_ADD_PENDING_REQUEST, APP_REMOVE_PENDING_REQUEST, APP_UPDATE_PENDING_REQUEST } from '../actions/app';
 import { setTransferResultDrawer, setSwapResultDrawer, setStakingResultDrawer, setUnstakingResultDrawer } from '../reducers/temp';
-
-const WRAP_NEAR_CONTRACT = config.wrapNearContract;
+import { DEFAULT_MAINNET_RPC } from '../config/rpc';
 
 const {
   transactions: {
@@ -28,9 +26,10 @@ const {
   providers,
   Contract,
   multisig: { Account2FA },
+  keyStores,
+  KeyPair,
+  connect,
 } = nearAPI;
-
-const { nodeUrl, network } = config;
 
 // account creation costs 0.00125 NEAR for storage, 0.00000000003 NEAR for gas
 // https://docs.near.org/docs/api/naj-cookbook#wrap-and-unwrap-near
@@ -99,10 +98,11 @@ export const lockupMethods = {
 
 /**
  * Generate an account just to query
- * @param {*} network Blcokchain's network: mainnet, testnet, betanet
+ * @param {*} config node config
  * @returns A view account
  */
-export const getViewAccount = () => {
+export const getViewAccount = ({ config }) => {
+  const { network, nodeUrl } = config;
   const connection = nearAPI.Connection.fromConfig({
     networkId: network,
     provider: { type: 'JsonRpcProvider', args: { url: nodeUrl + '/' } },
@@ -119,17 +119,17 @@ export const getViewAccount = () => {
  * @param {*} param0.accountId Account id
  * @param {*} param0.secretKey Account's secret key(optional)
  * @param {*} param0.mnemonic Account's mnemonic
+ * @param {*} param0.config Account's node config
  * @returns Near account
  */
-export const getSigner = async ({ accountId, secretKey, mnemonic }) => {
-  const { keyStores, KeyPair, connect } = nearAPI;
+export const getSigner = async ({ accountId, secretKey, mnemonic, config }) => {
   if (!secretKey) {
     const phrase = await parseSeedPhrase(mnemonic);
     secretKey = phrase.secretKey;
   }
   const keyPair = KeyPair.fromString(secretKey);
   const keyStore = new keyStores.InMemoryKeyStore();
-  await keyStore.setKey(network, accountId, keyPair);
+  await keyStore.setKey(config.network, accountId, keyPair);
 
   const near = await connect({
     ...config,
@@ -141,9 +141,10 @@ export const getSigner = async ({ accountId, secretKey, mnemonic }) => {
 
 /**
  * Get rpc provider's validators
+ * @param {*} config node config
  * @returns rpc validators
  */
-export const getRpcValidators = async () => {
+export const getRpcValidators = async ({ config }) => {
   const { nodeUrl } = config;
   const provider = new providers.JsonRpcProvider(nodeUrl);
   const validators = await provider.validators();
@@ -163,10 +164,13 @@ export const has2faEnabled = async (account) => {
   return MULTISIG_CONTRACT_HASHES.includes(state.code_hash);
 }
 
-export default class Near {
-  constructor() {
-    this.viewAccount = getViewAccount();
+export default class NearService {
+  constructor({ config = DEFAULT_MAINNET_RPC }) {
+    console.log('config: ', config);
+    this.viewAccount = getViewAccount({ config });
     this.signer = null;
+    this.config = config;
+    this.apiHelper = new ApiHelper({ helperUrl: config.helperUrl });
   }
 
   /**
@@ -176,8 +180,21 @@ export default class Near {
    * @param {*} accountId account id
    */
   setSigner = async ({ secretKey, mnemonic, accountId }) => {
-    const signer = await getSigner({ secretKey, mnemonic, accountId });
+    const signer = await getSigner({ secretKey, mnemonic, accountId, config: this.config });
     this.signer = signer;
+  }
+
+  /**
+   * Get provider's status
+   */
+  getStatus = async () => {
+    const keyStore = new keyStores.InMemoryKeyStore();
+    const near = await connect({
+      ...this.config,
+      keyStore,
+    })
+    const response = await near.connection.provider.status();
+    return response;
   }
 
   /**
@@ -187,7 +204,7 @@ export default class Near {
   getAccount = async () => {
     if (await has2faEnabled(this.signer)) {
       const account = new Account2FA(this.signer.connection, this.signer.accountId, {
-        helperUrl: config.helperUrl,
+        helperUrl: this.config.helperUrl,
         sendCode: async () => {
           const requestId = await account.sendCodeDefault();
           store.dispatch({ type: APP_UPDATE_PENDING_REQUEST, requestId });
@@ -298,7 +315,7 @@ export default class Near {
    * @returns account id
    */
   getAccountId = async (publicKey) => {
-    return apiHelper.getAccountId(publicKey);
+    return this.apiHelper.getAccountId(publicKey);
   }
 
   /**
@@ -307,7 +324,7 @@ export default class Near {
    * @returns token contracts
    */
   getOwnedTokens = async ({ accountId }) => {
-    return apiHelper.getOwnedTokenContracts(accountId);
+    return this.apiHelper.getOwnedTokenContracts(accountId);
   }
 
   /**
@@ -325,7 +342,7 @@ export default class Near {
    * @returns validators' deposit map
    */
   getValidatorDepositMap = async ({ accountId }) => {
-    const stakingDeposits = await apiHelper.getStakingDeposits(accountId);
+    const stakingDeposits = await this.apiHelper.getStakingDeposits(accountId);
 
     const validatorDepositMap = {};
     _.forEach(stakingDeposits, ({ validator_id, deposit }) => {
@@ -459,7 +476,7 @@ export default class Near {
    * @returns 
    */
   wrapNearDeposit = async ({ amount }) => {
-    const contractId = WRAP_NEAR_CONTRACT;
+    const contractId = this.config.wrapNearContract;
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
@@ -481,7 +498,7 @@ export default class Near {
    * @returns 
    */
   wrapNearWithdraw = async ({ amount }) => {
-    const contractId = WRAP_NEAR_CONTRACT;
+    const contractId = this.config.wrapNearContract;
     const receiverId = this.signer.accountId;
     await this.checkStorageBalance({ contractId, receiverId });
 
@@ -648,8 +665,8 @@ export default class Near {
    * 
    */
   getValidatorsAndBalance = async ({ balance, validatorDepositMap }) => {
-    const rpcValidators = await getRpcValidators();
-    const stakingPools = await apiHelper.getStakingPools();
+    const rpcValidators = await getRpcValidators({ config: this.config });
+    const stakingPools = await this.apiHelper.getStakingPools();
 
     const { current_validators, next_validators, current_proposals } = rpcValidators;
     const currentValidators = _.map(current_validators, ({ account_id }) => account_id);
@@ -732,5 +749,3 @@ export default class Near {
     };
   }
 }
-
-export const nearService = new Near();

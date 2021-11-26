@@ -6,12 +6,14 @@ import {
 import _ from 'lodash';
 
 import { MARKET_UPDATE_PRICE } from '../actions/market';
-import apiHelper from '../apiHelper';
+import ApiHelper from '../apiHelper';
 import { updateMarket } from '../reducers/market';
+import { DEFAULT_MAINNET_RPC } from '../config/rpc';
 
 function* updateMarketSaga(action) {
   const { tokens } = action;
   try {
+    const apiHelper = new ApiHelper({ helperUrl: DEFAULT_MAINNET_RPC.helperUrl });
     const currencyQuote = yield call(apiHelper.getCurrencyQuote, tokens);
     const symbols = _.keys(currencyQuote);
     const prices = {};

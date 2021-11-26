@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 
@@ -12,7 +12,7 @@ import BaseBox from '../BaseBox';
 import Input from '../Input';
 import closeIcon from '../../assets/img/drawer_close.png';
 import { setTwoFaDrawer } from '../../reducers/temp';
-import { nearService } from '../../core/near';
+import NearService from '../../core/near';
 import { APP_REMOVE_PENDING_REQUEST } from '../../actions/app';
 
 const TwoFaDrawer = () => {
@@ -23,8 +23,12 @@ const TwoFaDrawer = () => {
 
   const [resendCountDown, setResendCountDown] = useState(0);
 
-  const { currentAccount } = appStore;
-  const { secretKey, accountId } = currentAccount;
+  const { currentAccount, currentRpc } = appStore;
+  const { secretKey, accountId, network } = currentAccount;
+
+  const nearService = useMemo(() => {
+    return new NearService({ config: currentRpc[network] });
+  }, [currentRpc, network])
 
 
   const { display, rejecter, resolver, method, loading, error, pendingRequest } = tempStore.twoFaDrawer;

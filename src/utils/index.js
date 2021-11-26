@@ -4,7 +4,7 @@ import BN from 'bn.js';
 
 import config from '../config';
 import Account from '../data/Account';
-import { nearService } from '../core/near';
+import NearService from '../core/near';
 
 const bip39 = require('bip39-light');
 const { derivePath } = require('near-hd-key');
@@ -110,6 +110,7 @@ export const fixedTokenAmount = (amount, decimals) => {
  * @param {*} param0.totalAvailable Total available near amount with all validators (can withdraw)
  * @param {*} param0.totalPending Total pending near amount with all validators
  * @param {*} param0.tokens Account's owned tokens
+ * @param {*} param0.config node config
  * @returns New Account object
  */
 export const formatAccount = async ({
@@ -123,9 +124,11 @@ export const formatAccount = async ({
 	totalPending = '0',
 	tokens = [],
 	transactions = [],
+	config,
 }) => {
 	const phrase = parseSeedPhrase(mnemonic);
 	const { secretKey, publicKey } = phrase;
+	const nearService = new NearService({ config });
 	const accountId = await nearService.getAccountId(publicKey);
 	let accountBalance = balance;
 	if (_.isEmpty(accountBalance) && accountId) {
@@ -135,7 +138,7 @@ export const formatAccount = async ({
 	return new Account({
 		accountId,
 		mnemonic,
-		network,
+		network: network || config.network,
 		secretKey,
 		publicKey,
 		balance: accountBalance,

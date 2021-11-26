@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import BottomDrawer from './index';
 import closeIcon from '../../assets/img/drawer_close.png';
 
-import { nearService } from '../../core/near';
+import NearService from '../../core/near';
 import { fixedNearAmount, fixedNumber, parseNearAmount } from '../../utils';
 import { setTransferConfirmDrawer } from '../../reducers/temp';
 import { APP_ACCOUNT_TRANSFER } from '../../actions/app';
@@ -29,8 +29,13 @@ const TransferConfirmDrawer = () => {
   const [estimatedTotalFeesPrice, setEstimatedTotalFeesPrice] = useState(0);
 
   const { prices } = marketStore;
-  const { accountId } = appStore.currentAccount;
+  const { currentRpc } = appStore;
+  const { accountId, network } = appStore.currentAccount;
   const { display, selectToken, sendAmount, receiver } = tempStore.transferConfirmDrawer;
+
+  const nearService = useMemo(() => {
+    return new NearService({ config: currentRpc[network] });
+  }, [currentRpc, network])
 
   const sendAmountPrice = useMemo(() => {
     const price = prices[selectToken.symbol] ? fixedNumber((Number(sendAmount) * prices[selectToken.symbol]), 4) : 0;

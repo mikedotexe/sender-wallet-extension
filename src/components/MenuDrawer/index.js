@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -7,6 +7,7 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
 import MuiDrawer from '@material-ui/core/Drawer';
+import Divider from '@material-ui/core/Divider';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -38,6 +39,14 @@ const MenuDrawer = ({ open, onClose }) => {
     history.push('/unlock');
   }
 
+  const mainnetAccounts = useMemo(() => {
+    return _.filter(accounts, (account) => account.network === 'mainnet');
+  }, [accounts])
+
+  const testnetAccounts = useMemo(() => {
+    return _.filter(accounts, (account) => account.network === 'testnet');
+  }, [accounts])
+
   return (
     <WrapperDrawer
       sx={{
@@ -50,12 +59,14 @@ const MenuDrawer = ({ open, onClose }) => {
     >
       <Button sx={{ position: 'absolute', top: '21px', right: '13px' }} onClick={onClose}><img src={closeIcon} alt="close"></img></Button>
 
-      <Box sx={{ marginTop: '57px', marginLeft: '18px', marginRight: '14px' }}>
-        <Typography sx={{ color: '#878787', fontSize: '14px' }}>My Wallet</Typography>
+      <Box sx={{ marginTop: '40px', marginLeft: '18px', marginRight: '14px', height: '400px' }}>
+        <Typography sx={{ color: '#878787', fontSize: '20px' }}>My Wallets</Typography>
 
-        <Box sx={{ marginTop: '15px', marginBottom: '15px', height: '340px', flexDirection: 'column', display: 'flex', overflow: 'auto' }}>
+        <Divider sx={{ width: '100%', height: '1px', borderColor: 'rgba(255, 255, 255, 0.5)', marginTop: '10px', boxSizing: 'border-box' }}></Divider>
+        <Typography sx={{ color: '#878787', fontSize: '14px', marginTop: '10px', marginLeft: '10px' }}>Mainnet:</Typography>
+        <Box sx={{ marginTop: '5px', marginLeft: '15px', marginBottom: '15px', flexDirection: 'column', display: 'flex', height: '150px', overflow: 'auto' }}>
           {
-            _.map(accounts, (item, index) => {
+            _.map(mainnetAccounts, (item, index) => {
               return (
                 <Button
                   key={item.accountId}
@@ -78,6 +89,34 @@ const MenuDrawer = ({ open, onClose }) => {
           }
         </Box>
 
+        <Divider sx={{ width: '100%', height: '1px', borderColor: 'rgba(255, 255, 255, 0.5)', marginTop: '10px', boxSizing: 'border-box' }}></Divider>
+        <Typography sx={{ color: '#878787', fontSize: '14px', marginTop: '10px', marginLeft: '10px' }}>Testnet:</Typography>
+        <Box sx={{ marginTop: '5px', marginLeft: '15px', marginBottom: '15px', flexDirection: 'column', display: 'flex', height: '150px', overflow: 'auto' }}>
+          {
+            _.map(testnetAccounts, (item, index) => {
+              return (
+                <Button
+                  key={item.accountId}
+                  endIcon={currentAccount.accountId === item.accountId ? <img src={selectedIcon} alt="selected"></img> : null}
+                  sx={{ justifyContent: 'space-between' }}
+                  onClick={() => {
+                    onClose();
+                    dispatch(changeAccount(item));
+                    dispatch(setBottomTabValue(0));
+                    history.push('/home');
+                    setTimeout(() => {
+                      dispatch({ type: APP_UPDATE_ACCOUNT })
+                    }, 500);
+                  }}
+                >
+                  <Typography sx={{ color: '#878787', fontSize: '14px' }}>{item.accountId}</Typography>
+                </Button>
+              )
+            })
+          }
+        </Box>
+      </Box>
+      <Box sx={{ marginTop: '10px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <Button className="button" onClick={() => history.push('/import')}>
           <Typography sx={{ color: '#878787', fontSize: '14px' }}>Import Account</Typography>
         </Button>

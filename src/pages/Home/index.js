@@ -24,7 +24,7 @@ import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 import { MARKET_UPDATE_PRICE } from '../../actions/market';
 import { setBottomTabValue, setStakingConfirmDrawer, setSwapConfirmDrawer, setTransferConfirmDrawer, setTwoFaDrawer, setUnstakingConfirmDrawer } from '../../reducers/temp';
-import { nearService } from '../../core/near';
+import NearService from '../../core/near';
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -34,23 +34,27 @@ const Home = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const { pendingRequests } = appStore;
+  const { pendingRequests, currentRpc, currentAccount } = appStore;
+  const { secretKey, accountId, network } = currentAccount;
+
+  const nearService = useMemo(() => {
+    return new NearService({ config: currentRpc[network] });
+  }, [currentRpc, network])
 
   const value = useMemo(() => {
     return tempStore.bottomTabValue;
   }, [tempStore.bottomTabValue])
 
   useEffect(() => {
-    const tokens = _.map(appStore.currentAccount.tokens, (token) => token.symbol);
+    const tokens = _.map(currentAccount.tokens, (token) => token.symbol);
     // dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
     // setTimeout(() => {
     //   dispatch({ type: MARKET_UPDATE_PRICE, tokens: ['NEAR', ...tokens] });
     // }, 10000)
-  }, [appStore.currentAccount.tokens])
+  }, [currentAccount.tokens])
 
   useEffect(() => {
     const checkPendingRequest = async () => {
-      const { secretKey, accountId } = appStore.currentAccount;
       const filterPendingRequests = _.filter(pendingRequests, request => request.signerId === accountId);
       if (!_.isEmpty(filterPendingRequests)) {
         setLoading(true);

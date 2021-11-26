@@ -5,19 +5,21 @@ import {
   call,
 } from 'redux-saga/effects';
 import _ from 'lodash';
-import { push } from 'connected-react-router';
+import { push, goBack } from 'connected-react-router';
 import BN from 'bn.js';
 import * as nearApi from 'near-api-js';
 
-import { setImportStatus } from '../reducers/loading';
-import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_ADD_PENDING_REQUEST, APP_UPDATE_PENDING_REQUEST, APP_REMOVE_PENDING_REQUEST } from '../actions/app';
+import { setImportStatus, setCustomRpcStatus, initStatus } from '../reducers/loading';
+import { APP_ACCOUNT_STAKING, APP_ACCOUNT_TRANSFER, APP_ACCOUNT_UNSTAKING, APP_IMPORT_ACCOUNT, APP_SET_PASSWORD, APP_SWAP_NEAR, APP_UPDATE_ACCOUNT, APP_ADD_PENDING_REQUEST, APP_UPDATE_PENDING_REQUEST, APP_REMOVE_PENDING_REQUEST, APP_ADD_CUSTOM_RPC, APP_REMOVE_CUSTOM_RPC, APP_UPDATE_CUSTOM_RPC } from '../actions/app';
 import { getAppStore, getTempStore } from './';
 import { formatAccount, parseNearAmount, parseTokenAmount } from '../utils';
-import { addAccount, changeAccount, setPassword, setPendingRequests, setSalt, updateAccounts } from '../reducers/app';
+import { addAccount, changeAccount, setPassword, setPendingRequests, setRpcs, setSalt, updateAccounts } from '../reducers/app';
 import passwordHash from '../core/passwordHash';
-import { nearService } from '../core/near';
-import apiHelper from '../apiHelper';
+import NearService from '../core/near';
+import ApiHelper from '../apiHelper';
 import { setStakingConfirmDrawer, setStakingResultDrawer, setSwapResultDrawer, setTransferConfirmDrawer, setTransferResultDrawer, setUnstakingConfirmDrawer, setUnstakingResultDrawer, setSwapConfirmDrawer } from '../reducers/temp';
+import Rpc from '../data/Rpc';
+import config from '../config';
 
 function* setPasswordSaga(action) {
   const { password } = action;
@@ -34,13 +36,15 @@ function* setPasswordSaga(action) {
 
 function* importAccountSaga(action) {
   yield put(setImportStatus({ loading: true }))
-  const { mnemonic } = action;
+  const { mnemonic, network } = action;
   try {
     const appStore = yield select(getAppStore);
-    const { accounts, lockupPassword } = appStore;
+    const { accounts, lockupPassword, currentRpc } = appStore;
     const isExist = _.findIndex(accounts, item => item.mnemonic === mnemonic);
     if (isExist < 0) {
-      const account = yield call(formatAccount, { mnemonic });
+      console.log('currentRpc: ', currentRpc[network]);
+      const account = yield call(formatAccount, { mnemonic, config: currentRpc[network] });
+      console.log('account: ', account);
       if (!account.accountId) {
         yield put(setImportStatus({ loading: false, error: 'Account is not exist in mainnet' }));
       } else {
@@ -63,9 +67,10 @@ function* importAccountSaga(action) {
 function* updateAccountSaga() {
   try {
     const appStore = yield select(getAppStore);
-    const { currentAccount, accounts } = appStore;
-    const { mnemonic, accountId } = currentAccount;
+    const { currentAccount, accounts, currentRpc } = appStore;
+    const { mnemonic, accountId, network } = currentAccount;
 
+    const nearService = new NearService({ config: currentRpc[network] });
     yield call(nearService.setSigner, { mnemonic, accountId });
     const tokens = yield call(nearService.getTokensAndBalance);
     const validatorDepositMap = yield call(nearService.getValidatorDepositMap, { accountId });
@@ -80,6 +85,8 @@ function* updateAccountSaga() {
       totalAvailable,
       totalPending,
     } = yield call(nearService.getValidatorsAndBalance, { balance, validatorDepositMap });
+
+    const apiHelper = new ApiHelper({ helperUrl: currentRpc[network].helperUrl });
     const txs = yield call(apiHelper.getTransactions, currentAccount.accountId);
 
     const account = yield call(formatAccount, {
@@ -93,6 +100,7 @@ function* updateAccountSaga() {
       totalPending,
       tokens: [{ symbol: 'NEAR', name: 'NEAR', balance: balance.available, accountId: '' }, ...tokens],
       transactions: txs,
+      config: currentRpc[network],
     });
     const newAccounts = _.map(accounts, (item) => {
       if (item.accountId === account.accountId) {
@@ -113,8 +121,10 @@ function* transferSaga(action) {
   const { accountId: contractId, decimals } = token;
   try {
     const appStore = yield select(getAppStore);
-    const { currentAccount } = appStore;
-    const { mnemonic, accountId } = currentAccount;
+    const { currentAccount, currentRpc } = appStore;
+    const { mnemonic, accountId, network } = currentAccount;
+
+    const nearService = new NearService({ config: currentRpc[network] });
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     let parseAmount;
@@ -149,10 +159,11 @@ function* stakingSaga(action) {
   const { amount } = action;
   const appStore = yield select(getAppStore);
   const tempStore = yield select(getTempStore);
-  const { currentAccount } = appStore;
-  const { mnemonic, accountId } = currentAccount;
+  const { currentAccount, currentRpc } = appStore;
+  const { mnemonic, accountId, network } = currentAccount;
   const { selectValidator } = tempStore;
   try {
+    const nearService = new NearService({ config: currentRpc[network] });
     yield call(nearService.setSigner, { mnemonic, accountId });
     const parseAmount = parseNearAmount(amount);
 
@@ -178,10 +189,11 @@ function* unstakeSaga(action) {
   const { amount } = action;
   const appStore = yield select(getAppStore);
   const tempStore = yield select(getTempStore);
-  const { currentAccount } = appStore;
-  const { mnemonic, accountId } = currentAccount;
+  const { currentAccount, currentRpc } = appStore;
+  const { mnemonic, accountId, network } = currentAccount;
   const { selectUnstakeValidator } = tempStore;
   try {
+    const nearService = new NearService({ config: currentRpc[network] });
     yield call(nearService.setSigner, { mnemonic, accountId });
     const parseAmount = parseNearAmount(amount);
 
@@ -207,8 +219,9 @@ function* swapSaga(action) {
   const { swapFrom, swapTo, amount } = action;
   try {
     const appStore = yield select(getAppStore);
-    const { currentAccount } = appStore;
-    const { mnemonic, accountId } = currentAccount;
+    const { currentAccount, currentRpc } = appStore;
+    const { mnemonic, accountId, network } = currentAccount;
+    const nearService = new NearService({ config: currentRpc[network] });
     yield call(nearService.setSigner, { mnemonic, accountId });
 
     const parseAmount = parseNearAmount(amount);
@@ -285,6 +298,83 @@ function* removePendingRequestSaga(action) {
   }
 }
 
+function* addCustomRpcSaga(action) {
+  try {
+    const { network, name, nodeUrl } = action;
+    yield put(setCustomRpcStatus({ loading: true }));
+    const appStore = yield select(getAppStore);
+    const { rpcs } = appStore;
+
+    const nearService = new NearService({ config: { ...config[network], nodeUrl } });
+    const status = yield call(nearService.getStatus);
+    if (status && status.error) {
+      throw new Error(status.error.message);
+    }
+
+    if (status && status.chain_id !== network) {
+      throw new Error(`RPC server's network (${status.chain_id}) is different with this network (${network})`);
+    }
+
+    const rpc = new Rpc({ network, name, nodeUrl });
+    yield put(setRpcs([...rpcs, rpc]));
+    yield put(initStatus());
+    yield put(goBack());
+  } catch (error) {
+    console.log('addCustomRpcSaga error: ', error);
+    yield put(setCustomRpcStatus({ loading: false, error: error.message }));
+  }
+}
+
+function* updateCustomRpcSaga(action) {
+  try {
+    const { network, name, nodeUrl, index } = action;
+    yield put(setCustomRpcStatus({ loading: true }));
+    const appStore = yield select(getAppStore);
+    const { rpcs } = appStore;
+
+    const nearService = new NearService({ config: { ...config[network], nodeUrl } });
+    const status = yield call(nearService.getStatus);
+    if (status && status.error) {
+      throw new Error(status.error.message);
+    }
+
+    if (status && status.chain_id !== network) {
+      throw new Error(`RPC server's network (${status.chain_id}) is different with this network (${network})`);
+    }
+
+    const newRpcs = _.map(rpcs, (item) => {
+      if (item.index === index) {
+        return new Rpc({ index, network, name, nodeUrl });
+      }
+      return item;
+    })
+
+    yield put(setRpcs(newRpcs));
+    yield put(initStatus());
+    yield put(goBack());
+  } catch (error) {
+    console.log('updateCustomRpcSaga error: ', error);
+    yield put(setCustomRpcStatus({ loading: false, error: error.message }));
+  }
+}
+
+function* removeCustomRpcSaga(action) {
+  try {
+    const { index } = action;
+    yield put(setCustomRpcStatus({ loading: true }));
+    const appStore = yield select(getAppStore);
+    const { rpcs } = appStore;
+
+    const newRpcs = _.filter(rpcs, (item) => item.index !== index);
+    yield put(setRpcs(newRpcs));
+    yield put(initStatus());
+    yield put(goBack());
+  } catch (error) {
+    console.log('removeCustomRpcSaga error: ', error);
+    yield put(setCustomRpcStatus({ loading: false, error: error.message }));
+  }
+}
+
 export default function* appSagas() {
   yield takeLatest(APP_SET_PASSWORD, setPasswordSaga);
   yield takeLatest(APP_IMPORT_ACCOUNT, importAccountSaga);
@@ -296,4 +386,7 @@ export default function* appSagas() {
   yield takeLatest(APP_ADD_PENDING_REQUEST, addPendingRequestSaga);
   yield takeLatest(APP_UPDATE_PENDING_REQUEST, updatePendingRequestSaga);
   yield takeLatest(APP_REMOVE_PENDING_REQUEST, removePendingRequestSaga);
+  yield takeLatest(APP_ADD_CUSTOM_RPC, addCustomRpcSaga);
+  yield takeLatest(APP_UPDATE_CUSTOM_RPC, updateCustomRpcSaga);
+  yield takeLatest(APP_REMOVE_CUSTOM_RPC, removeCustomRpcSaga);
 }
