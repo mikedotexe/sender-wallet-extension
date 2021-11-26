@@ -61,7 +61,7 @@ const NetworkItem = (props) => {
   return (
     <Button key={index} disabled={!canEdit} className="button" onClick={() => history.push(`/settings/editNetwork${index}`)}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Typography sx={{ marginLeft: '15px', fontSize: '16px', color: '#777777' }}>{name}</Typography>
+        <Typography align='left' sx={{ marginLeft: '15px', fontSize: '16px', color: '#777777' }}>{name}</Typography>
       </Box>
 
       {
@@ -110,7 +110,7 @@ const Network = () => {
         </Box>
         {
           _.map(_.filter(rpcs, item => item.network === 'mainnet'), (rpc) => {
-            return <NetworkItem {...rpc} />
+            return <NetworkItem key={rpc.index} {...rpc} />
           })
         }
 
@@ -119,7 +119,7 @@ const Network = () => {
         </Box>
         {
           _.map(_.filter(rpcs, item => item.network === 'testnet'), (rpc) => {
-            return <NetworkItem {...rpc} />
+            return <NetworkItem key={rpc.index} {...rpc} />
           })
         }
       </Box>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 
 import { useSelector, useDispatch } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 
 import Box from '@material-ui/core/Box';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,12 +10,16 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
+import Divider from '@material-ui/core/Divider';
 import styled from 'styled-components';
 import _ from 'lodash';
 
 import menu from '../../assets/img/menu.png';
 import MenuDrawer from '../MenuDrawer';
 import { changeRpc } from '../../reducers/app';
+import networkIcon from '../../assets/img/network.png';
+import maskIcon from '../../assets/img/mask.png';
+import maskSelectIcon from '../../assets/img/mask-select.png';
 
 const StyledHeader = styled(Box)`
   .toolbar {
@@ -45,7 +50,7 @@ const StyledHeader = styled(Box)`
     box-shadow: 0px 0px 1px rgba(219, 219, 219, 0.5);
     border-radius: 12px;
     width: 250px;
-    padding: 5px 40px;
+    padding: 5px;
   }
 `;
 
@@ -64,25 +69,28 @@ const StyledMenu = styled((props) => (
   />
 ))(({ }) => ({
   '& .MuiPaper-root': {
-    backgroundColor: 'black',
-    borderRadius: '12px',
+    marginTop: '12px',
+    background: 'linear-gradient(180deg, #363636 0%, #272727 100%)',
+    border: '1px solid #090909',
     '& .MuiMenuItem-root': {
-      margin: '10px',
+      marginLeft: '10px',
+      marginRight: '10px',
+      padding: 0,
       width: '230px',
-      height: '30px',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'center',
-      borderRadius: '12px',
+      justifyContent: 'space-between',
+      minHeight: '0px',
     },
-    '& .MuiMenuItem-root:hover': {
-      backgroundColor: '#222222',
+    'ul li p:hover': {
+      color: '#FFCE3E',
     }
   },
 }));
 
 const Header = () => {
   const dispatch = useDispatch();
+  const history = useHistory();
 
   const appStore = useSelector((state) => state.app);
 
@@ -97,8 +105,12 @@ const Header = () => {
   }, [network, currentRpc])
 
   const filterRpcs = useMemo(() => {
-    return _.filter(rpcs, item => item.network === network && item.index !== rpc.index);
-  }, [network, rpcs, rpc])
+    return _.filter(rpcs, item => item.network === network);
+  }, [network, rpcs])
+
+  const displayMore = useMemo(() => {
+    return !_.isEmpty(filterRpcs);
+  }, [filterRpcs])
 
   const handleNetworkClose = () => {
     setNetworkAnchorEl(null);
@@ -114,6 +126,10 @@ const Header = () => {
     dispatch(changeRpc({ index, network }));
   }
 
+  const handleAddNetworkClicked = () => {
+    history.push('/settings/addNetwork');
+  }
+
   return (
     <StyledHeader>
       <AppBar position="fixed">
@@ -121,7 +137,8 @@ const Header = () => {
           <Button className="menu-button" onClick={() => setDrawerOpen(true)}>
             <img src={menu} alt="menu"></img>
           </Button>
-          <Button className="network-btn" onClick={handleNetworkClicked}>
+          <Button className="network-btn" onClick={handleNetworkClicked} disabled={!displayMore}>
+            <img style={{ marginRight: '10px', width: '15px', height: '12px' }} src={networkIcon} alt="network"></img>
             <Typography
               variant="h6"
               component="p"
@@ -135,6 +152,9 @@ const Header = () => {
             >
               {rpc.name}
             </Typography>
+            {
+              displayMore && (<img style={{ marginLeft: '10px', width: '10px', height: '6px' }} src={maskIcon} alt="mask"></img>)
+            }
           </Button>
 
           <StyledMenu
@@ -146,16 +166,41 @@ const Header = () => {
               'aria-labelledby': 'demo-customized-button',
             }}
           >
-            {
-              _.map(filterRpcs, rpc => {
-                const { name, index } = rpc;
-                return (
-                  <MenuItem key={index} onClick={() => changeNetwork(index)}>
-                    <Typography align="center" sx={{ color: 'white' }}>{name}</Typography>
-                  </MenuItem>
-                )
-              })
-            }
+            <Box sx={{ maxHeight: '90px', overflow: 'auto' }}>
+              {
+                _.map(filterRpcs, (item) => {
+                  const { name, index } = item;
+                  const canSelect = index !== rpc.index;
+                  const selectStyle = canSelect ? { color: 'white', fontSize: '12px', lineHeight: '16px', fontWeight: 'bold' } : { color: 'white', fontSize: '14px', lineHeight: '20px', fontWeight: 'bold' };
+                  return (
+                    <MenuItem sx={{ marginTop: '5px' }} key={index} onClick={() => changeNetwork(index)}>
+                      <Typography align="center" sx={{
+                        ...selectStyle,
+                        maxWidth: '200px',
+                        textOverflow: 'ellipsis',
+                        overflow: 'hidden',
+                        whiteSpace: 'nowrap',
+                      }}>{name}</Typography>
+                      {
+                        !canSelect && (
+                          <img style={{ width: '16px', height: '12px' }} src={maskSelectIcon} alt="mask-select"></img>
+                        )
+                      }
+                    </MenuItem>
+                  )
+                })
+              }
+            </Box>
+            <Divider sx={{ width: '100%', height: '1px', borderRadius: '2px', marginTop: '10px', boxSizing: 'border-box', border: '1px solid #4A4A4A' }}></Divider>
+            <Button
+              onClick={handleAddNetworkClicked}
+              sx={{
+                width: '100%',
+                marginTop: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'start',
+              }}><Typography sx={{ color: 'white', '&:hover': { color: '#FFCE3E' } }}>+ Add Custom Network</Typography></Button>
           </StyledMenu>
         </Toolbar>
       </AppBar>
