@@ -39,7 +39,7 @@ class Wallet {
 
   /**
    * 
-   * @returns curent network and rpc url
+   * @returns current network and rpc url
    */
   getRpc = () => {
     return new Promise((resolve, reject) => {
