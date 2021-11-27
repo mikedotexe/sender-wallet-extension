@@ -38,8 +38,8 @@ window.addEventListener('message', async function (event) {
       return;
     }
 
-    const { currentAccount } = extensionPersisStore.app;
-    const { accountId, publicKey } = currentAccount;
+    const { currentAccount, currentRpc } = extensionPersisStore.app;
+    const { accountId, publicKey, network } = currentAccount;
 
     if (request.type === 'sender-wallet-fromPage' && request.method === 'init') {
       const key = `${request.contractId}-${accountId}`;
@@ -57,6 +57,10 @@ window.addEventListener('message', async function (event) {
       chrome.storage.local.set({ [key]: '' }, function (result) {
         window.postMessage({ ...request, type: 'sender-wallet-result', res: 'success' });
       })
+    }
+
+    if (request.type === 'sender-wallet-fromPage' && request.method === 'getRpc') {
+      window.postMessage({ ...request, type: 'sender-wallet-result', network, nodeUrl: currentRpc[network].nodeUrl });
     }
 
     if (request.type === 'sender-wallet-fromPage' && request.method === 'signin') {

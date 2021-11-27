@@ -95,6 +95,25 @@ export const fixedTokenAmount = (amount, decimals) => {
 }
 
 /**
+ * 
+ * @param {*} balance 
+ */
+export const balanceDisplayFormat = (balance) => {
+	let amount = balance;
+	if (typeof (amount) !== 'number') {
+		amount = Number(amount);
+	}
+
+	if (amount >= 1000000000) {
+		return (amount / 1000000000).toFixed(2) + ' B';
+	} else if (amount >= 1000000) {
+		return (amount / 1000000).toFixed(2) + ' M';
+	} else {
+		return amount;
+	}
+}
+
+/**
  * Format account object
  * @param {*} param0 
  * @param {*} param0.mnemonic Send account's mnemonic

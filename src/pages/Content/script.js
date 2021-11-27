@@ -38,6 +38,19 @@ class Wallet {
   }
 
   /**
+   * 
+   * @returns curent network and rpc url
+   */
+  getRpc = () => {
+    return new Promise((resolve, reject) => {
+      const notificationId = getNotificationId();
+      resolves[notificationId] = resolve;
+      const data = { type: 'sender-wallet-fromPage', notificationId, method: 'getRpc' };
+      window.postMessage(data);
+    })
+  }
+
+  /**
    * Listen the current account changed
    * @param {*} callback (accountId) => { "TODO if account has changed" }
    */
@@ -95,28 +108,6 @@ class Wallet {
   signInSuccess = ({ accountId, publicKey, accessKey }) => {
     this.accountId = accountId;
     this.authData = { accountId, allKeys: [publicKey], accessKey };
-  }
-
-  /**
-   * Make a view function call
-   * @param {*} contractId contract account id
-   * @param {*} methodName function call methodName
-   * @param {*} params function call params
-   * @returns 
-   */
-  viewFunctionCall = ({ contractId, methodName, params = {} }) => {
-    // eslint-disable-next-line no-undef
-    const connection = nearApi.Connection.fromConfig({
-      // networkId: 'testnet',
-      // provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.testnet.near.org/' } },
-      networkId: 'mainnet',
-      provider: { type: 'JsonRpcProvider', args: { url: 'https://rpc.mainnet.near.org/' } },
-      signer: {},
-    })
-
-    // eslint-disable-next-line no-undef
-    const account = new nearApi.Account(connection, 'dontcare');
-    return account.viewFunction(contractId, methodName, params);
   }
 
   /**

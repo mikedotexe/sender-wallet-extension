@@ -4,7 +4,7 @@ import Avatar from '@material-ui/core/Avatar';
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 import styled from 'styled-components';
-import { fixedNumber } from '../../utils';
+import { balanceDisplayFormat, fixedNumber } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
 import wnearIcon from '../../assets/img/wNEAR.png';
 
@@ -31,7 +31,7 @@ const WrapperToken = styled.div`
 const Token = ({ style, data, index }) => {
   const price = data.price ? fixedNumber(data.price) : 'Price Unavailable';
   let total = data.price ? (Number(data.price) * Number(data.balance)) : ''
-  total = total ? `≈ $${fixedNumber(total)}` : '- USD';
+  total = total ? `≈ $${balanceDisplayFormat(fixedNumber(total))}` : '- USD';
   const icon = data.icon ? data.icon : (data.symbol === 'wNEAR' ? wnearIcon : nearIcon);
 
   return (
@@ -40,11 +40,11 @@ const Token = ({ style, data, index }) => {
       <Box className="info">
         <Box className="line">
           <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.symbol}</Typography>
-          <Typography sx={{ color: '#000000', fontSize: '14px' }}>{data.balance}</Typography>
+          <Typography sx={{ color: '#000000', fontSize: '14px' }}>{balanceDisplayFormat(data.balance)}</Typography>
         </Box>
 
         <Box className="line">
-          <Typography sx={{ color: '#5E5E5E', fontSize: '12px' }}>{price}</Typography>
+          <Typography sx={{ color: '#5E5E5E', fontSize: '12px' }}>{balanceDisplayFormat(price)}</Typography>
           <Typography sx={{ color: '#5E5E5E', fontSize: '12px' }}>{total}</Typography>
         </Box>
       </Box>

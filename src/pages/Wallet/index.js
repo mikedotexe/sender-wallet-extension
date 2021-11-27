@@ -24,7 +24,7 @@ import walletBalanceIcon from '../../assets/img/wallet-balance.png';
 import arrowupIcon from '../../assets/img/arrow-up.png';
 import arrowdownIcon from '../../assets/img/arrow-down.png';
 import { APP_UPDATE_ACCOUNT } from '../../actions/app';
-import { fixedNearAmount, fixedNumber, fixedTokenAmount } from '../../utils';
+import { balanceDisplayFormat, fixedNearAmount, fixedNumber, fixedTokenAmount } from '../../utils';
 
 const WrappedBox = styled(Box)`
   .wallet-balance {
@@ -133,7 +133,7 @@ const Wallet = () => {
       value = value + (token.price ? (Number(token.price) * Number(token.balance)) : 0);
     })
 
-    return fixedNumber(value, 4);
+    return balanceDisplayFormat(fixedNumber(value, 4));
   }, [tokens])
 
   useEffect(() => {
@@ -147,6 +147,7 @@ const Wallet = () => {
   const sendClicked = () => {
     history.push('/send');
   }
+
 
   return (
     <WrappedBox>
@@ -178,7 +179,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(walletBalance)} NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{balanceDisplayFormat(fixedNearAmount(walletBalance))} NEAR</Typography>
 
               {expanded ? <img className="arrow-up" src={arrowdownIcon} alt="arrow-up"></img> : <img className="arrow-up" src={arrowupIcon} alt="arrow-up"></img>}
             </Box>
@@ -191,7 +192,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(currentAccount.balance.available)} NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{balanceDisplayFormat(fixedNearAmount(currentAccount.balance.available))} NEAR</Typography>
             </Box>
           </Box>
 
@@ -201,7 +202,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(totalStaking)} NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{balanceDisplayFormat(fixedNearAmount(totalStaking))} NEAR</Typography>
             </Box>
           </Box>
 
@@ -211,7 +212,7 @@ const Wallet = () => {
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-              <Typography sx={{ fontSize: '14px' }} color="white">{fixedNearAmount(currentAccount.balance.stateStaked)} NEAR</Typography>
+              <Typography sx={{ fontSize: '14px' }} color="white">{balanceDisplayFormat(fixedNearAmount(currentAccount.balance.stateStaked))} NEAR</Typography>
             </Box>
           </Box>
         </AccordionDetails>
