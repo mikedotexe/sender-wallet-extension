@@ -60,7 +60,7 @@ window.addEventListener('message', async function (event) {
     }
 
     if (request.type === 'sender-wallet-fromPage' && request.method === 'getRpc') {
-      window.postMessage({ ...request, type: 'sender-wallet-result', network, nodeUrl: currentRpc[network].nodeUrl });
+      window.postMessage({ ...request, type: 'sender-wallet-result', network, rpc: currentRpc[network] });
     }
 
     if (request.type === 'sender-wallet-fromPage' && request.method === 'signin') {
@@ -94,8 +94,14 @@ chrome.storage.onChanged.addListener(function (changes, namespace) {
     if (key === 'persist:root') {
       const oldPersistStore = { ...extensionPersisStore };
       updatePersistStore().then((res) => {
+        const { network } = res.app.currentAccount;
         if (oldPersistStore.app.currentAccount.accountId !== res.app.currentAccount.accountId) {
           window.postMessage({ type: 'sender-wallet-fromContent', method: 'accountChanged', accountId: res.app.currentAccount.accountId });
+          window.postMessage({ type: 'sender-wallet-fromContent', method: 'rpcChanged', network, rpc: res.app.currentRpc[network] });
+        }
+
+        if (oldPersistStore.app.currentRpc[network].index !== res.app.currentRpc[network].index) {
+          window.postMessage({ type: 'sender-wallet-fromContent', method: 'rpcChanged', network, rpc: res.app.currentRpc[network] });
         }
       });
     }

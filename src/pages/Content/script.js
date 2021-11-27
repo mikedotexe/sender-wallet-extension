@@ -68,6 +68,22 @@ class Wallet {
     })
   }
 
+  /**
+   * Listen the current rpc changed
+   * @param {*} callback (rpc) => { "TODO if rpc has changed" }
+   */
+  onRpcChanged = (callback) => {
+    window.addEventListener('message', function (event) {
+      try {
+        const { data } = event;
+        if (data.type === 'sender-wallet-fromContent' && data.method === 'rpcChanged') {
+          callback(data);
+        }
+      } catch (error) {
+      }
+    })
+  }
+
   signOut = () => {
     return new Promise((resolve, reject) => {
       const notificationId = getNotificationId();
