@@ -111,7 +111,6 @@ const Signin = () => {
         <Avatar></Avatar>
       </Box>
 
-
       <Box sx={{ backgroundColor: '#FAD1650D', margin: '25px', padding: '10px', borderRadius: '12px' }}>
         <Typography sx={{ fontSize: '14px', color: '#FAD165', lineHeight: '20px' }}>Please connect your trusted applications, once connected, localhost will have restricted access.</Typography>
       </Box>

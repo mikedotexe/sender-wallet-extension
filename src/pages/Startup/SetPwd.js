@@ -42,8 +42,14 @@ const SetPwd = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 
-  const valid = useMemo(() => {
-    return password && password === confirmPassword;
+  const errorMessage = useMemo(() => {
+    if (!(password && password === confirmPassword)) {
+      return 'Confirm password is not same with password.';
+    }
+
+    if (password.length < 6) {
+      return 'Password length must than 6 digits.';
+    }
   }, [password, confirmPassword])
 
   const passwordChanged = (e) => {
@@ -78,13 +84,13 @@ const SetPwd = () => {
         </BaseBox>
 
         {
-          !valid && password && confirmPassword && (<Typography sx={{ fontSize: '12px', color: 'red', marginTop: '8px' }}>Two passowd is not same</Typography>)
+          (!!errorMessage) && password && confirmPassword && (<Typography sx={{ fontSize: '12px', color: 'red', marginTop: '8px' }}>{errorMessage}</Typography>)
         }
 
       </Box>
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '74px' }}>
-        <Button disabled={!valid} onClick={confirmClicked} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
+        <Button disabled={!!errorMessage} onClick={confirmClicked} sx={{ backgroundColor: '#333333', width: '315px', height: '48px', borderRadius: '12px', marginTop: '15px' }}>
           <Typography sx={{ color: 'white', fontSize: '16px', lineHeight: '18px' }}>Confirm</Typography>
         </Button>
       </Box>

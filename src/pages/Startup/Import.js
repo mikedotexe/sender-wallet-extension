@@ -115,7 +115,7 @@ const Startup = () => {
       <Box sx={{ marginLeft: '30px', marginRight: '30px', position: 'relative' }}>
         <Typography sx={{ fontSize: '14px', color: 'white', marginTop: '15px' }} align='left'>Passphrase ( 12 words )</Typography>
 
-        <textarea onChange={mnemonicChanged}></textarea>
+        <textarea style={{ border: '1px solid #383838' }} onChange={mnemonicChanged}></textarea>
 
         {/* <Button sx={{ position: 'absolute', bottom: '15px', right: '15px', width: '15px', height: '15px', minWidth: '15px' }} onClick={pasteClicked}><img src={pasteIcon} alt='paste'></img></Button> */}
       </Box>
