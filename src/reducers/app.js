@@ -5,7 +5,6 @@ import { DEFAULT_MAINNET_RPC, DEFAULT_TESTNET_RPC } from '../config/rpc';
 export const appSlice = createSlice({
   name: 'app',
   initialState: {
-    version: '0.0.1',
     accounts: [],
     currentAccount: {},
     viewFunctionAccount: {},
