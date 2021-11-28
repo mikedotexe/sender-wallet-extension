@@ -12,7 +12,7 @@ import BaseHeaderPage from '../../components/BaseHeaderPage';
 import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import backIcon from '../../assets/img/back.png';
-import { fixedNearAmount, fixedNumber } from '../../utils';
+import { balanceDisplayFormat, fixedNearAmount, fixedNumber } from '../../utils';
 import UnstakingConfirmDrawer from '../../components/BottomDrawer/UnstakingConfirmDrawer';
 import UnstakingResultDrawer from '../../components/BottomDrawer/UnstakingResultDrawer';
 import { setUnstakingConfirmDrawer } from '../../reducers/temp';
@@ -82,7 +82,7 @@ const Unstake = () => {
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
           <Typography sx={{ fontSize: '12px', color: '#777777' }}>Available balance</Typography>
-          <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{available} NEAR</Typography>
+          <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{balanceDisplayFormat(available)} NEAR</Typography>
         </Box>
 
         <Box sx={{ marginTop: '25px' }}>
@@ -91,12 +91,12 @@ const Unstake = () => {
           <Box sx={{ backgroundColor: '#343434', borderRadius: '12px', paddingTop: '31px', paddingBottom: '31px', paddingLeft: '15px', paddingRight: '15px', marginTop: '8px' }}>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Typography sx={{ fontSize: '12px', color: '#777777' }}>Available balance</Typography>
-              <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{available} NEAR</Typography>
+              <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{balanceDisplayFormat(available)} NEAR</Typography>
             </Box>
 
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
               <Typography sx={{ fontSize: '12px', color: '#777777' }}>{selectUnstakeValidator.fee.percentage}%Fee - {selectUnstakeValidator.active ? 'active' : 'inactive'}</Typography>
-              <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>≈${price} USD</Typography>
+              <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>≈${balanceDisplayFormat(price)} USD</Typography>
             </Box>
           </Box>
         </Box>

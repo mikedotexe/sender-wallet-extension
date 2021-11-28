@@ -15,7 +15,7 @@ import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import arrowIcon from '../../assets/img/arrow_down.png';
 import swapIcon from '../../assets/img/swap.png';
-import { fixedNearAmount } from '../../utils';
+import { balanceDisplayFormat, fixedNearAmount } from '../../utils';
 import SwapResultDrawer from '../../components/BottomDrawer/SwapResultDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
 import SwapConfirmDrawer from '../../components/BottomDrawer/SwapConfirmDrawer';
@@ -52,7 +52,7 @@ const WrapperBasePage = styled(BaseHeaderPage)`
     border-bottom-right-radius: 12px;
     width: 105px;
     border: 1px solid #090909;
-    height: 48px;
+    height: 46px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -172,7 +172,7 @@ const Swap = () => {
     <WrapperBasePage>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography sx={{ color: 'white' }}>From</Typography>
-        <Typography sx={{ color: '#777777' }}>Balance: {swapFromBalance || 0}</Typography>
+        <Typography sx={{ color: '#777777' }}>Balance: {balanceDisplayFormat(swapFromBalance) || 0}</Typography>
       </Box>
       <BaseBox className="swap-input">
         <Input onChange={swapAmountChanged} value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px', width: '200px' }}></Input>
@@ -207,7 +207,9 @@ const Swap = () => {
           }
         </StyledMenu>
 
-        <Button sx={{ minHeight: 0, padding: 0, position: 'absolute', right: 0, bottom: '-25px' }}><Typography sx={{ fontSize: '12px', color: '#FFCE3E' }}>Use Max</Typography></Button>
+        <Button onClick={() => {
+          setSwapAmount(balanceDisplayFormat(swapFromBalance));
+        }} sx={{ minHeight: 0, padding: 0, position: 'absolute', right: 0, bottom: '-25px' }}><Typography sx={{ fontSize: '12px', color: '#FFCE3E' }}>Use Max</Typography></Button>
       </BaseBox>
 
       <Box className="swap-logo">
@@ -216,7 +218,7 @@ const Swap = () => {
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', marginTop: '30px' }}>
         <Typography sx={{ color: 'white' }}>To</Typography>
-        <Typography sx={{ color: '#777777' }}>Balance: {swapToBalance || 0}</Typography>
+        <Typography sx={{ color: '#777777' }}>Balance: {balanceDisplayFormat(swapToBalance) || 0}</Typography>
       </Box>
       <BaseBox className="swap-input">
         <Input disabled value={swapAmount} type="number" style={{ paddingLeft: '15px', paddingRight: '15px', width: '200px' }}></Input>

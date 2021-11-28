@@ -16,7 +16,7 @@ import Input from '../../components/Input';
 import TransferResultDrawer from '../../components/BottomDrawer/TransferResultDrawer';
 import backIcon from '../../assets/img/back.png';
 import arrowIcon from '../../assets/img/arrow.png';
-import { fixedNearAmount, fixedTokenAmount, fixedNumber } from '../../utils';
+import { fixedNearAmount, fixedTokenAmount, fixedNumber, balanceDisplayFormat } from '../../utils';
 import nearIcon from '../../assets/img/NEAR.png';
 import wnearIcon from '../../assets/img/wNEAR.png';
 import { setTransferConfirmDrawer, setTwoFaDrawer } from '../../reducers/temp';
@@ -111,7 +111,7 @@ const Send = () => {
   }
 
   const useMaxClicked = () => {
-    setSendAmount(selectToken.balance);
+    setSendAmount(balanceDisplayFormat(selectToken.balance));
   }
 
   const icon = useMemo(() => {
@@ -130,9 +130,9 @@ const Send = () => {
 
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
         <Input type="number" className='amount-input' placeholder='0' value={sendAmount} onChange={sendAmountChanged}></Input>
-        <Typography sx={{ fontSize: '16px', color: '#777777' }}>${sendAmountPrice}</Typography>
+        <Typography sx={{ fontSize: '16px', color: '#777777' }}>${balanceDisplayFormat(sendAmountPrice)}</Typography>
         <Typography sx={{ fontSize: '16px', color: '#777777' }}>Available to Send</Typography>
-        <Typography sx={{ fontSize: '16px', color: '#777777' }}>{selectToken.balance} {selectToken.symbol} ≈ ${selectToken.price} USD</Typography>
+        <Typography sx={{ fontSize: '16px', color: '#777777' }}>{balanceDisplayFormat(selectToken.balance)} {selectToken.symbol} ≈ ${balanceDisplayFormat(selectToken.price)} USD</Typography>
 
         <Button onClick={useMaxClicked} className="max-button"><Typography sx={{ fontSize: '12px', color: '#FAD165' }}>Use Max</Typography></Button>
       </Box>

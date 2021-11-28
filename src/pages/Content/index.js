@@ -116,4 +116,3 @@ function injectScript(file, node) {
   th.appendChild(s);
 }
 injectScript(chrome.runtime.getURL('script.bundle.js'), 'body');
-injectScript(chrome.runtime.getURL('nearApiJs.bundle.js'), 'body');

@@ -16,7 +16,7 @@ import List from '../../components/List';
 import backIcon from '../../assets/img/back.png';
 import searchIcon from '../../assets/img/search.png';
 import { setSelectUnstakeValidator, setSelectValidator } from '../../reducers/temp';
-import { fixedNearAmount } from '../../utils';
+import { balanceDisplayFormat, fixedNearAmount } from '../../utils';
 
 const WrapperBasePage = styled(BaseHeaderPage)`
   .search-input {
@@ -60,7 +60,7 @@ const UnstakeValidatorItem = ({ data: validator }) => {
     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', paddingLeft: '25px', paddingRight: '25px', height: '75px', boxSizing: 'border-box' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <Typography sx={{ width: '230px', fontSize: '14px', color: 'white', lineHeight: '24px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{validator.accountId}</Typography>
-        <Typography sx={{ fontSize: '14px', color: '#FAD165', fontWeight: 'bold' }}>{fixedNearAmount(validator.staked)} NEAR</Typography>
+        <Typography sx={{ fontSize: '14px', color: '#FAD165', fontWeight: 'bold' }}>{balanceDisplayFormat(fixedNearAmount(validator.staked))} NEAR</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography sx={{ fontSize: '14px', color: '#777777', fontWeight: 'bold' }}>{validator.fee.percentage}%Fee</Typography>
           <Typography sx={{ fontSize: '14px', color: '#777777', marginLeft: '4px', marginRight: '5px' }}>-</Typography>

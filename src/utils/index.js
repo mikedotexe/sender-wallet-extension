@@ -105,11 +105,11 @@ export const balanceDisplayFormat = (balance) => {
 	}
 
 	if (amount >= 1000000000) {
-		return (amount / 1000000000).toFixed(2) + ' B';
+		return (amount / 1000000000).toFixed(4) + ' B';
 	} else if (amount >= 1000000) {
-		return (amount / 1000000).toFixed(2) + ' M';
+		return (amount / 1000000).toFixed(4) + ' M';
 	} else {
-		return amount;
+		return amount.toFixed(4);
 	}
 }
 

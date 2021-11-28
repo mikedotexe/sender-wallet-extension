@@ -15,7 +15,7 @@ import BaseBox from '../../components/BaseBox';
 import Input from '../../components/Input';
 import List from '../../components/List';
 import ButtonGroup from '../../components/ButtonGroup';
-import { fixedNearAmount, fixedNumber } from '../../utils';
+import { balanceDisplayFormat, fixedNearAmount, fixedNumber } from '../../utils';
 import { APP_ACCOUNT_STAKING } from '../../actions/app';
 import StakingResultDrawer from '../../components/BottomDrawer/StakingResultDrawer';
 import TwoFaDrawer from '../../components/BottomDrawer/TwoFaDrawer';
@@ -58,7 +58,7 @@ const Validator = ({ data: validator }) => {
     <Box className="validator" key={validator.accountId}>
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography sx={{ width: '200px', fontSize: '14px', color: '#25272A', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{validator.accountId}</Typography>
-        <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{fixedNearAmount(validator.staked, 4)} NEAR</Typography>
+        <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{balanceDisplayFormat(fixedNearAmount(validator.staked))} NEAR</Typography>
       </Box>
       <Box sx={{ display: 'flex', alginItems: 'center', justifyContent: 'start' }}>
         <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{validator.fee.percentage}%</Typography>
@@ -153,7 +153,7 @@ const Staking = () => {
 
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
           <Typography sx={{ fontSize: '12px', color: '#777777' }}>Available balance</Typography>
-          <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{fixedNearAmount(appStore.currentAccount.balance.available)} NEAR</Typography>
+          <Typography sx={{ fontSize: '12px', color: '#FAD165' }}>{balanceDisplayFormat(fixedNearAmount(appStore.currentAccount.balance.available))} NEAR</Typography>
         </Box>
 
         <Typography sx={{ fontSize: '16px', color: 'white', marginTop: '15px' }}>Stake with</Typography>
@@ -185,8 +185,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Staked</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalStaked} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalStakedPrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{balanceDisplayFormat(totalStaked)} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${balanceDisplayFormat(totalStakedPrice)} USD</Typography>
                   </Box>
                 </Box>
 
@@ -199,8 +199,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Rewards earned</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalRewards} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalRewardsPrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{balanceDisplayFormat(totalRewards)} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${balanceDisplayFormat(totalRewardsPrice)} USD</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -211,8 +211,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Pending release</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalAvailable} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalAvailablePrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{balanceDisplayFormat(totalAvailable)} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${balanceDisplayFormat(totalAvailablePrice)} USD</Typography>
                   </Box>
                 </Box>
               </Box>
@@ -223,8 +223,8 @@ const Staking = () => {
                 <Box>
                   <Typography sx={{ fontSize: '14px', color: '#25272A' }}>Available for withdrawal</Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'start', flexDirection: 'row' }}>
-                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{totalPending} NEAR</Typography>
-                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${totalPendingPrice} USD</Typography>
+                    <Typography sx={{ fontSize: '14px', color: '#202046', fontWeight: 'bold' }}>{balanceDisplayFormat(totalPending)} NEAR</Typography>
+                    <Typography sx={{ fontSize: '12px', color: '#5E5E5E', marginLeft: '8px' }}>≈ ${balanceDisplayFormat(totalPendingPrice)} USD</Typography>
                   </Box>
                 </Box>
 
