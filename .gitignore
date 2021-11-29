@@ -19,3 +19,6 @@
 
 # secrets
 secrets.*.js
+
+# api key file
+/src/config/apiKey.js

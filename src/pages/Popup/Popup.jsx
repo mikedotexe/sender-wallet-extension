@@ -1,26 +1,30 @@
 import React from 'react';
-import logo from '../../assets/img/logo.svg';
-import Greetings from '../../containers/Greetings/Greetings';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import { ConnectedRouter } from 'connected-react-router';
+import { ThemeProvider } from '@material-ui/core/styles';
+import ReactGA from 'react-ga';
+
 import './Popup.css';
+import theme from '../../theme';
+
+import Router from '../../Router';
+import { store, persistor, history } from '../../Store';
+
+ReactGA.initialize('G-VF50EXY360');
 
 const Popup = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/pages/Popup/Popup.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React!
-        </a>
-      </header>
-    </div>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ThemeProvider theme={theme}>
+            <Router>
+            </Router>
+          </ThemeProvider>
+        </PersistGate>
+      </ConnectedRouter>
+    </Provider>
   );
 };
 
