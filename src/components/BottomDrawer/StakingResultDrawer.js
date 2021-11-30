@@ -88,7 +88,7 @@ const StakingResultDrawer = () => {
           }}
           onClick={handleClose}
         >
-          <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!error ? 'Rerturn' : 'Try Again'}</Typography>
+          <Typography sx={{ fontSize: '16px', color: '#202046' }}>{!error ? 'Return' : 'Try Again'}</Typography>
         </Button>
       </Box>
     </BottomDrawer>
