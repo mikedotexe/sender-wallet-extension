@@ -122,7 +122,7 @@ const MenuDrawer = ({ open, onClose }) => {
         </Button>
 
         <Button className="button" sx={{ marginTop: '7px' }} onClick={() => window.open('https://wallet.near.org/create')}>
-          <Typography sx={{ color: '#878787', fontSize: '14px' }}>Create New Accont</Typography>
+          <Typography sx={{ color: '#878787', fontSize: '14px' }}>Create New Account</Typography>
         </Button>
 
         <Button onClick={lockupClicked} sx={{ marginTop: '10px', width: '248px', height: '25px' }} startIcon={<img src={lockIcon} alt="lock"></img>}>
